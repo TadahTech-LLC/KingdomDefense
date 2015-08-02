@@ -1,0 +1,49 @@
+#-----------------------------------------
+#Redis Information: Host and password
+host: localhost
+password: password
+#-----------------------------------------
+
+#The name of the world
+world: world
+
+#Set this value to true for editing the map.
+edit-mode: true
+#PLAYERS CANNOT JOIN IF THIS MODE IS SET
+
+#SQL Information
+sql:
+  host: localhost
+  user: root
+  password: passowrd
+  db: KD
+  port: 3306
+
+#Costs for Structures: Level 1- Level 2- Level 3- Level 4
+costs:
+  GUARDIAN: 100-200-300-400
+  ARCHER: 100-200-300-400
+  BLAZE: 100-200-300-400
+  TESLA: 100-200-300-400
+
+#The name of this server (doubles as the arena name).
+#This is NOT the map name.
+server-name: Hub
+#The friendly name of this server.
+ui-name: Tranquil
+#The Name of the Hub server for Requests
+#This is not necessarily the 'hub' of your server, rather the server where players join games from.
+hub-server-name: Hub
+#Which Proxy service do you use? Lily or Bungee?
+server-teleporter: BungeeCord
+#Service Strings Accepted:
+#BungeeCord:
+#- BungeeCord
+#- Bungee
+#- Bc
+#- BungeeCoord
+#LilyPad:
+#- LilyPad
+#- Lily
+#- Lp
+#- LillyPad
