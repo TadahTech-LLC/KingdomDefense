@@ -29,7 +29,15 @@ public class TeamMenu extends Menu {
             if(itemStack.getAmount() == 0) {
                 itemStack.setAmount(1);
             }
-            buttons[slot] = new Button(itemStack, team::add);
+            buttons[slot] = new Button(itemStack, player -> {
+                if(team.getSize() >= 5) {
+                    player.sendMessage(ChatColor.RED + "This team has too many players already! Pick another!");
+                    return;
+                }
+                player.sendMessage(ChatColor.GREEN + "You are on the " + team.getType().fancy() + " team.");
+                team.add(player);
+                player.closeInventory();
+            });
             slot += 2;
         }
         return buttons;

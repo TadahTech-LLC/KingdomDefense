@@ -26,11 +26,16 @@ public class SignIO {
             e.printStackTrace();
         }
         this.config = YamlConfiguration.loadConfiguration(dir);
+        LobbySign.load(config);
+    }
+
+    public void load() {
+
     }
 
     public void save() {
         for(LobbySign sign : LobbySign.getAll()) {
-            config.set(sign.getArena(), sign.save());
+            config.set("signs." + sign.getArena(), sign.save());
             try {
                 config.save(dir);
             } catch (IOException e) {

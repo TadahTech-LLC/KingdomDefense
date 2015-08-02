@@ -5,6 +5,7 @@ import com.tadahtech.fadecloud.kd.commands.sub.CreateCommand;
 import com.tadahtech.fadecloud.kd.commands.sub.TestCommand;
 import com.tadahtech.fadecloud.kd.csc.JedisManager;
 import com.tadahtech.fadecloud.kd.csc.ServerTeleporter;
+import com.tadahtech.fadecloud.kd.csc.packets.ServerInitPacket;
 import com.tadahtech.fadecloud.kd.csc.serverComm.BungeeServerTeleporter;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.InfoManager;
@@ -51,6 +52,7 @@ public class KingdomDefense extends JavaPlugin {
         instance = this;
         this.serverNames = new HashMap<>();
         saveDefaultConfig();
+        new ServerInitPacket().write();
         //Register Game / Hub Listeners
         if(!this.getHubServerName().equalsIgnoreCase(this.getServerName())) {
             getServer().getPluginManager().registerEvents(new GameListener(), this);
@@ -110,7 +112,6 @@ public class KingdomDefense extends JavaPlugin {
     public String getHubServerName() {
         return getConfig().getString("hub-server-name");
     }
-
 
     public Game getGame() {
         return game;

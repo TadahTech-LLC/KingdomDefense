@@ -29,9 +29,7 @@ public class LobbySign {
 
     private String arena;
     private List<Sign> signs;
-    private static final String FIRST = ChatColor.DARK_RED.toString() + ChatColor.STRIKETHROUGH + "=<" +
-            ChatColor.GREEN + "KD" +
-            ChatColor.DARK_RED + ChatColor.STRIKETHROUGH + ">=";
+    private static final String FIRST = ChatColor.translateAlternateColorCodes('&', "&a[Join]");
 
     public LobbySign(String arena) {
         this.arena = arena;

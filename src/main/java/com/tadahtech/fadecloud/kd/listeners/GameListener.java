@@ -4,6 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.items.HubItem;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
  */
 public class GameListener implements Listener {
 
+    private HubItem hubItem = new HubItem();
+
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
         Game game = KingdomDefense.getInstance().getGame();
@@ -48,6 +51,7 @@ public class GameListener implements Listener {
         String top = ChatColor.AQUA.toString() + ChatColor.BOLD + "Kingdom Defense";
         String bottom = ChatColor.GOLD.toString() + ChatColor.BOLD + "fadecloudmc.com";
         PacketUtil.sendTabToPlayer(player, top, bottom);
+        hubItem.give(player, 8);
     }
 
     @EventHandler
@@ -78,14 +82,12 @@ public class GameListener implements Listener {
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-
+        hubItem.give(player, 8);
     }
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-
         Player player = event.getEntity();
-
         Packet packet = new PacketPlayInClientCommand(EnumClientCommand.PERFORM_RESPAWN);
         EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
         new BukkitRunnable() {

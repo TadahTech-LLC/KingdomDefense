@@ -93,8 +93,8 @@ public abstract class ModSpecialItem {
         return map.get(itemStack);
     }
 
-    public void give(Player player) {
-        player.getInventory().addItem(getItem());
+    public void give(Player player, int i) {
+        player.getInventory().setItem(i, itemStack);
         player.updateInventory();
     }
 }

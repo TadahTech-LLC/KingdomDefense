@@ -59,7 +59,7 @@ public class SignListener implements Listener {
         String[] lines_ = sign.getLines();
         List<String> lines = new ArrayList<>(Arrays.asList(lines_).stream().map(ChatColor::stripColor).collect(Collectors.toList()));
         String first = lines.get(0);
-        if (!first.equalsIgnoreCase("=<KD>=")) {
+        if (!first.equalsIgnoreCase("[Join]")) {
             return;
         }
         String uiname = lines.get(1);

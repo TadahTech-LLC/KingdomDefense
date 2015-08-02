@@ -41,6 +41,10 @@ public class GameInfoResponsePacket extends ResponsePacket {
     @Override
     public void handle(String message) {
         if(message.equalsIgnoreCase("noGame")) {
+            this.arena = "ERROR";
+            this.state = GameState.PINGING;
+            this.players = -1;
+            this.max = -1;
             return;
         }
         String[] str = message.split(":");

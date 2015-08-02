@@ -33,7 +33,7 @@ public class Loadout {
             player.updateInventory();
         }
         for (ModSpecialItem item : specialItems) {
-            item.give(player);
+            item.give(player, 8);
         }
         player.getInventory().setBoots(armor[0]);
         player.getInventory().setLeggings(armor[1]);

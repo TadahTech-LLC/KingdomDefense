@@ -129,7 +129,11 @@ public class Game {
             Location location = map.getLocation(type).get();
             Player player = info.getBukkitPlayer();
             player.teleport(location);
-            CSKit.from("Default").give(player);
+            try {
+                CSKit.from("Default").give(player);
+            } catch (Exception e) {
+                System.out.println("No default kit specified. Skipping this step...");
+            }
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
             PacketUtil.sendTitleToPlayer(player, ChatColor.AQUA + "BEGIN", "");
         });
