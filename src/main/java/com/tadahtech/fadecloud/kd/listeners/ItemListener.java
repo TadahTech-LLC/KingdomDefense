@@ -2,6 +2,7 @@ package com.tadahtech.fadecloud.kd.listeners;
 
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,6 +22,10 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
         ItemStack itemStack = player.getItemInHand();
         if(itemStack == null || itemStack.getType() == Material.AIR) {
             return;
@@ -34,6 +39,10 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
+        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
         ItemStack itemStack = event.getItemDrop().getItemStack();
         if(itemStack == null || itemStack.getType() == Material.AIR) {
             return;

@@ -2,6 +2,7 @@ package com.tadahtech.fadecloud.kd;
 
 import com.tadahtech.fadecloud.kd.commands.CommandHandler;
 import com.tadahtech.fadecloud.kd.commands.sub.CreateCommand;
+import com.tadahtech.fadecloud.kd.commands.sub.StatsCommand;
 import com.tadahtech.fadecloud.kd.commands.sub.TestCommand;
 import com.tadahtech.fadecloud.kd.csc.JedisManager;
 import com.tadahtech.fadecloud.kd.csc.ServerTeleporter;
@@ -85,6 +86,7 @@ public class KingdomDefense extends JavaPlugin {
         CommandHandler commandHandler = new CommandHandler();
         commandHandler.register(new TestCommand());
         commandHandler.register(new CreateCommand());
+        commandHandler.register(new StatsCommand());
     }
 
     @Override

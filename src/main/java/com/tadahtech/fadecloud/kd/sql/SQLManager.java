@@ -144,7 +144,10 @@ public class SQLManager {
                         List<String> split = Utils.split(kitRaw, ",");
                         List<CSKit> kits = split.stream().map(CSKit::from).collect(Collectors.toList());
                         List<CSAchievement> achievements = Lists.newArrayList();
-                        
+
+                        info.setKills(kills);
+                        info.setDeaths(deaths);
+
                         info.setAchievements(achievements);
                         info.setCoins(coins);
                         info.setKits(kits);
@@ -152,7 +155,7 @@ public class SQLManager {
 
                         Map<TeamType, Integer> teamWins = Maps.newHashMap();
                         Map<TeamType, Integer> teamLevels = Maps.newHashMap();
-                        
+
                         teamLevels.putIfAbsent(TeamType.CREEPER, creeper_level);
                         teamWins.putIfAbsent(TeamType.CREEPER, creeper_wins);
 
@@ -187,7 +190,35 @@ public class SQLManager {
           "`enderman_wins` = ?, `enderman_level` = ?" +
           "`kits` = ?, `coins` = ?, `achievements` = ?"
           ;
-        SQLStatement statement = new SQLStatement(base);
 
+        SQLStatement statement = new SQLStatement(base);
+        statement.set(1, info.getUuid().toString());
+        statement.set(2, info.getKills());
+        statement.set(3, info.getDeaths());
+        statement.set(4, info.getWins(TeamType.CREEPER));
+        statement.set(5, info.getWins(TeamType.ZOMBIE));
+        statement.set(6, info.getWins(TeamType.SKELETON));
+        statement.set(7, info.getWins(TeamType.ENDERMAN));
+        statement.set(8, info.getLevel(TeamType.CREEPER));
+        statement.set(9, info.getLevel(TeamType.ZOMBIE));
+        statement.set(10, info.getLevel(TeamType.SKELETON));
+        statement.set(11, info.getLevel(TeamType.ENDERMAN));
+        statement.set(12, info.getKits().stream().map(CSKit::getName).collect(Collectors.toList()));
+        statement.set(13, info.getCoins());
+        statement.set(14, "tbd");
+        statement.set(15, info.getKills());
+        statement.set(16, info.getDeaths());
+        statement.set(17, info.getWins(TeamType.CREEPER));
+        statement.set(18, info.getLevel(TeamType.CREEPER));
+        statement.set(19, info.getWins(TeamType.ZOMBIE));
+        statement.set(20, info.getLevel(TeamType.ZOMBIE));
+        statement.set(21, info.getWins(TeamType.SKELETON));
+        statement.set(22, info.getLevel(TeamType.SKELETON));
+        statement.set(23, info.getWins(TeamType.ENDERMAN));
+        statement.set(24, info.getLevel(TeamType.ENDERMAN));
+        statement.set(25, info.getKits().stream().map(CSKit::getName).collect(Collectors.toList()));
+        statement.set(26, info.getCoins());
+        statement.set(27, "tbd");
+        queryThread.addQuery(statement);
     }
 }

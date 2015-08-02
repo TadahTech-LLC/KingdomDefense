@@ -7,6 +7,7 @@ import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.map.structures.WorldEditAssit;
 import com.tadahtech.fadecloud.kd.menu.menus.UpgradeStructureMenu;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -29,6 +30,10 @@ public class BlockListener implements Listener {
     public void onBreak(BlockBreakEvent event) {
         Location location = event.getBlock().getLocation();
         Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if (info == null) {
             return;
@@ -55,6 +60,10 @@ public class BlockListener implements Listener {
         ItemStack inhand = event.getItemInHand();
         Location location = event.getBlock().getLocation();
         Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         Island island = info.getCurrentTeam().getIsland();
         if (!island.getRegion().canBuild(location)) {
@@ -90,6 +99,10 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
         if (!player.isSneaking()) {
             return;
         }

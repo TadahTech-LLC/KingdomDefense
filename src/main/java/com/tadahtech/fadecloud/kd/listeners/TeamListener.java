@@ -9,6 +9,7 @@ import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.teams.enderman.EndermanTeam;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -32,6 +33,11 @@ public class TeamListener implements Listener {
             return;
         }
         Player player = (Player) entity;
+
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if(!(damagerEntity instanceof Player)) {
            info.getCurrentTeam().onOtherDamage(event, info);

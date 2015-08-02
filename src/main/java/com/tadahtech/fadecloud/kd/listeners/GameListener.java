@@ -13,6 +13,7 @@ import net.minecraft.server.v1_8_R3.Packet;
 import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand;
 import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand.EnumClientCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class GameListener implements Listener {
 
-    private HubItem hubItem = new HubItem();
+    public static HubItem hubItem = new HubItem();
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
@@ -65,6 +66,13 @@ public class GameListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            Set<Player> players = event.getRecipients();
+            players.stream().filter(player1 -> player1.getGameMode() == GameMode.SPECTATOR).collect(Collectors.toList());
+            event.setCancelled(true);
+            players.forEach(player1 -> player1.sendMessage("SPECTATOR " + player.getName() + " > " + event.getMessage()));
+            return;
+        }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         String format = info.getCurrentTeam().getType().fancy() + ChatColor.GRAY + " ["+ player.getDisplayName() + ChatColor.GRAY + "] » " + ChatColor.GRAY + event.getMessage();
         if(info.isTeamChat()) {
@@ -72,7 +80,9 @@ public class GameListener implements Listener {
             players.stream().filter(player1 ->
               KingdomDefense.getInstance().getInfoManager().get(player1).getCurrentTeam().equals(info.getCurrentTeam()))
               .collect(Collectors.toList());
+            event.setCancelled(true);
             event.setFormat(ChatColor.BLUE + "TEAM " + ChatColor.RESET + format);
+            players.stream().forEach(player1 -> player.sendMessage(event.getFormat()));
             return;
         }
         event.setFormat(format);
@@ -82,6 +92,7 @@ public class GameListener implements Listener {
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+        info.getCurrentTeam().onRespawn(player);
         hubItem.give(player, 8);
     }
 

@@ -62,6 +62,10 @@ public class EntityListener implements Listener {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
         event.setCancelled(true);
         if(entity.hasMetadata("king")) {
+            if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+                event.setCancelled(true);
+                return;
+            }
             new PurchaseStructureMenu(info).open(info.getBukkitPlayer());
         }
     }
@@ -99,6 +103,7 @@ public class EntityListener implements Listener {
             player.sendMessage(ChatColor.RED + "You are now out of the game.");
             player.sendMessage(ChatColor.RED + "Feel free to join another, or stay and spectate.");
             player.setGameMode(GameMode.SPECTATOR);
+            GameListener.hubItem.give(player, 8);
         });
     }
 
