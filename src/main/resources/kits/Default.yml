@@ -1,0 +1,9 @@
+description:
+- The default kit
+items:
+  'Default Pickaxe':
+    material: WOOD_PICKAXE
+  'Default Sword':
+    material: WOOD_SWORD
+  'Default Axe':
+    material: WOOD_AXE

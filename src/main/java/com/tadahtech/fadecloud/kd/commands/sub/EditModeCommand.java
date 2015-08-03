@@ -1,42 +1,45 @@
 package com.tadahtech.fadecloud.kd.commands.sub;
 
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.commands.SubCommand;
-import com.tadahtech.fadecloud.kd.creation.GameMapCreator;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
- * Created by Timothy Andis (TadahTech) on 7/30/2015.
+ * Created by Timothy Andis
  */
-public class CreateCommand implements SubCommand {
-
+public class EditModeCommand implements SubCommand {
     @Override
     public String getName() {
-        return "create";
+        return "tem";
     }
 
     @Override
     public String getPermission() {
-        return "kd.create";
+        return "kd.editmode";
     }
 
     @Override
     public boolean isPlayerOnly() {
-        return true;
+        return false;
     }
 
     @Override
     public String getDescription() {
-        return "Create an arena";
+        return null;
     }
 
     @Override
     public String[] getAliases() {
-        return new String[0];
+        return new String[] {
+          "editMode",
+          "toggleEditMode"
+        };
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        new GameMapCreator((Player) sender);
+        KingdomDefense.EDIT_MODE = !KingdomDefense.EDIT_MODE;
+        sender.sendMessage(ChatColor.GREEN + "Toggled Edit mode.");
     }
 }

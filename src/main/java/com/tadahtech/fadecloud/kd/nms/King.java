@@ -1,8 +1,11 @@
 package com.tadahtech.fadecloud.kd.nms;
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
+import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_8_R3.Entity;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.GenericAttributes;
@@ -16,9 +19,13 @@ import java.util.Optional;
  */
 public class King {
 
+    private String GREEN = ChatColor.GREEN + "❤";
+    private String RED = ChatColor.RED + "❤";
+
     private EntityLiving entity;
     private double health;
     private CSTeam team;
+    private Hologram hologram;
 
     public King(CSTeam team, GameMap map) {
         this.team = team;
@@ -44,8 +51,24 @@ public class King {
             return;
         }
         this.health = 1000;
+        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), location.get().add(0, 1.2, 0));
+        this.hologram.appendTextLine(getPrettyHealth());
         this.entity.getBukkitEntity().setMetadata("king", new FixedMetadataValue(KingdomDefense.getInstance(), team.getType()));
         this.entity.getAttributeInstance(GenericAttributes.maxHealth).setValue(health);
+    }
+
+    public String getPrettyHealth() {
+        StringBuilder builder = new StringBuilder();
+        int total = 10;
+        int health = (int) (this.health / 100);
+        for(int i = 0; i < health; i++) {
+            builder.append(GREEN);
+            total--;
+        }
+        for(int i = 0; i < total; i++) {
+            builder.append(RED);
+        }
+        return builder.toString();
     }
 
     public Entity getEntity() {
@@ -58,6 +81,7 @@ public class King {
 
     public void setHealth(double health) {
         this.health = health;
+        this.hologram.insertTextLine(0, getPrettyHealth());
     }
 
     public CSTeam getTeam() {

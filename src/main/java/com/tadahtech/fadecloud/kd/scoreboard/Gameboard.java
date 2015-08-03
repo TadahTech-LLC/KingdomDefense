@@ -3,12 +3,13 @@ package com.tadahtech.fadecloud.kd.scoreboard;
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
+import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
+import pw.teg.fadecrystals.FadeCrystals;
 
 import java.util.Map;
 import java.util.UUID;
@@ -26,10 +27,6 @@ public class Gameboard {
     }
 
     public void flip() {
-        int zombie = game.getTeamCount(TeamType.ZOMBIE);
-        int skeleton = game.getTeamCount(TeamType.SKELETON);
-        int enderman = game.getTeamCount(TeamType.ENDERMAN);
-        int creeper = game.getTeamCount(TeamType.CREEPER);
         game.getPlayers().stream().forEach(info -> {
             Player player = info.getBukkitPlayer();
             BufferedObjective objective = objectives.get(player.getUniqueId());
@@ -46,18 +43,14 @@ public class Gameboard {
             objective.setNextLine(ChatColor.GREEN + "State: ");
             objective.setNextLine(game.getState().format());
             objective.blank();
-            objective.setNextLine(ChatColor.GREEN + "Creeper Team Alive: ");
-            objective.setNextLine(ChatColor.GREEN.toString() + creeper);
+            objective.setNextLine(ChatColor.GREEN + "Time Remaining: ");
+            objective.setNextLine(ChatColor.WHITE.toString() + Utils.formatTime(game.getTimeLeft()));
             objective.blank();
-            objective.setNextLine(ChatColor.GREEN + "Zombie Team Alive: ");
-            objective.setNextLine(ChatColor.DARK_GREEN.toString() + zombie);
+            objective.setNextLine(ChatColor.GREEN + "Coins: ");
+            objective.setNextLine(ChatColor.WHITE.toString() + info.getCoins());
             objective.blank();
-            objective.setNextLine(ChatColor.GREEN + "Enderman Team Alive: ");
-            objective.setNextLine(ChatColor.LIGHT_PURPLE.toString() + enderman);
-            objective.blank();
-            objective.setNextLine(ChatColor.GREEN + "Skeleton Team Alive");
-            objective.setNextLine(ChatColor.GRAY.toString() + skeleton);
-            objective.blank();
+            objective.setNextLine(ChatColor.GREEN + "Crystals: ");
+            objective.setNextLine(ChatColor.WHITE.toString() + ChatColor.RESET + FadeCrystals.get().getPlayer(info.getBukkitPlayer()).getCrystals());
             objective.flip();
         });
     }

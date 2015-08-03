@@ -3,7 +3,7 @@ package com.tadahtech.fadecloud.kd.listeners;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.menu.menus.PurchaseStructureMenu;
+import com.tadahtech.fadecloud.kd.menu.menus.KingMenu;
 import com.tadahtech.fadecloud.kd.nms.King;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
@@ -66,7 +66,8 @@ public class EntityListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
-            new PurchaseStructureMenu(info).open(info.getBukkitPlayer());
+            new KingMenu(info).open(event.getPlayer());
+            info.getBukkitPlayer().playSound(info.getBukkitPlayer().getLocation(), Sound.NOTE_PLING, 1.0f, 1.0f);
         }
     }
 

@@ -1,8 +1,11 @@
 package com.tadahtech.fadecloud.kd.game;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.econ.EconomyManager;
+import com.tadahtech.fadecloud.kd.econ.EconomyReward;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.items.ThorItem;
 import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.map.LocationType;
 import com.tadahtech.fadecloud.kd.map.Region;
@@ -17,11 +20,10 @@ import com.tadahtech.fadecloud.kd.teams.skeleton.SkeletonTeam;
 import com.tadahtech.fadecloud.kd.teams.zombie.ZombieTeam;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.inventivetalent.bossbar.BossBarAPI;
 
@@ -45,6 +47,7 @@ public class Game {
     private Map<TeamType, King> kings;
     private EconomyManager economyManager;
     private Gameboard gameboard;
+    private CSTeam winner;
 
     public Game() {
         if (WORLD == null) {
@@ -71,6 +74,7 @@ public class Game {
             countdown();
         }
         gameboard.add(info);
+        info.getBukkitPlayer().teleport(map.getLocation(LocationType.LOBBY).get());
     }
 
     private void doTeam(PlayerInfo player) {
@@ -106,7 +110,9 @@ public class Game {
         this.kings.put(TeamType.ENDERMAN, new King(enderman, map));
         this.kings.put(TeamType.SKELETON, new King(skeleton, map));
         this.state = GameState.PEACE;
+        new GameInfoResponsePacket().write();
         getPlayers().stream().forEach(info -> {
+            info.setCoins(economyManager.getStarting(info));
             CSTeam team = info.getCurrentTeam();
             team.loadout(info.getBukkitPlayer());
             LocationType type;
@@ -134,6 +140,9 @@ public class Game {
             } catch (Exception e) {
                 System.out.println("No default kit specified. Skipping this step...");
             }
+            if(info.isBeta()) {
+                new ThorItem().give(player, player.getInventory().firstEmpty());
+            }
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
             PacketUtil.sendTitleToPlayer(player, ChatColor.AQUA + "BEGIN", "");
         });
@@ -142,6 +151,7 @@ public class Game {
             @Override
             public void run() {
                 timeLeft--;
+                gameboard.flip();
                 if(timeLeft == 0) {
                     end();
                     cancel();
@@ -206,15 +216,56 @@ public class Game {
     }
 
     public void end() {
+        if(winner == null) {
+            //lame asses cant even do this shit right. whut the fuck am I supposed to do?
+            //Make everyone win? No bitch you dont deserve it. Like win next time you bitches.
+            //You know wha, I ought to take money from you for wasting my time
+            //BUT NO! I'll give you some participation money, but you're still a failure to me.
+            //Fucking noobs.
+            return;
+        }
+        String team = this.winner.getType().fancy();
+        getPlayers().stream().forEach(info -> {
+            Player player = info.getBukkitPlayer();
+            player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
+            if (info.getCurrentTeam().equals(winner)) {
+                this.economyManager.add(new EconomyReward("Winning Team", 200), info);
+            } else {
+                this.economyManager.add(new EconomyReward("Finishing", 50), info);
+            }
+            String hub = KingdomDefense.getInstance().getHubServerName();
+            this.economyManager.display(info);
+            PacketUtil.sendTitleToPlayer(player, team, ChatColor.YELLOW + "has won!");
+            new BukkitRunnable() {
 
+                private int runs = 10;
+
+                @Override
+                public void run() {
+                    runs--;
+                    if (runs <= 0) {
+                        cancel();
+                        KingdomDefense.getInstance().redirect(hub, player);
+                        KingdomDefense.getInstance().getServer().shutdown();
+                        return;
+                    }
+                    Firework firework = player.getWorld().spawn(player.getEyeLocation(), Firework.class);
+                    FireworkMeta meta = firework.getFireworkMeta();
+                    meta.setPower(1);
+                    meta.addEffect(FireworkEffect.builder()
+                      .withColor(Color.AQUA, Color.GRAY, Color.AQUA.mixColors(Color.AQUA, Color.RED))
+                      .withTrail()
+                      .withFlicker()
+                      .build());
+                    firework.setFireworkMeta(meta);
+                }
+            };
+
+        });
     }
 
     public List<Player> getBukkitPlayers() {
         return getPlayers().stream().map(PlayerInfo::getBukkitPlayer).collect(Collectors.toList());
-    }
-
-    public int getTeamCount(TeamType teamType) {
-        return 0;
     }
 
     public List<PlayerInfo> getPlayers() {

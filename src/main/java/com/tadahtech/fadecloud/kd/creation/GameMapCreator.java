@@ -2,15 +2,13 @@ package com.tadahtech.fadecloud.kd.creation;
 
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.map.GameMap;
-import com.tadahtech.fadecloud.kd.map.Island;
-import com.tadahtech.fadecloud.kd.map.LocationType;
-import com.tadahtech.fadecloud.kd.map.Region;
+import com.tadahtech.fadecloud.kd.map.*;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
 
@@ -24,6 +22,7 @@ public class GameMapCreator {
     private Map<TeamType, Island> islands;
     private String name;
     private int min, max;
+    private Location bridgeMin, bridgeMax;
 
     public GameMapCreator(Player player) {
         this.player = player;
@@ -132,12 +131,52 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             locations.put(LocationType.LOBBY, player.getLocation());
-            return new CreeperSpawn();
+            return new BridgeMinPrompt();
         }
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
             return "Stand in the place where you want the lobby to be (waiting area before a game), then type \"lobby\'";
+        }
+
+    }
+
+    private class BridgeMinPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            bridgeMin = player.getLocation();
+            return new BridgeMaxPrompt();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where the bridge's minimum corner is, then type \"next\'";
+        }
+
+    }
+
+    private class BridgeMaxPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            bridgeMax = player.getLocation();
+            return new CreeperSpawn();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where the bridge's maximum corner is, then type \"next\'";
         }
 
     }
@@ -628,6 +667,12 @@ public class GameMapCreator {
             Region castle = new Region(castleMin, castleMax);
             island = new Island(region, castle);
             islands.put(TeamType.ENDERMAN, island);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    done();
+                }
+            }.runTaskLater(KingdomDefense.getInstance(), 2L);
             return END_OF_CONVERSATION;
         }
 
@@ -639,8 +684,9 @@ public class GameMapCreator {
 
     public void done() {
         String[] authors = { "TadahTech"};
-        GameMap map = new GameMap(locations, authors, name, min, max, islands);
-        player.sendMessage("Map Built! Saving....");
+        Bridge bridge = new Bridge(bridgeMin, bridgeMax);
+        GameMap map = new GameMap(locations, authors, name, min, max, islands, bridge);
+        player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Map Built! Saving....");
         KingdomDefense.getInstance().setMap(map);
         KingdomDefense.getInstance().getMapIO().save();
     }

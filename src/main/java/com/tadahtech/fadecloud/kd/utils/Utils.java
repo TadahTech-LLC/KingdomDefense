@@ -221,18 +221,14 @@ public class Utils {
     }
 
     public static String formatTime(long millis) {
-        Long hours = TimeUnit.MILLISECONDS.toHours(millis);
         Long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
         Long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
         //noinspection StringBufferReplaceableByString
         StringBuilder builder = new StringBuilder();
-        if(hours > 0) {
-            builder.append(hours < 10 ? "0" : "").append(hours).append(" ").append(hours == 1 ? "hour" : "hours").append(" ");
-        }
         if(minutes > 0) {
-            builder.append(minutes < 10 ? "0" : "").append(minutes).append(" ").append(minutes == 1 ? "minute" : "minutes").append(" ");
+            builder.append(minutes < 10 ? "0" : "").append(minutes).append(":");
         }
-        builder.append(seconds < 10 ? "0" : "").append(seconds).append(" ").append(seconds == 1 ? "second" : "seconds");
+        builder.append(seconds < 10 ? "0" : "").append(seconds);
         return builder.toString();
     }
 

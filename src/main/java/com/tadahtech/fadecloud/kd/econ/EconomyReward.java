@@ -36,4 +36,8 @@ public class EconomyReward {
           .append(ChatColor.WHITE).append(" - ").append(ChatColor.GOLD).append(ChatColor.BOLD).append(amount);
         return builder.toString();
     }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 }

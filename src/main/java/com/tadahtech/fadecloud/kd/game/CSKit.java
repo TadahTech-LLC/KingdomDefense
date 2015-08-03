@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Timothy Andis
@@ -20,12 +21,17 @@ public class CSKit {
     private List<ItemStack> items;
     private String name;
     private String[] description;
+    private static  Map<UUID, Long> cooldowns = Maps.newHashMap();
 
     public CSKit(List<ItemStack> items, String name, String... description) {
         this.items = items;
         this.name = name;
         this.description = description;
         kits.putIfAbsent(name, this);
+    }
+
+    public static Collection<CSKit> getAll() {
+        return kits.values();
     }
 
     public List<ItemStack> getItems() {
@@ -41,7 +47,7 @@ public class CSKit {
     }
 
     public void give(Player player) {
-        if(!player.hasPermission("kits." + name.toLowerCase())) {
+        if(!hasPermission(player)) {
             player.sendMessage(ChatColor.RED + "You are not allowed to use this kit!!");
             return;
         }
@@ -52,6 +58,7 @@ public class CSKit {
         getItems().stream().forEach(item -> player.getInventory().addItem(item));
         player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Chosen " + getName() + "!");
         player.closeInventory();
+        cooldowns.putIfAbsent(player.getUniqueId(), System.currentTimeMillis());
     }
 
     public List<String> toLore() {
@@ -98,7 +105,16 @@ public class CSKit {
     }
 
     public boolean canUse(Player player) {
-        return true;
+        if(cooldowns.get(player.getUniqueId()) == null) {
+            return true;
+        }
+        long current = System.currentTimeMillis();
+        long in = cooldowns.get(player.getUniqueId());
+        boolean cd = TimeUnit.MINUTES.toSeconds(4) - ((current - in) / 1000) <= 0;
+        if(cd) {
+            cooldowns.remove(player.getUniqueId());
+        }
+        return cd;
     }
 
     private String dyeName(byte data) {
@@ -116,5 +132,9 @@ public class CSKit {
 
     public static CSKit from(String s) {
         return kits.get(s);
+    }
+
+    public boolean hasPermission(Player bukkitPlayer) {
+        return bukkitPlayer.hasPermission("kd.kits." + getName().toLowerCase());
     }
 }

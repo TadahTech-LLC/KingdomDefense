@@ -24,14 +24,16 @@ public class GameMap {
     private String[] authors;
     private String name;
     private int min, max;
+    private Bridge bridge;
 
-    public GameMap(Map<LocationType, Location> locations, String[] authors, String name, int min, int max, Map<TeamType, Island> islands) {
+    public GameMap(Map<LocationType, Location> locations, String[] authors, String name, int min, int max, Map<TeamType, Island> islands, Bridge bridge) {
         this.locations = locations;
         this.authors = authors;
         this.name = name;
         this.min = min;
         this.max = max;
         this.islands = islands;
+        this.bridge = bridge;
         maps.putIfAbsent(name, this);
     }
 
@@ -87,7 +89,8 @@ public class GameMap {
             ConfigurationSection sec = islands.getConfigurationSection(isl);
             islandMap.putIfAbsent(teamType, Island.load(sec));
         }
-        return new GameMap(locations, authors, name, min, max, islandMap);
+        Bridge bridge = Bridge.load(config.getString("bridge"));
+        return new GameMap(locations, authors, name, min, max, islandMap, bridge);
     }
 
     public Map<String, Object> save() {
@@ -105,6 +108,7 @@ public class GameMap {
             islands.putIfAbsent(entry.getKey().name(), entry.getValue().save());
         }
         map.putIfAbsent("islands", islands);
+        map.putIfAbsent("bridge", this.bridge.save());
         return map;
     }
 
@@ -113,7 +117,7 @@ public class GameMap {
     }
 
     public void dropBridge() {
-
+        bridge.place();
     }
 
     public Location getRespawn(TeamType type) {

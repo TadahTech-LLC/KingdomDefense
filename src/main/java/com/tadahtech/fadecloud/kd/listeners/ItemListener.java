@@ -1,6 +1,8 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
 import com.google.common.collect.Lists;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.menu.menus.StatMenu;
 import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -11,6 +13,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.List;
 
@@ -29,6 +32,13 @@ public class ItemListener implements Listener {
         ItemStack itemStack = player.getItemInHand();
         if(itemStack == null || itemStack.getType() == Material.AIR) {
             return;
+        }
+        if(itemStack.getType() == Material.SKULL_ITEM) {
+            SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
+            if(meta.getOwner().equalsIgnoreCase(player.getName())) {
+                new StatMenu(KingdomDefense.getInstance().getInfoManager().get(player)).open(player);
+                return;
+            }
         }
         ModSpecialItem specialItem = ModSpecialItem.get(itemStack);
         if(specialItem == null) {

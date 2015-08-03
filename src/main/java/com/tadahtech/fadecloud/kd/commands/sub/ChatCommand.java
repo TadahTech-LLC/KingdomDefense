@@ -3,17 +3,18 @@ package com.tadahtech.fadecloud.kd.commands.sub;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.commands.SubCommand;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.menu.menus.StatMenu;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
  * Created by Timothy Andis
  */
-public class StatsCommand implements SubCommand {
+public class ChatCommand implements SubCommand {
+
     @Override
     public String getName() {
-        return "stats";
+        return "togglechat";
     }
 
     @Override
@@ -28,17 +29,26 @@ public class StatsCommand implements SubCommand {
 
     @Override
     public String getDescription() {
-        return "Show your stats menu!";
+        return "Toggle your chat between Team, and Global";
     }
 
     @Override
     public String[] getAliases() {
-        return new String[0];
+        return new String[] {"tc", "togglec","chat"};
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get((Player) sender);
-        new StatMenu(info);
+        Player player = (Player) sender;
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+        boolean team = info.isTeamChat();
+        String message = ChatColor.GRAY + "Chat set to " + ChatColor.RED + ChatColor.BOLD;
+        if(team) {
+            message += "GLOBAL";
+        } else {
+            message = "TEAM";
+        }
+        player.sendMessage(message);
+        info.setTeamChat(!team);
     }
 }

@@ -1,0 +1,12 @@
+description:
+- 'Put anything here, it'll show up in the Kit GUI'
+- 'As many lines, srsly.'
+items:
+  'This Doesnt Matter':
+    material: STONE
+    name: 'Stone of Sexy'
+    data: 3
+    lore:
+    - 'Some lore here'
+    enchants:
+    - 'DAMAGE_ALL:2'

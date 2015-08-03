@@ -72,7 +72,9 @@ public class KitIO {
                 builder.data(data);
                 String n = section.getString(s + ".name");
                 builder.lore(lore.toArray(new String[lore.size()]));
-                builder.name(ChatColor.translateAlternateColorCodes('&', n));
+                if(n != null) {
+                    builder.name(ChatColor.translateAlternateColorCodes('&', n));
+                }
                 if (section.getStringList(s + ".enchants") != null) {
                     List<String> enchants = section.getStringList(s + ".enchants");
                     WrappedEnchantment[] enchantments = new WrappedEnchantment[enchants.size()];

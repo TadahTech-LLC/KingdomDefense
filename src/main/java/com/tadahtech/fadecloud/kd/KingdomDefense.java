@@ -1,9 +1,8 @@
 package com.tadahtech.fadecloud.kd;
 
 import com.tadahtech.fadecloud.kd.commands.CommandHandler;
-import com.tadahtech.fadecloud.kd.commands.sub.CreateCommand;
-import com.tadahtech.fadecloud.kd.commands.sub.StatsCommand;
-import com.tadahtech.fadecloud.kd.commands.sub.TestCommand;
+import com.tadahtech.fadecloud.kd.commands.CrystalConvertCommand;
+import com.tadahtech.fadecloud.kd.commands.sub.*;
 import com.tadahtech.fadecloud.kd.csc.JedisManager;
 import com.tadahtech.fadecloud.kd.csc.ServerTeleporter;
 import com.tadahtech.fadecloud.kd.csc.packets.ServerInitPacket;
@@ -43,6 +42,8 @@ public class KingdomDefense extends JavaPlugin {
     private GameMap map;
     private InfoManager infoManager;
     private SQLManager sqlManager;
+    public static boolean EDIT_MODE = true;
+    private CommandHandler commandHandler;
 
     public static KingdomDefense getInstance() {
         return instance;
@@ -52,6 +53,8 @@ public class KingdomDefense extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.serverNames = new HashMap<>();
+        this.saveResource("kits/Default.yml", false);
+        this.saveResource("kits/Example.yml", false);
         saveDefaultConfig();
         new ServerInitPacket().write();
         //Register Game / Hub Listeners
@@ -83,10 +86,13 @@ public class KingdomDefense extends JavaPlugin {
         int port = config.getInt("sql.port");
         this.sqlManager = new SQLManager(host, db, user, pass, port);
         this.infoManager = new InfoManager(sqlManager);
-        CommandHandler commandHandler = new CommandHandler();
-        commandHandler.register(new TestCommand());
+        this.commandHandler = new CommandHandler();
+        commandHandler.register(new KDHelpCommand());
         commandHandler.register(new CreateCommand());
         commandHandler.register(new StatsCommand());
+        commandHandler.register(new EditModeCommand());
+        commandHandler.register(new ChatCommand());
+        commandHandler.register(new CrystalConvertCommand());
     }
 
     @Override
@@ -141,5 +147,9 @@ public class KingdomDefense extends JavaPlugin {
 
     public MapIO getMapIO() {
         return mapIO;
+    }
+
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
     }
 }

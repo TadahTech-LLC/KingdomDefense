@@ -128,7 +128,7 @@ public class PlayerInfo {
         this.achievements = achievements;
     }
 
-    public void setCoins(int coins) {
+    public void setCoins(double coins) {
         this.coins = coins;
     }
 
@@ -175,5 +175,9 @@ public class PlayerInfo {
 
     public void setKills(int kills) {
         this.kills = kills;
+    }
+
+    public boolean isBeta() {
+        return getBukkitPlayer().hasPermission("kd.beta");
     }
 }

@@ -81,6 +81,13 @@
             <systemPath>${libs.dir}/BossBarAPI_v1.0.5.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>com.tadahtech.fadecloud</groupId>
+            <artifactId>Crystals</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${libs.dir}/FadeCrystals.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>com.tadahtech.pub</groupId>
             <artifactId>Holograms</artifactId>
             <version>1.8</version>

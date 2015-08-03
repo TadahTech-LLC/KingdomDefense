@@ -4,7 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.csc.Packet;
 import com.tadahtech.fadecloud.kd.csc.packets.request.JoinGameRequestPacket;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.items.StatsItem;
+import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.sign.LobbySign;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -17,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +81,11 @@ public class SignListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
-        new StatsItem(info).give(event.getPlayer(), 0);
+        ItemBuilder builder = new ItemBuilder(new ItemStack(Material.SKULL_ITEM));
+        builder.name(ChatColor.GREEN.toString() + "Statistics");
+        builder.lore(ChatColor.GRAY + "Right click to view your stats");
+        builder.setOwner(info.getBukkitPlayer().getName());
+        info.getBukkitPlayer().getInventory().setItem(0, builder.build());
+        event.setJoinMessage(null);
     }
 }

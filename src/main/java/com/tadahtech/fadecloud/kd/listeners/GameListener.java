@@ -14,13 +14,20 @@ import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand;
 import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand.EnumClientCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
@@ -36,6 +43,10 @@ public class GameListener implements Listener {
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
         Game game = KingdomDefense.getInstance().getGame();
+        if(KingdomDefense.EDIT_MODE) {
+            event.setLoginResult(Result.KICK_OTHER);
+            event.setKickMessage(ChatColor.RED + "This server is currently being edited.");
+        }
         if(game.getState() != GameState.WAITING) {
             event.setLoginResult(Result.KICK_OTHER);
             event.setKickMessage(ChatColor.RED + "This game is currently in progress!");
@@ -45,6 +56,7 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         Game game = KingdomDefense.getInstance().getGame();
@@ -66,15 +78,20 @@ public class GameListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+        String format = ChatColor.GRAY + "[" + info.getCurrentTeam().getType().fancy() + ChatColor.GRAY + "] ["+ ChatColor.AQUA + player.getDisplayName() + ChatColor.GRAY + "] » " + ChatColor.WHITE + event.getMessage();
+        if(info.isBeta()) {
+            format = ChatColor.RED + "[" + ChatColor.GOLD + ChatColor.BOLD + "Beta" + ChatColor.RED + "] " + format;
+        }
         if (player.getGameMode() == GameMode.SPECTATOR) {
             Set<Player> players = event.getRecipients();
             players.stream().filter(player1 -> player1.getGameMode() == GameMode.SPECTATOR).collect(Collectors.toList());
             event.setCancelled(true);
-            players.forEach(player1 -> player1.sendMessage("SPECTATOR " + player.getName() + " > " + event.getMessage()));
+            final String finalFormat = format;
+            players.forEach(player1 -> player1.sendMessage("SPECTATOR " + finalFormat));
             return;
         }
-        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        String format = info.getCurrentTeam().getType().fancy() + ChatColor.GRAY + " ["+ player.getDisplayName() + ChatColor.GRAY + "] » " + ChatColor.GRAY + event.getMessage();
+
         if(info.isTeamChat()) {
             Set<Player> players = event.getRecipients();
             players.stream().filter(player1 ->
@@ -97,6 +114,35 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
+    public void onFall(EntityDamageEvent event) {
+        if(!(event.getEntity() instanceof Player)) {
+            return;
+        }
+        Player player = (Player) event.getEntity();
+        if(event.getCause() != DamageCause.VOID) {
+            return;
+        }
+        EntityDamageByEntityEvent last;
+        if(player.getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+            last = (EntityDamageByEntityEvent) player.getLastDamageCause();
+        } else {
+            player.setHealth(0);
+            player.setMetadata("void", new FixedMetadataValue(KingdomDefense.getInstance(), true));
+            return;
+        }
+        Entity lastDamager = last.getDamager();
+        String name;
+        if(lastDamager instanceof Player) {
+            name = lastDamager.getName();
+        } else {
+            name = Utils.pretty(lastDamager.getType().name());
+        }
+        String message = ChatColor.BLUE + player.getName() + ChatColor.GRAY + "plummeted to his death at the hands of " + ChatColor.BLUE + name;
+        Bukkit.broadcastMessage(message);
+        player.setMetadata("noMessage", new FixedMetadataValue(KingdomDefense.getInstance(), 0));
+    }
+
+    @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         Packet packet = new PacketPlayInClientCommand(EnumClientCommand.PERFORM_RESPAWN);
@@ -115,19 +161,36 @@ public class GameListener implements Listener {
         }
 
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        PlayerInfo killerInfo = KingdomDefense.getInstance().getInfoManager().get(killer);
-
-        killerInfo.setKills(killerInfo.getKills() + 1);
         info.setDeaths(info.getDeaths() + 1);
 
-        String inhand = "";
+        if(player.hasMetadata("noMessage")) {
+            player.removeMetadata("noMessage", KingdomDefense.getInstance());
+            return;
+        }
 
-        if(killer.getItemInHand() != null) {
+        if(player.hasMetadata("void")) {
+            player.removeMetadata("void", KingdomDefense.getInstance());
+            Bukkit.broadcastMessage(ChatColor.BLUE + player.getName() + ChatColor.GRAY + " tried to fly, but failed.");
+            return;
+        }
+
+        PlayerInfo killerInfo = KingdomDefense.getInstance().getInfoManager().get(killer);
+        killerInfo.setKills(killerInfo.getKills() + 1);
+
+        String inhand = "AIR";
+
+        if(killer.getItemInHand() != null && killer.getItemInHand().getType() != Material.AIR) {
             inhand = Utils.pretty(killer.getItemInHand().getType().name());
         }
 
-        String message = ChatColor.BLUE + killer.getName() + " killed " + player.getName() + (inhand.equalsIgnoreCase("AIR") ? "!" : " with " + inhand);
+        PacketUtil.sendActionBarMessage(killer, ChatColor.GOLD + "+10 coins for killing " + ChatColor.BOLD + player.getName());
+
+        killerInfo.setCoins(killerInfo.getCoins() + 10);
+        killerInfo.getBukkitPlayer().playSound(killer.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
+
+        String message = ChatColor.BLUE + killer.getName() + ChatColor.GRAY +  " killed " + ChatColor.BLUE + player.getName() + ChatColor.GRAY + (inhand.equalsIgnoreCase("AIR") ? "!" : " with " + inhand);
 
         Bukkit.broadcastMessage(message);
     }
+
 }
