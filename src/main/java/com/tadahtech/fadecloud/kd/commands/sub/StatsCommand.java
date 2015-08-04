@@ -39,6 +39,6 @@ public class StatsCommand implements SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get((Player) sender);
-        new StatMenu(info);
+        new StatMenu(info).open((Player) sender);
     }
 }

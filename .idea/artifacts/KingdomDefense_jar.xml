@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="KingdomDefense:jar">
-    <output-path>$USER_HOME$/Servers/Hub/plugins</output-path>
-    <root id="archive" name="KingdomDefense.jar">
-      <element id="module-output" name="KingdomDefense" />
-    </root>
-  </artifact>
-</component>

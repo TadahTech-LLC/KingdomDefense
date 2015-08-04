@@ -13,6 +13,10 @@ import java.util.UUID;
  */
 public class JoinGameRequestPacket extends RequestPacket {
 
+    public JoinGameRequestPacket() {
+
+    }
+
     private UUID uuid;
 
     public JoinGameRequestPacket(String server, Player player) {
@@ -22,7 +26,7 @@ public class JoinGameRequestPacket extends RequestPacket {
 
     @Override
     public ResponsePacket getResponse(String message) {
-        return new JoinGameResponsePacket(uuid.toString(), KingdomDefense.getInstance().getServerName());
+        return new JoinGameResponsePacket(UUID.fromString(message).toString(), KingdomDefense.getInstance().getServerName());
     }
 
     @Override

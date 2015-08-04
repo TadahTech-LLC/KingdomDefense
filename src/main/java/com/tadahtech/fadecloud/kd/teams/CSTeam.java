@@ -30,6 +30,7 @@ public abstract class CSTeam extends Tickable {
     protected SingularObjectThread<CSTeam> thread;
     protected final Random random = new Random();
     protected Island island;
+    private boolean lost;
 
     public CSTeam(TeamType type, Island island, Loadout loadout) {
         this.type = type;
@@ -93,6 +94,14 @@ public abstract class CSTeam extends Tickable {
     }
 
     public abstract ItemStack getMenuIcon();
+
+    public boolean hasLost() {
+        return lost;
+    }
+
+    public void setLost(boolean lost) {
+        this.lost = lost;
+    }
 
     public enum TeamType {
 

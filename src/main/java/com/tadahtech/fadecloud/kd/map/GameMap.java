@@ -133,4 +133,12 @@ public class GameMap {
         }
         return null;
     }
+
+    public Bridge getBridge() {
+        return bridge;
+    }
+
+    public void setBridge(Bridge bridge) {
+        this.bridge = bridge;
+    }
 }

@@ -82,10 +82,11 @@ public class SignListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
         ItemBuilder builder = new ItemBuilder(new ItemStack(Material.SKULL_ITEM));
-        builder.name(ChatColor.GREEN.toString() + "Statistics");
+        builder.data((byte) 3);
+        builder.name(ChatColor.AQUA.toString() + "Statistics");
         builder.lore(ChatColor.GRAY + "Right click to view your stats");
         builder.setOwner(info.getBukkitPlayer().getName());
-        info.getBukkitPlayer().getInventory().setItem(0, builder.build());
+        info.getBukkitPlayer().getInventory().setItem(1, builder.build());
         event.setJoinMessage(null);
     }
 }

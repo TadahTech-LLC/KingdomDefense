@@ -1,7 +1,7 @@
 package com.tadahtech.fadecloud.kd.io;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.game.CSKit;
+import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.items.WrappedEnchantment;
 import com.tadahtech.fadecloud.kd.utils.Utils;

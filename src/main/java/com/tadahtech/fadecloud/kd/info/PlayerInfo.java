@@ -2,7 +2,7 @@ package com.tadahtech.fadecloud.kd.info;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.achievements.CSAchievement;
-import com.tadahtech.fadecloud.kd.game.CSKit;
+import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
@@ -179,5 +179,10 @@ public class PlayerInfo {
 
     public boolean isBeta() {
         return getBukkitPlayer().hasPermission("kd.beta");
+    }
+
+    public void setLevel(TeamType type, int i) {
+        teamLevels.remove(type);
+        teamLevels.put(type, i);
     }
 }

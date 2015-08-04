@@ -1,11 +1,14 @@
 package com.tadahtech.fadecloud.kd;
 
 import com.tadahtech.fadecloud.kd.commands.CommandHandler;
-import com.tadahtech.fadecloud.kd.commands.CrystalConvertCommand;
 import com.tadahtech.fadecloud.kd.commands.sub.*;
 import com.tadahtech.fadecloud.kd.csc.JedisManager;
 import com.tadahtech.fadecloud.kd.csc.ServerTeleporter;
 import com.tadahtech.fadecloud.kd.csc.packets.ServerInitPacket;
+import com.tadahtech.fadecloud.kd.csc.packets.request.GameInfoRequestPacket;
+import com.tadahtech.fadecloud.kd.csc.packets.request.JoinGameRequestPacket;
+import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
+import com.tadahtech.fadecloud.kd.csc.packets.response.JoinGameResponsePacket;
 import com.tadahtech.fadecloud.kd.csc.serverComm.BungeeServerTeleporter;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.InfoManager;
@@ -42,7 +45,7 @@ public class KingdomDefense extends JavaPlugin {
     private GameMap map;
     private InfoManager infoManager;
     private SQLManager sqlManager;
-    public static boolean EDIT_MODE = true;
+    public static boolean EDIT_MODE = false;
     private CommandHandler commandHandler;
 
     public static KingdomDefense getInstance() {
@@ -56,25 +59,6 @@ public class KingdomDefense extends JavaPlugin {
         this.saveResource("kits/Default.yml", false);
         this.saveResource("kits/Example.yml", false);
         saveDefaultConfig();
-        new ServerInitPacket().write();
-        //Register Game / Hub Listeners
-        if(!this.getHubServerName().equalsIgnoreCase(this.getServerName())) {
-            getServer().getPluginManager().registerEvents(new GameListener(), this);
-            getServer().getPluginManager().registerEvents(new TeamListener(), this);
-            getServer().getPluginManager().registerEvents(new BlockListener(), this);
-            getServer().getPluginManager().registerEvents(new EntityListener(), this);
-            new TargetingThread();
-            new FollowingThread();
-            this.game = new Game();
-            this.mapIO = new MapIO();
-            this.kitIO = new KitIO(this);
-        } else {
-            getServer().getPluginManager().registerEvents(new SignListener(), this);
-        }
-        getServer().getPluginManager().registerEvents(new ItemListener(), this);
-        getServer().getPluginManager().registerEvents(new InfoListener(), this);
-        getServer().getPluginManager().registerEvents(new MenuListener(), this);
-        Game.WORLD = getServer().getWorld(getConfig().getString("world"));
         this.jedisManager = new JedisManager(getConfig());
         this.serverTeleporter = new BungeeServerTeleporter();
         this.signIO = new SignIO();
@@ -86,19 +70,51 @@ public class KingdomDefense extends JavaPlugin {
         int port = config.getInt("sql.port");
         this.sqlManager = new SQLManager(host, db, user, pass, port);
         this.infoManager = new InfoManager(sqlManager);
+        new GameInfoRequestPacket();
+        new GameInfoResponsePacket();
+        new JoinGameRequestPacket();
+        new JoinGameResponsePacket();
+        //Register Game / Hub Listeners
+        getLogger().info("Server-Name: " + getServerName() + " :: Hub Server Name: " + getHubServerName());
+        if(!this.getHubServerName().equalsIgnoreCase(this.getServerName())) {
+            new TargetingThread();
+            new FollowingThread();
+            Game.WORLD = getServer().getWorld(getConfig().getString("world"));
+            this.mapIO = new MapIO();
+            if(getMap() == null) {
+                getLogger().warning("No map setup!");
+            } else {
+                this.game = new Game();
+                getServer().getPluginManager().registerEvents(new GameListener(), this);
+                getServer().getPluginManager().registerEvents(new TeamListener(), this);
+                getServer().getPluginManager().registerEvents(new BlockListener(), this);
+                getServer().getPluginManager().registerEvents(new EntityListener(), this);
+            }
+
+            this.kitIO = new KitIO(this);
+        } else {
+            getServer().getPluginManager().registerEvents(new SignListener(), this);
+        }
+        getServer().getPluginManager().registerEvents(new ItemListener(), this);
+        getServer().getPluginManager().registerEvents(new InfoListener(), this);
+        getServer().getPluginManager().registerEvents(new MenuListener(), this);
+
         this.commandHandler = new CommandHandler();
         commandHandler.register(new KDHelpCommand());
         commandHandler.register(new CreateCommand());
         commandHandler.register(new StatsCommand());
         commandHandler.register(new EditModeCommand());
         commandHandler.register(new ChatCommand());
-        commandHandler.register(new CrystalConvertCommand());
+        commandHandler.register(new LocationCommand());
+        new ServerInitPacket().write();
     }
 
     @Override
     public void onDisable() {
-        this.signIO.save();
-        this.mapIO.save();
+        if(this.signIO != null && this.mapIO != null) {
+            this.signIO.save();
+            this.mapIO.save();
+        }
     }
 
     public JedisManager getJedisManager() {

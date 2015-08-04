@@ -70,13 +70,12 @@ public class TeamListener implements Listener {
                 String message = structure.getName() + " " + structure.getLevel() + ChatColor.DARK_GRAY + " -> Shift-Left-Click to edit";
                 PacketUtil.sendActionBarMessage(player, message);
             }
+            if(info.getCurrentTeam().getType() == TeamType.ENDERMAN) {
+                EndermanTeam team = (EndermanTeam) info.getCurrentTeam();
+                team.onMove(info);
+            }
         }
         Game game = KingdomDefense.getInstance().getGame();
         game.moveCheck(player, to);
-        if(info.getCurrentTeam().getType() != TeamType.ENDERMAN) {
-            return;
-        }
-        EndermanTeam team = (EndermanTeam) info.getCurrentTeam();
-        team.onMove(info);
     }
 }

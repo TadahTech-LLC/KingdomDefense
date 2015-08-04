@@ -1,6 +1,7 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
@@ -8,15 +9,15 @@ import com.tadahtech.fadecloud.kd.items.HubItem;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
-import net.minecraft.server.v1_8_R3.Packet;
-import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand;
-import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand.EnumClientCommand;
+import net.minecraft.server.v1_8_R2.EntityPlayer;
+import net.minecraft.server.v1_8_R2.Packet;
+import net.minecraft.server.v1_8_R2.PacketPlayInClientCommand;
+import net.minecraft.server.v1_8_R2.PacketPlayInClientCommand.EnumClientCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,9 +44,18 @@ public class GameListener implements Listener {
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
         Game game = KingdomDefense.getInstance().getGame();
+        if(event.getName().equalsIgnoreCase("TadahTech") || event.getName().equalsIgnoreCase("DaddyMew")) {
+            return;
+        }
         if(KingdomDefense.EDIT_MODE) {
             event.setLoginResult(Result.KICK_OTHER);
             event.setKickMessage(ChatColor.RED + "This server is currently being edited.");
+            return;
+        }
+        if(game == null) {
+            event.setLoginResult(Result.KICK_OTHER);
+            event.setKickMessage(ChatColor.RED + "This server is currently being edited.");
+            return;
         }
         if(game.getState() != GameState.WAITING) {
             event.setLoginResult(Result.KICK_OTHER);
@@ -61,6 +71,7 @@ public class GameListener implements Listener {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         Game game = KingdomDefense.getInstance().getGame();
         game.addPlayer(info);
+        new GameInfoResponsePacket().write();
         String top = ChatColor.AQUA.toString() + ChatColor.BOLD + "Kingdom Defense";
         String bottom = ChatColor.GOLD.toString() + ChatColor.BOLD + "fadecloudmc.com";
         PacketUtil.sendTabToPlayer(player, top, bottom);
@@ -73,6 +84,7 @@ public class GameListener implements Listener {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         Game game = KingdomDefense.getInstance().getGame();
         game.removePlayer(info);
+        new GameInfoResponsePacket().write();
     }
 
     @EventHandler
@@ -81,7 +93,7 @@ public class GameListener implements Listener {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         String format = ChatColor.GRAY + "[" + info.getCurrentTeam().getType().fancy() + ChatColor.GRAY + "] ["+ ChatColor.AQUA + player.getDisplayName() + ChatColor.GRAY + "] » " + ChatColor.WHITE + event.getMessage();
         if(info.isBeta()) {
-            format = ChatColor.RED + "[" + ChatColor.GOLD + ChatColor.BOLD + "Beta" + ChatColor.RED + "] " + format;
+            format = ChatColor.RED + "[" + ChatColor.GOLD + "Beta" + ChatColor.RED + "] " + format;
         }
         if (player.getGameMode() == GameMode.SPECTATOR) {
             Set<Player> players = event.getRecipients();

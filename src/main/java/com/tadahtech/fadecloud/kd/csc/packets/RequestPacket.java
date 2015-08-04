@@ -9,6 +9,10 @@ public abstract class RequestPacket extends Packet {
 
     private String server;
 
+    public RequestPacket() {
+
+    }
+
     public RequestPacket(String server) {
         this.server = server;
     }

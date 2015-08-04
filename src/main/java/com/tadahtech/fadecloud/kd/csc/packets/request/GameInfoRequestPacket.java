@@ -9,6 +9,10 @@ import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
  */
 public class GameInfoRequestPacket extends RequestPacket {
 
+    public GameInfoRequestPacket() {
+
+    }
+
     public GameInfoRequestPacket(String server) {
         super(server);
     }

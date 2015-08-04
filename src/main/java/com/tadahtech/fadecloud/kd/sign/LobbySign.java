@@ -16,6 +16,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class LobbySign {
 
     public static Map<String, LobbySign> signMap = new HashMap<>();
 
-    private String arena;
+    private String arena, ui;
     private List<Sign> signs;
     private static final String FIRST = ChatColor.translateAlternateColorCodes('&', "&a[Join]");
 
@@ -41,6 +42,9 @@ public class LobbySign {
         this.arena = arena;
         this.signs = signs;
         signMap.putIfAbsent(arena, this);
+        String to = KingdomDefense.getInstance().getServerNames().get(arena);
+        Packet packet = new GameInfoRequestPacket(to);
+        packet.write();
     }
 
     public void create(Sign sign, SignChangeEvent event) {
@@ -55,7 +59,8 @@ public class LobbySign {
         event.setLine(3, state.format());
         event.getBlock().getState().update();
         sign.update(true);
-        Packet packet = new GameInfoRequestPacket(arena);
+        String to = KingdomDefense.getInstance().getServerNames().get(arena);
+        Packet packet = new GameInfoRequestPacket(to);
         packet.write();
     }
 
@@ -66,7 +71,12 @@ public class LobbySign {
             String players = ChatColor.DARK_BLUE + "(" + responsePacket.players + " / " + responsePacket.max + ")";
             sign.setLine(2, players);
             sign.setLine(3, responsePacket.state.format());
-            sign.update(true);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    sign.update(true);
+                }
+            }.runTask(KingdomDefense.getInstance());
         }
     }
 

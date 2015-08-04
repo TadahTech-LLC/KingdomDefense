@@ -37,7 +37,7 @@ public class JedisManager {
     public void sendInfo(Packet packet, String message, String server) {
         Jedis jedis = pool.getResource();
         try {
-            jedis.publish(CHANNEL, packet.getName() + "-" + message + "-" + server);
+            jedis.publish(CHANNEL, packet.getName() + "%" + message + "%" + server);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

@@ -6,6 +6,7 @@ import com.tadahtech.fadecloud.kd.econ.EconomyManager;
 import com.tadahtech.fadecloud.kd.econ.EconomyReward;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ThorItem;
+import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.map.LocationType;
 import com.tadahtech.fadecloud.kd.map.Region;
@@ -48,6 +49,8 @@ public class Game {
     private EconomyManager economyManager;
     private Gameboard gameboard;
     private CSTeam winner;
+    private Location lobby;
+    private int teamsLeft;
 
     public Game() {
         if (WORLD == null) {
@@ -65,24 +68,28 @@ public class Game {
         this.skeleton = new SkeletonTeam(map.getIslands().get(TeamType.SKELETON));
         this.economyManager = new EconomyManager();
         this.gameboard = new Gameboard(this);
+        this.lobby = map.getLocation(LocationType.LOBBY).get();
+        this.lobby = lobby.getWorld().getHighestBlockAt(lobby).getLocation();
     }
 
     public void addPlayer(PlayerInfo info) {
         this.players.add(info);
         doTeam(info);
+        String message = ChatColor.AQUA + info.getBukkitPlayer().getName() + ChatColor.GRAY + " has joined. (" + ChatColor.YELLOW + getPlayers().size() + "/" + map.getMax() + ChatColor.GRAY + ")";
         if(map.getMin() == getPlayers().size()) {
             countdown();
         }
         gameboard.add(info);
-        info.getBukkitPlayer().teleport(map.getLocation(LocationType.LOBBY).get());
+        info.getBukkitPlayer().teleport(lobby);
+        getBukkitPlayers().stream().forEach(player -> player.sendMessage(message));
     }
 
     private void doTeam(PlayerInfo player) {
         if(!player.getBukkitPlayer().hasPermission("kd.chooseTeam")) {
-            CSTeam team = this.creeper;
             List<CSTeam> teamList = new ArrayList<>(Arrays.asList(teams()));
             Collections.shuffle(teamList);
             CSTeam[] teams = teamList.toArray(new CSTeam[4]);
+            CSTeam team = teams[0];
             for(CSTeam csTeam : teams) {
                 if(csTeam.getSize() < team.getSize()) {
                     team = csTeam;
@@ -94,8 +101,14 @@ public class Game {
             bukkitPlayer.sendMessage(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Want to chose your own team? Consider donating @ store.fadecloudmc.com");
             return;
         }
-        TeamMenu menu = new TeamMenu(teams());
-        menu.open(player.getBukkitPlayer());
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                TeamMenu menu = new TeamMenu(teams());
+                menu.open(player.getBukkitPlayer());
+            }
+        }.runTaskLater(KingdomDefense.getInstance(), 5L);
+
     }
 
     public void removePlayer(PlayerInfo info) {
@@ -140,7 +153,7 @@ public class Game {
             } catch (Exception e) {
                 System.out.println("No default kit specified. Skipping this step...");
             }
-            if(info.isBeta()) {
+            if (info.isBeta()) {
                 new ThorItem().give(player, player.getInventory().firstEmpty());
             }
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
@@ -216,7 +229,45 @@ public class Game {
     }
 
     public void end() {
+        String hub = KingdomDefense.getInstance().getHubServerName();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                KingdomDefense.getInstance().getServer().shutdown();
+            }
+        }.runTaskLater(KingdomDefense.getInstance(), 20L * 11);
         if(winner == null) {
+            getPlayers().stream().forEach(info -> {
+                Player player = info.getBukkitPlayer();
+                this.economyManager.add(new EconomyReward("Finishing", 50), info);
+                this.economyManager.display(info);
+                player.playSound(player.getLocation(), Sound.ZOMBIE_WOODBREAK, 1.0F, 1.0F);
+                PacketUtil.sendTitleToPlayer(player, "Time Expired", ChatColor.YELLOW + "Nobody won!");
+                new BukkitRunnable() {
+
+                    private int runs = 10;
+
+                    @Override
+                    public void run() {
+                        runs--;
+                        if (runs <= 0) {
+                            cancel();
+                            KingdomDefense.getInstance().redirect(hub, player);
+                            return;
+                        }
+                        Firework firework = player.getWorld().spawn(player.getEyeLocation(), Firework.class);
+                        FireworkMeta meta = firework.getFireworkMeta();
+                        meta.setPower(1);
+                        meta.addEffect(FireworkEffect.builder()
+                          .withColor(Color.AQUA, Color.GRAY, Color.AQUA.mixColors(Color.AQUA, Color.RED))
+                          .withTrail()
+                          .withFlicker()
+                          .build());
+                        firework.setFireworkMeta(meta);
+                    }
+                }.runTaskTimer(KingdomDefense.getInstance(), 0L, 20L);
+
+            });
             //lame asses cant even do this shit right. whut the fuck am I supposed to do?
             //Make everyone win? No bitch you dont deserve it. Like win next time you bitches.
             //You know wha, I ought to take money from you for wasting my time
@@ -233,7 +284,7 @@ public class Game {
             } else {
                 this.economyManager.add(new EconomyReward("Finishing", 50), info);
             }
-            String hub = KingdomDefense.getInstance().getHubServerName();
+
             this.economyManager.display(info);
             PacketUtil.sendTitleToPlayer(player, team, ChatColor.YELLOW + "has won!");
             new BukkitRunnable() {
@@ -246,7 +297,6 @@ public class Game {
                     if (runs <= 0) {
                         cancel();
                         KingdomDefense.getInstance().redirect(hub, player);
-                        KingdomDefense.getInstance().getServer().shutdown();
                         return;
                     }
                     Firework firework = player.getWorld().spawn(player.getEyeLocation(), Firework.class);
@@ -259,9 +309,11 @@ public class Game {
                       .build());
                     firework.setFireworkMeta(meta);
                 }
-            };
+            }.runTaskTimer(KingdomDefense.getInstance(), 0L, 20L);
 
         });
+
+
     }
 
     public List<Player> getBukkitPlayers() {
@@ -342,5 +394,31 @@ public class Game {
                 return skeleton;
         }
         return null;
+    }
+
+    public int getTeamsLeft() {
+        return teamsLeft;
+    }
+
+    public void setTeamsLeft(int teamsLeft) {
+        this.teamsLeft = teamsLeft;
+        if(teamsLeft == 1) {
+            this.winner = getWinningTeam();
+            end();
+        }
+    }
+
+    public CSTeam getWinningTeam() {
+        for (CSTeam team : teams()) {
+            if(team.hasLost()) {
+                continue;
+            }
+            return team;
+        }
+        return null;
+    }
+
+    public EconomyManager getEconomyManager() {
+        return economyManager;
     }
 }

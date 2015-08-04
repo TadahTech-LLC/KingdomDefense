@@ -39,7 +39,7 @@ public class CommandHandler implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args == null || args.length == 0 || args[0].equalsIgnoreCase("help")) {
+        if (args == null || args.length == 0) {
             return true;
         }
         String cmd = args[0].toLowerCase();

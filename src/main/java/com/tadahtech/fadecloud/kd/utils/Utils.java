@@ -247,4 +247,16 @@ public class Utils {
     public static String friendly(String name) {
         return null;
     }
+
+    public static String toString(List<String> collect) {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < collect.size(); i++) {
+            String s = collect.get(i);
+            builder.append(s);
+            if((i + 1) != collect.size()) {
+                builder.append(",");
+            }
+        }
+        return builder.toString();
+    }
 }

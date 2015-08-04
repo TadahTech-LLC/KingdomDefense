@@ -3,7 +3,7 @@ package com.tadahtech.fadecloud.kd.nms.mobs;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.nms.NMS;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R2.*;
 import org.bukkit.metadata.FixedMetadataValue;
 
 /**
@@ -24,8 +24,6 @@ public class CSZombie extends EntityZombie {
             this.goalSelector.a(8, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
             this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, true));
             this.getAttributeInstance(GenericAttributes.maxHealth).setValue(100.0D);
-            this.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(0.25D);
-            this.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE).setValue(4);
             setCustomNameVisible(true);
             setCustomName(ChatColor.DARK_GRAY + "Undead Warrior");
             this.setEquipment(0, new ItemStack(Items.IRON_SWORD));

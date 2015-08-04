@@ -36,7 +36,9 @@ public class SQLStatement {
             }
             if (object instanceof Integer) {
                 statement.setInt(slot, (Integer) object);
+                continue;
             }
+            statement.setString(slot, object.toString());
         }
         return statement;
     }

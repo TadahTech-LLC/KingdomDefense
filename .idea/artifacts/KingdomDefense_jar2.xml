@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KingdomDefense:jar2">
+    <output-path>$USER_HOME$/Servers/Hub/plugins</output-path>
+    <root id="archive" name="KingdomDefense.jar">
+      <element id="module-output" name="KingdomDefense" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/commons/commons-pool2/2.0/commons-pool2-2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/redis/clients/jedis/2.6.0/jedis-2.6.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

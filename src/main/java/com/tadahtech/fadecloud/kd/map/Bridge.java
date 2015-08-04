@@ -25,6 +25,9 @@ public class Bridge {
                     if(block.getType() == Material.AIR) {
                         continue;
                     }
+                    if(block.getType() ==Material.GRASS || block.getType() == Material.DIRT || block.getType() == Material.STONE) {
+                        continue;
+                    }
                     blocks.putIfAbsent(location, new BlockData(block));
                     block.setType(Material.AIR);
                 }
@@ -42,9 +45,7 @@ public class Bridge {
 
     public String save() {
         StringBuilder builder = new StringBuilder();
-        blocks.entrySet().stream().forEach(entry -> {
-            builder.append(Utils.locToString(entry.getKey())).append("=").append(entry.getKey().toString()).append("@");
-        });
+        blocks.entrySet().stream().forEach(entry -> builder.append(Utils.locToString(entry.getKey())).append("=").append(entry.getValue().toString()).append("@"));
         return builder.toString();
     }
 
@@ -53,6 +54,9 @@ public class Bridge {
         Map<Location, BlockData> map = Maps.newHashMap();
         for(String string : str) {
             String[] locAndData = string.split("=");
+            if(locAndData.length != 2) {
+                continue;
+            }
             Location location = Utils.locFromString(locAndData[0]);
             BlockData data = BlockData.from(locAndData[1]);
             map.putIfAbsent(location, data);

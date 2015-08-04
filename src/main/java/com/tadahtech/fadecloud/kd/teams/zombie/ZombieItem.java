@@ -8,7 +8,7 @@ import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_8_R3.EntityZombie;
+import net.minecraft.server.v1_8_R2.EntityZombie;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

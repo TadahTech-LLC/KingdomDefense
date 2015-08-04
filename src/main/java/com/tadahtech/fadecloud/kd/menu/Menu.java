@@ -50,10 +50,12 @@ public abstract class Menu {
           .build();
         for(int i = 0; i < 9; i++) {
             buttons[i] = create(item);
-            buttons[i + 18] = buttons[i];
+            buttons[i + (buttons.length - 9)] = buttons[i];
         }
-        buttons[9] = buttons[0];
-        buttons[17] = buttons[0];
+        for(int a = 9; a < buttons.length; a += 9) {
+            buttons[a] = buttons[0];
+            buttons[a + 8] = buttons[0];
+        }
         return buttons;
     }
 

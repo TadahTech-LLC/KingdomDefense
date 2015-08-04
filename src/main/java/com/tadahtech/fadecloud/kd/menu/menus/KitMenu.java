@@ -1,6 +1,6 @@
 package com.tadahtech.fadecloud.kd.menu.menus;
 
-import com.tadahtech.fadecloud.kd.game.CSKit;
+import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;

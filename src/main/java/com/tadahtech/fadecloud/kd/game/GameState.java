@@ -12,7 +12,7 @@ public enum GameState {
     PEACE,
     BATTLE,
     PINGING,
-    ;
+    DOWN;
 
     @Override
     public String toString() {
@@ -27,6 +27,8 @@ public enum GameState {
                 return "Waiting";
             case PINGING:
                 return "Pinging";
+            case DOWN:
+                return "Offline";
         }
         return null;
     }
@@ -38,6 +40,7 @@ public enum GameState {
             case BATTLE: return ChatColor.RED + "Battle";
             case WAITING: return ChatColor.GREEN + "Click to join";
             case PINGING: return ChatColor.GRAY + "Pinging....";
+            case DOWN: return ChatColor.DARK_RED + "Offline";
         }
         return null;
     }
@@ -49,6 +52,7 @@ public enum GameState {
             case "battle": return BATTLE;
             case "countdown": return COUNTDOWN;
             case "pinging": return PINGING;
+            case "down": return DOWN;
         }
         return null;
     }

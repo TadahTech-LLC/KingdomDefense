@@ -17,6 +17,10 @@ public class JoinGameResponsePacket extends ResponsePacket {
 
     private String uuid, from;
 
+    public JoinGameResponsePacket() {
+
+    }
+
     public JoinGameResponsePacket(String uuid, String from) {
         this.uuid = uuid;
         this.from = from;
@@ -31,6 +35,9 @@ public class JoinGameResponsePacket extends ResponsePacket {
         }
         GameState state = game.getState();
         if(state == GameState.WAITING || state == GameState.COUNTDOWN) {
+            if(game.getPlayers().size() >= game.getMap().getMax()) {
+                this.send("fail=full" + uuid + ":" + from);
+            }
             this.send("yes:" + uuid + ":" + from);
             return;
         }
@@ -49,6 +56,7 @@ public class JoinGameResponsePacket extends ResponsePacket {
             String from = uuidArray[2];
             player.sendMessage(ChatColor.GREEN + "Connecting you to " + from + "...");
             KingdomDefense.getInstance().redirect(from, player);
+
             return;
         }
         String reason = response[1];
@@ -60,6 +68,8 @@ public class JoinGameResponsePacket extends ResponsePacket {
             case "noGame":
                 sent = "This server is currently being worked on! It'll be back soon!";
                 break;
+            case "full":
+                sent = "This server is full! Try another!";
             default:
                 return;
         }

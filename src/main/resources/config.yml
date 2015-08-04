@@ -15,7 +15,7 @@ edit-mode: true
 sql:
   host: localhost
   user: root
-  password: passowrd
+  pass: passowrd
   db: KD
   port: 3306
 
@@ -25,6 +25,13 @@ costs:
   ARCHER: 100-200-300-400
   BLAZE: 100-200-300-400
   TESLA: 100-200-300-400
+
+#This determines the costs of leveling up your team
+level-prices:
+  CREEPER: 1000-2500-5000-100000
+  ENDERMAN: 1000-2500-5000-100000
+  SKELETON: 1000-2500-5000-100000
+  ZOMBIE: 1000-2500-5000-100000
 
 #The name of this server (doubles as the arena name).
 #This is NOT the map name.

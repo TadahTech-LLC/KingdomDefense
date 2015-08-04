@@ -97,4 +97,26 @@ public class Region {
 	public static void clear() {
 		regions.clear();
 	}
+
+	public void setMin(Location min) {
+		this.min = min;
+		this.minX = min.getBlockX();
+		this.maxX = max.getBlockX();
+		this.minY = min.getBlockY();
+		this.maxY = max.getBlockY();
+		this.minZ = min.getBlockZ();
+		this.maxZ = max.getBlockZ();
+        resize();
+	}
+
+	public void setMax(Location max) {
+		this.max = max;
+		this.minX = min.getBlockX();
+		this.maxX = max.getBlockX();
+		this.minY = min.getBlockY();
+		this.maxY = max.getBlockY();
+		this.minZ = min.getBlockZ();
+		this.maxZ = max.getBlockZ();
+        resize();
+	}
 }

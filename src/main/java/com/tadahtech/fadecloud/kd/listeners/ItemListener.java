@@ -2,7 +2,7 @@ package com.tadahtech.fadecloud.kd.listeners;
 
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.menu.menus.StatMenu;
+import com.tadahtech.fadecloud.kd.menu.menus.PlayerMenu;
 import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class ItemListener implements Listener {
         if(itemStack.getType() == Material.SKULL_ITEM) {
             SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
             if(meta.getOwner().equalsIgnoreCase(player.getName())) {
-                new StatMenu(KingdomDefense.getInstance().getInfoManager().get(player)).open(player);
+                new PlayerMenu(KingdomDefense.getInstance().getInfoManager().get(player)).open(player);
                 return;
             }
         }

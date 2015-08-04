@@ -1,6 +1,7 @@
 package com.tadahtech.fadecloud.kd.map;
 
 import com.google.common.collect.Maps;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import org.bukkit.Chunk;
@@ -10,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +58,11 @@ public class Island {
     }
 
     public static Island load(ConfigurationSection file) {
+        Logger logger = KingdomDefense.getInstance().getLogger();
+        logger.info("Region Min: " + file.getString("region.min"));
+        logger.info("Region Max: " + file.getString("region.max"));
+        logger.info("Castle Min: " + file.getString("castle.min"));
+        logger.info("Castle Max: " + file.getString("castle.max"));
         Location regionMin = Utils.locFromString(file.getString("region.min"));
         Location regionMax = Utils.locFromString(file.getString("region.max"));
         Location castleMin = Utils.locFromString(file.getString("castle.min"));
@@ -73,9 +80,9 @@ public class Island {
         Map<String, Object> region = Maps.newHashMap();
         Map<String, Object> castle = Maps.newHashMap();
         region.putIfAbsent("min", Utils.locToString(this.region.getMin()));
-        region.putIfAbsent("ma", Utils.locToString(this.region.getMax()));
+        region.putIfAbsent("max", Utils.locToString(this.region.getMax()));
         map.putIfAbsent("region", region);
-        castle.putIfAbsent("min", Utils.locToString(this.castleRegion.getMax()));
+        castle.putIfAbsent("min", Utils.locToString(this.castleRegion.getMin()));
         castle.putIfAbsent("max", Utils.locToString(this.castleRegion.getMax()));
         map.putIfAbsent("castle", castle);
         map.putIfAbsent("lowest", getLowest());

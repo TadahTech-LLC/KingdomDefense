@@ -15,7 +15,7 @@ public class MessageListener extends JedisPubSub {
             return;
         }
 
-        String[] str = message.split("-");
+        String[] str = message.split("%");
         String packetRaw = str[0];
         String msg = str[1];
         String server = str[2];

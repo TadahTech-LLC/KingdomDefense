@@ -1,6 +1,7 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.econ.EconomyReward;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.menu.menus.KingMenu;
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -95,8 +97,12 @@ public class EntityListener implements Listener {
         if(!entity.hasMetadata("king")) {
             return;
         }
+        Player killer = ((LivingEntity) entity).getKiller();
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(killer);
         Game game = KingdomDefense.getInstance().getGame();
         TeamType teamType = (TeamType) entity.getMetadata("king").get(0).value();
+        EconomyReward reward = new EconomyReward("Killing " + teamType.getName() + "'s King", 25);
+        game.getEconomyManager().add(reward, info);
         CSTeam team = game.getTeam(teamType);
         team.getBukkitPlayers().stream().forEach(player -> {
             player.sendMessage(ChatColor.RED + "Your Kig has fallen!");
@@ -106,6 +112,14 @@ public class EntityListener implements Listener {
             player.setGameMode(GameMode.SPECTATOR);
             GameListener.hubItem.give(player, 8);
         });
+        game.getBukkitPlayers().stream().forEach(player -> {
+            String title = killer.getName();
+            String sub = ChatColor.YELLOW + "killed " + teamType.fancy() + "'s" + ChatColor.YELLOW + " King!";
+            PacketUtil.sendTitleToPlayer(player, title, sub);
+            player.playSound(player.getLocation(), Sound.EXPLODE, 1.0F, 1.0F);
+        });
+        game.setTeamsLeft(game.getTeamsLeft() - 1);
+        team.setLost(true);
     }
 
 }

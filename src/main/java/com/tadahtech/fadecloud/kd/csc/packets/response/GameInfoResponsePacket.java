@@ -5,7 +5,6 @@ import com.tadahtech.fadecloud.kd.csc.packets.ResponsePacket;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.sign.LobbySign;
-import org.bukkit.Bukkit;
 
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ public class GameInfoResponsePacket extends ResponsePacket {
     public void write() {
         Game game = KingdomDefense.getInstance().getGame();
         if (game == null) {
-            this.send("noGame");
+            this.send("noGame:" + KingdomDefense.getInstance().getUIName());
             return;
         }
         //noinspection StringBufferReplaceableByString
@@ -31,31 +30,33 @@ public class GameInfoResponsePacket extends ResponsePacket {
           .append(":")
           .append(game.getState().toString())
           .append(":")
-          .append(Bukkit.getOnlinePlayers().size())
+          .append(game.getPlayers().size())
           .append(":")
-          .append(Bukkit.getMaxPlayers())
+          .append(game.getMap().getMax())
           .append(":");
         this.send(builder.toString());
     }
 
     @Override
     public void handle(String message) {
-        if(message.equalsIgnoreCase("noGame")) {
-            this.arena = "ERROR";
-            this.state = GameState.PINGING;
+        String[] str = message.split(":");
+        if(str[0].equalsIgnoreCase("noGame")) {
+            this.arena = str[1];
+            this.state = GameState.DOWN;
             this.players = -1;
             this.max = -1;
             return;
         }
-        String[] str = message.split(":");
         this.arena = str[0];
         this.state = GameState.fromString(str[1]);
         this.players = Integer.parseInt(str[2]);
         this.max = Integer.parseInt(str[3]);
         Optional<LobbySign> maybeSign = LobbySign.get(arena);
         if(!maybeSign.isPresent()) {
+            System.out.println("None");
             new LobbySign(arena);
         } else {
+            System.out.println("Updated");
             maybeSign.get().update(this);
         }
 

@@ -1,6 +1,9 @@
 package com.tadahtech.fadecloud.kd.items;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
+import com.tadahtech.fadecloud.kd.game.Game;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
@@ -20,7 +23,10 @@ public class HubItem extends ModSpecialItem {
 
     @Override
     public void onClick(Player player) {
-        KingdomDefense.getInstance().redirect(KingdomDefense.getInstance().getHubServerName(), player);
+        Game game = KingdomDefense.getInstance().getGame();
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+        game.removePlayer(info);
+        new GameInfoResponsePacket().write();
     }
 
     @Override

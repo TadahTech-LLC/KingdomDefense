@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.achievements.CSAchievement;
-import com.tadahtech.fadecloud.kd.game.CSKit;
+import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.utils.Utils;
@@ -29,15 +29,16 @@ public class SQLManager {
     private String url;
 
     public SQLManager(String host, String db, String user, String pass, int port) {
-        this.queryThread = new QueryThread();
         KingdomDefense.getInstance().getLogger().info("Hogging the Main Thread for a second, please stand by....");
         long start = System.currentTimeMillis();
+        KingdomDefense.getInstance().getLogger().info("Host: " + host + " : Password: " + pass + " : User: " + user + " : DB: " + db + " : Port:" + port);
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + db, user, pass);
-            PreparedStatement statement = connection.prepareStatement("CREATE DATAVASE IF NOT EXISTS " + db);
+            PreparedStatement statement = connection.prepareStatement("CREATE DATABASE IF NOT EXISTS " + db);
             statement.execute();
         } catch (ClassNotFoundException | SQLException e) {
+            KingdomDefense.getInstance().getLogger().severe(e.getMessage());
             KingdomDefense.getInstance().getLogger().warning("Heyo! You have SQL set as the storageType, but I couldn't connect using the SQL details provided. Please edit those. Disabling...");
             KingdomDefense.getInstance().getPluginLoader().disablePlugin(KingdomDefense.getInstance());
             return;
@@ -52,6 +53,7 @@ public class SQLManager {
         this.port = port;
         this.url = "jdbc:mysql://" + host + ":" + port + "/" + db;
         getConnection();
+        this.queryThread = new QueryThread(this);
         queryThread.addQuery("CREATE TABLE IF NOT EXISTS `player_info`" +
           "(" +
           "`player` varchar(64) PRIMARY KEY NOT NULL, " +
@@ -71,7 +73,7 @@ public class SQLManager {
           
           "`kits` longtext," +
           "`coins` int," +
-          "`achievements` longtext," +
+          "`achievements` longtext" +
           ")");
     }
 
@@ -119,11 +121,11 @@ public class SQLManager {
             @Override
             public void run() {
                 SQLStatement statement = new SQLStatement("SELECT * FROM `player_info` WHERE `player` = ?");
-                statement.set(1, uuid);
+                statement.set(1, uuid.toString());
                 ResultSet res = getResultSet(statement);
+                PlayerInfo info = new PlayerInfo(uuid);
                 try {
                     if (res.next()) {
-                        PlayerInfo info = new PlayerInfo(uuid);
                         int kills = res.getInt("kills");
                         int deaths = res.getInt("deaths");
                         int coins = res.getInt("coins");
@@ -156,23 +158,51 @@ public class SQLManager {
                         Map<TeamType, Integer> teamWins = Maps.newHashMap();
                         Map<TeamType, Integer> teamLevels = Maps.newHashMap();
 
-                        teamLevels.putIfAbsent(TeamType.CREEPER, creeper_level);
+                        teamLevels.putIfAbsent(TeamType.CREEPER, creeper_level == 0 ? 1 : creeper_level);
                         teamWins.putIfAbsent(TeamType.CREEPER, creeper_wins);
 
-                        teamLevels.putIfAbsent(TeamType.ZOMBIE, zombie_level);
+                        teamLevels.putIfAbsent(TeamType.ZOMBIE, zombie_level == 0 ? 1 : zombie_level);
                         teamWins.putIfAbsent(TeamType.ZOMBIE, zombie_wins);
 
-                        teamLevels.putIfAbsent(TeamType.SKELETON, skeleton_level);
+                        teamLevels.putIfAbsent(TeamType.SKELETON, skeleton_level == 0 ? 1 : skeleton_level);
                         teamWins.putIfAbsent(TeamType.SKELETON, skeleton_wins);
 
-                        teamLevels.putIfAbsent(TeamType.ENDERMAN, enderman_level);
+                        teamLevels.putIfAbsent(TeamType.ENDERMAN, enderman_level == 0 ? 1 : enderman_level);
                         teamWins.putIfAbsent(TeamType.ENDERMAN, enderman_wins);
 
                         info.setTeamLevels(teamLevels);
                         info.setTeamWins(teamWins);
-                        infoCallback.call(info);
-                        KingdomDefense.getInstance().getInfoManager().put(info);
+                    } else {
+                        List<CSAchievement> achievements = Lists.newArrayList();
+
+                        info.setKills(0);
+                        info.setDeaths(0);
+
+                        info.setAchievements(achievements);
+                        info.setCoins(0);
+                        info.setKits(Lists.newArrayList());
+                        info.setTeamChat(true);
+
+                        Map<TeamType, Integer> teamWins = Maps.newHashMap();
+                        Map<TeamType, Integer> teamLevels = Maps.newHashMap();
+
+                        teamLevels.putIfAbsent(TeamType.CREEPER, 1);
+                        teamWins.putIfAbsent(TeamType.CREEPER, 0);
+
+                        teamLevels.putIfAbsent(TeamType.ZOMBIE, 1);
+                        teamWins.putIfAbsent(TeamType.ZOMBIE, 0);
+
+                        teamLevels.putIfAbsent(TeamType.SKELETON, 1);
+                        teamWins.putIfAbsent(TeamType.SKELETON, 0);
+
+                        teamLevels.putIfAbsent(TeamType.ENDERMAN, 1);
+                        teamWins.putIfAbsent(TeamType.ENDERMAN, 0);
+
+                        info.setTeamLevels(teamLevels);
+                        info.setTeamWins(teamWins);
                     }
+                    infoCallback.call(info);
+                    KingdomDefense.getInstance().getInfoManager().put(info);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -203,7 +233,7 @@ public class SQLManager {
         statement.set(9, info.getLevel(TeamType.ZOMBIE));
         statement.set(10, info.getLevel(TeamType.SKELETON));
         statement.set(11, info.getLevel(TeamType.ENDERMAN));
-        statement.set(12, info.getKits().stream().map(CSKit::getName).collect(Collectors.toList()));
+        statement.set(12, Utils.toString(info.getKits().stream().map(CSKit::getName).collect(Collectors.toList())));
         statement.set(13, info.getCoins());
         statement.set(14, "tbd");
         statement.set(15, info.getKills());

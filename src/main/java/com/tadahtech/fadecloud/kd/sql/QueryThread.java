@@ -1,7 +1,5 @@
 package com.tadahtech.fadecloud.kd.sql;
 
-import com.tadahtech.fadecloud.kd.KingdomDefense;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -16,10 +14,10 @@ public class QueryThread extends Thread {
     private Queue<Runnable> queue = new ConcurrentLinkedDeque<>();
     private SQLManager sqlManager;
 
-    public QueryThread() {
+    public QueryThread(SQLManager manager) {
         setName("Announcer-QueryThread");
         start();
-        this.sqlManager = KingdomDefense.getInstance().getSqlManager();
+        this.sqlManager = manager;
     }
 
     @SuppressWarnings("InfiniteLoopStatement")
