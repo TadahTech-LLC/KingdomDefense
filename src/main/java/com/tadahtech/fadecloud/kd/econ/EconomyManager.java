@@ -56,9 +56,15 @@ public class EconomyManager {
     }
 
     public double getStarting(PlayerInfo info) {
+        if(info.getCoins() > 250) {
+            return 50;
+        }
         double base = 250;
         if(info.getBukkitPlayer().hasPermission("kd.beta")) {
             base = 500;
+        }
+        if(info.getCoins() > 0) {
+            base = 0;
         }
         return base;
     }

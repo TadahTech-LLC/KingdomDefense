@@ -156,7 +156,7 @@ public class GameMapCreator {
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where the bridge's minimum corner is, then type \"next\'";
+            return "Stand in the place where the bridge's min is, then type \"next\'";
         }
 
     }
@@ -176,7 +176,7 @@ public class GameMapCreator {
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where the bridge's maximum corner is, then type \"next\'";
+            return "Stand in the place where the bridge's max is, then type \"next\'";
         }
 
     }
@@ -689,6 +689,7 @@ public class GameMapCreator {
         player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Map Built! Saving....");
         KingdomDefense.getInstance().setMap(map);
         KingdomDefense.getInstance().getMapIO().save();
+        player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Map Saved....");
     }
 
 

@@ -5,6 +5,7 @@ import com.tadahtech.fadecloud.kd.csc.packets.ResponsePacket;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.sign.LobbySign;
+import org.bukkit.Bukkit;
 
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class GameInfoResponsePacket extends ResponsePacket {
           .append(":")
           .append(game.getState().toString())
           .append(":")
-          .append(game.getPlayers().size())
+          .append(Bukkit.getOnlinePlayers().size())
           .append(":")
           .append(game.getMap().getMax())
           .append(":");
@@ -53,10 +54,8 @@ public class GameInfoResponsePacket extends ResponsePacket {
         this.max = Integer.parseInt(str[3]);
         Optional<LobbySign> maybeSign = LobbySign.get(arena);
         if(!maybeSign.isPresent()) {
-            System.out.println("None");
             new LobbySign(arena);
         } else {
-            System.out.println("Updated");
             maybeSign.get().update(this);
         }
 

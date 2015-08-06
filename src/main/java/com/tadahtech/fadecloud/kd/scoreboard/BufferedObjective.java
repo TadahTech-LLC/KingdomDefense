@@ -170,8 +170,7 @@ public class BufferedObjective {
         return baseName.substring(0, 10) + "_" + ((teamPtr++) % 999999);
     }
 
-    public void blank() {
-        this.SPACE += " ";
-        setNextLine(SPACE);
+    public void blank(int slot) {
+        setLine(slot, SPACE);
     }
 }

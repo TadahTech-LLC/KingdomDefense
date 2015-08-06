@@ -1,6 +1,11 @@
 package com.tadahtech.fadecloud.kd.teams;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.game.Game;
+import com.tadahtech.fadecloud.kd.game.GameState;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.items.HubItem;
+import com.tadahtech.fadecloud.kd.map.Island;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -14,7 +19,7 @@ import java.util.*;
  */
 public abstract class ModSpecialItem {
 
-    public static final String PREFIX = ChatColor.GRAY.toString() + ChatColor.BOLD + "[" + ChatColor.AQUA + "Castle Siege" + ChatColor.GRAY + ChatColor.BOLD + "] " + ChatColor.YELLOW;
+    public static final String PREFIX = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "[" + ChatColor.AQUA + "KingdomDefense" + ChatColor.DARK_GRAY + ChatColor.BOLD + "] " + ChatColor.YELLOW;
 
     private Map<UUID, Long> cooldowns = new HashMap<>();
     protected ItemStack itemStack;
@@ -42,11 +47,31 @@ public abstract class ModSpecialItem {
         if (playerInteractEvent.getAction().name().contains("LEFT")) {
             return;
         }
+        Game game = KingdomDefense.getInstance().getGame();
+        if(game != null) {
+            if(this instanceof HubItem) {
+                this.onClick(player);
+                return;
+            }
+            if(game.getState() != GameState.BATTLE) {
+                player.sendMessage(PREFIX + "You can't use this during peace time!");
+                return;
+            }
+            PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+            Island island = info.getCurrentTeam().getIsland();
+            if(island.inCastle(player.getLocation())) {
+                info.sendMessage(ChatColor.RED + "You can't do that in your castle!");
+                return;
+            }
+        }
         if (!canUse(player)) {
-            player.sendMessage(PREFIX + "I'm still cooling down!");
+            long time = 60 - (System.currentTimeMillis() - cooldowns.get(player.getUniqueId())) / 1000;
+            String message = PREFIX + "You need to wait " + (time < 10 ? "0" + time : time ) + (time == 1 ? " second" : " seconds") + " before using this again";
+            player.sendMessage(message);
             return;
         }
         this.onClick(player);
+        this.use(player);
         ItemStack itemStack = player.getItemInHand();
         if (itemStack == null) {
             return;
@@ -67,15 +92,13 @@ public abstract class ModSpecialItem {
             return true;
         }
         long in = cooldowns.get(player.getUniqueId());
-        long dif = (getCooldown()) - (curr - in) / 1000;
+        long dif = (60) - (curr - in) / 1000;
         if (dif <= 0) {
             cooldowns.remove(player.getUniqueId());
             return true;
         }
         return false;
     }
-
-    protected abstract long getCooldown();
 
     public void use(Player player) {
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis());

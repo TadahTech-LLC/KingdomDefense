@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.menu.menus;
 
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
@@ -35,6 +36,7 @@ public class TeamMenu extends Menu {
                     return;
                 }
                 player.sendMessage(ChatColor.GREEN + "You are on the " + team.getType().fancy() + " team.");
+                KingdomDefense.getInstance().getInfoManager().get(player).setCurrentTeam(team);
                 team.add(player);
                 player.closeInventory();
             });

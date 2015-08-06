@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 public class HubItem extends ModSpecialItem {
 
     public HubItem() {
-        super(new ItemBuilder(new ItemStack(Material.SLIME_BALL))
+        super(new ItemBuilder(new ItemStack(Material.BED))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Click to return to the Hub")
           .build());
     }
@@ -29,8 +29,4 @@ public class HubItem extends ModSpecialItem {
         new GameInfoResponsePacket().write();
     }
 
-    @Override
-    protected long getCooldown() {
-        return 0;
-    }
 }

@@ -3,6 +3,7 @@ package com.tadahtech.fadecloud.kd.menu.menus;
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.items.HeadItems;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
@@ -42,9 +43,7 @@ public class LevelUpMenu extends Menu {
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Creeper Level Up")
           .lore(lore(TeamType.CREEPER))
           .build();
-        ItemStack skeleton = new ItemBuilder(new ItemStack(Material.SKULL_ITEM))
-          .data((byte) 3)
-          .setOwner("MHF_Skeleton")
+        ItemStack skeleton = new ItemBuilder(HeadItems.SKELETON)
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Skeleton Level Up")
           .lore(lore(TeamType.SKELETON))
           .build();
@@ -53,13 +52,11 @@ public class LevelUpMenu extends Menu {
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Zombie Level Up")
           .lore(lore(TeamType.ZOMBIE))
           .build();
-        ItemStack enderman = new ItemBuilder(new ItemStack(Material.SKULL_ITEM))
-          .data((byte) 3)
-          .setOwner("MHF_Enderman")
+        ItemStack enderman = new ItemBuilder(new ItemBuilder(new ItemStack(Material.SKULL_ITEM)).amount(1).data((byte) 3).setOwner("MHF_Enderman").build())
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Enderman Level Up")
           .lore(lore(TeamType.ENDERMAN))
           .build();
-        buttons[13] = new Button(creeper, player -> {
+        buttons[12] = new Button(creeper, player -> {
             int cost = getCost(TeamType.CREEPER);
             if(!info.remove(cost)) {
                 player.sendMessage(ChatColor.RED + "You cannot afford this!");
@@ -81,7 +78,7 @@ public class LevelUpMenu extends Menu {
               .build());
             firework.setFireworkMeta(meta);
         });
-        buttons[15] = new Button(zombie, player -> {
+        buttons[14] = new Button(zombie, player -> {
             int cost = getCost(TeamType.ZOMBIE);
             if(!info.remove(cost)) {
                 player.sendMessage(ChatColor.RED + "You cannot afford this!");

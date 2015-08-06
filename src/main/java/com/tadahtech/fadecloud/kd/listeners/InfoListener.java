@@ -15,13 +15,13 @@ public class InfoListener implements Listener {
 
     @EventHandler
     public void onAsync(AsyncPlayerPreLoginEvent event) {
-        KingdomDefense.getInstance().getSqlManager().load(event.getUniqueId());
+        KingdomDefense.getInstance().getInfoStore().load(event.getUniqueId());
     }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().remove(player);
-        KingdomDefense.getInstance().getSqlManager().save(info);
+        KingdomDefense.getInstance().getInfoStore().save(info);
     }
 }

@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
  */
 public enum StructureType {
 
-    GURADIAN,
+    GUARDIAN,
     ARCHER,
     BLAZE,
     TESLA
@@ -17,6 +17,9 @@ public enum StructureType {
     public int getCost(int level) {
         FileConfiguration config = KingdomDefense.getInstance().getConfig();
         String costRaw = config.getString("costs." + name());
+        if(costRaw == null) {
+            return 100 * level;
+        }
         String[] str = costRaw.split("-");
         return Integer.parseInt(str[level - 1]);
     }

@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.game;
 
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -38,7 +39,12 @@ public enum GameState {
             case COUNTDOWN: return ChatColor.DARK_PURPLE + "Countdown";
             case PEACE: return ChatColor.GOLD + "Peace";
             case BATTLE: return ChatColor.RED + "Battle";
-            case WAITING: return ChatColor.GREEN + "Click to join";
+            case WAITING: {
+                if(KingdomDefense.getInstance().getGame() != null) {
+                    return ChatColor.GREEN.toString() + "Waiting";
+                }
+                return ChatColor.GREEN + "Click to join";
+            }
             case PINGING: return ChatColor.GRAY + "Pinging....";
             case DOWN: return ChatColor.DARK_RED + "Offline";
         }

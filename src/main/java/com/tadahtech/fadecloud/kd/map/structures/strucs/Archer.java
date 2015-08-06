@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
+import com.sk89q.worldedit.Vector;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.StructureType;
@@ -8,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.util.Vector;
 
 /**
  * Created by Timothy Andis (TadahTech) on 7/28/2015.
@@ -16,7 +16,7 @@ import org.bukkit.util.Vector;
 public class Archer extends DefenseStructure {
 
     public Archer(PlayerInfo info) {
-        super(ChatColor.GRAY.toString() + ChatColor.BOLD + "Archer Tower");
+        super(ChatColor.GRAY.toString() + ChatColor.BOLD + "Archer");
         this.setOwner(info);
         info.setCurrentStructure(this);
     }
@@ -27,7 +27,6 @@ public class Archer extends DefenseStructure {
         arrow.setVelocity(new org.bukkit.util.Vector(direction.getX(), direction.getY(), direction.getZ()).multiply(3.5));
         arrow.setMetadata("damage", new FixedMetadataValue(KingdomDefense.getInstance(), damage));
     }
-
 
     @Override
     public void give(Player player) {

@@ -1,9 +1,12 @@
 package com.tadahtech.fadecloud.kd.map;
 
 import com.google.common.collect.Maps;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.WorldCreator;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -73,7 +76,7 @@ public class GameMap {
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         ConfigurationSection section = config.getConfigurationSection("locations");
         Map<LocationType, Location> locations = Maps.newHashMap();
-        for(String s : section.getKeys(false)) {
+        for (String s : section.getKeys(false)) {
             LocationType type = LocationType.valueOf(s.toUpperCase());
             Location location = Utils.locFromString(section.getString(s));
             locations.put(type, location);
@@ -84,12 +87,15 @@ public class GameMap {
         int max = config.getInt("max");
         String[] authors = config.getStringList("authors").toArray(new String[config.getStringList("authors").size()]);
         ConfigurationSection islands = config.getConfigurationSection("islands");
-        for(String isl : islands.getKeys(false)) {
+        for (String isl : islands.getKeys(false)) {
             TeamType teamType = TeamType.valueOf(isl);
             ConfigurationSection sec = islands.getConfigurationSection(isl);
             islandMap.putIfAbsent(teamType, Island.load(sec));
         }
-        Bridge bridge = Bridge.load(config.getString("bridge"));
+        Bridge bridge = Bridge.load(config.getConfigurationSection("bridge"));
+        if (bridge != null) {
+            bridge.clear();
+        }
         return new GameMap(locations, authors, name, min, max, islandMap, bridge);
     }
 
@@ -100,15 +106,17 @@ public class GameMap {
         map.putIfAbsent("min", min);
         map.putIfAbsent("max", max);
         map.putIfAbsent("authors", new ArrayList<>(Arrays.asList(authors)));
-        for(Entry<LocationType, Location> entry : this.locations.entrySet()) {
+        for (Entry<LocationType, Location> entry : this.locations.entrySet()) {
             locations.putIfAbsent(entry.getKey().name(), Utils.locToString(entry.getValue()));
         }
         map.putIfAbsent("locations", locations);
-        for(Entry<TeamType, Island> entry : this.islands.entrySet()) {
+        for (Entry<TeamType, Island> entry : this.islands.entrySet()) {
             islands.putIfAbsent(entry.getKey().name(), entry.getValue().save());
         }
         map.putIfAbsent("islands", islands);
-        map.putIfAbsent("bridge", this.bridge.save());
+        if (bridge != null) {
+            map.putIfAbsent("bridge", this.bridge.save());
+        }
         return map;
     }
 
@@ -140,5 +148,29 @@ public class GameMap {
 
     public void setBridge(Bridge bridge) {
         this.bridge = bridge;
+    }
+
+    public void removeBridge() {
+        this.bridge.clear();
+    }
+
+    //Unloading maps, to rollback maps. Will delete all player builds until last server save
+    public void unloadMap(){
+        if(Bukkit.getServer().unloadWorld(Bukkit.getServer().getWorld(name), false)){
+            KingdomDefense.getInstance().getLogger().info("Successfully unloaded " + name);
+        }else{
+            KingdomDefense.getInstance().getLogger().severe("COULD NOT UNLOAD " + name);
+        }
+    }
+
+    //Loading maps (MUST BE CALLED AFTER UNLOAD MAPS TO FINISH THE ROLLBACK PROCESS)
+    public void loadMap(){
+        Bukkit.getServer().createWorld(new WorldCreator(getName()));
+    }
+
+    //Maprollback method, because were too lazy to type 2 lines
+    public void rollback(){
+        unloadMap();
+        loadMap();
     }
 }

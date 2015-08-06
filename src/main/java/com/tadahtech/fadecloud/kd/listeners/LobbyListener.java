@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Timothy Andis (TadahTech) on 7/27/2015.
  */
-public class SignListener implements Listener {
+public class LobbyListener implements Listener {
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
@@ -80,13 +80,18 @@ public class SignListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
         ItemBuilder builder = new ItemBuilder(new ItemStack(Material.SKULL_ITEM));
         builder.data((byte) 3);
-        builder.name(ChatColor.AQUA.toString() + "Statistics");
-        builder.lore(ChatColor.GRAY + "Right click to view your stats");
+        builder.name(ChatColor.AQUA.toString() + "Profile");
+        builder.lore(ChatColor.GRAY + "Right click to view your profile");
         builder.setOwner(info.getBukkitPlayer().getName());
+        if(info.getBukkitPlayer().getItemInHand().getType() == Material.SKULL_ITEM) {
+            return;
+        }
         info.getBukkitPlayer().getInventory().setItem(1, builder.build());
-        event.setJoinMessage(null);
+        KingdomDefense.getInstance().getLobbyboard().add(info);
+        KingdomDefense.getInstance().getLobbyboard().flip();
     }
 }

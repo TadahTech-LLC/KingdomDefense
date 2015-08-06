@@ -28,7 +28,7 @@ public class KingMenu extends Menu {
 
     @Override
     protected Button[] setUp() {
-        Button[] buttons = new Button[36];
+        Button[] buttons = new Button[45];
         ItemStack structures = new ItemBuilder(new ItemStack(Material.ANVIL))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Purchase Structures")
           .build();
@@ -39,7 +39,7 @@ public class KingMenu extends Menu {
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "King Health")
           .lore(" ", ChatColor.GREEN.toString() + this.king.getHealth())
           .build();
-        buttons = pane(buttons, DyeColor.RED);
+        buttons = pane(buttons, DyeColor.BLACK);
         buttons[20] = new Button(structures, player -> new PurchaseStructureMenu(info).open(player));
         buttons[24] = new Button(kits, player -> new KitMenu(info).open(player));
         buttons[22] = new Button(king, () ->{});

@@ -18,10 +18,10 @@ public class CSZombie extends EntityZombie {
         super(world);
         this.a = attack;
         NMS.clearGoals(targetSelector, goalSelector);
+        this.goalSelector.a(8, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
         if(attack) {
             this.goalSelector.a(1, new PathfinderGoalMeleeAttack(this, 1.0D, true));
             this.goalSelector.a(0, new PathfinderGoalMoveTowardsTarget(this, 1.0D, 1F));
-            this.goalSelector.a(8, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
             this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, true));
             this.getAttributeInstance(GenericAttributes.maxHealth).setValue(100.0D);
             setCustomNameVisible(true);

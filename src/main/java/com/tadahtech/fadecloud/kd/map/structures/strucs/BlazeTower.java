@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
+import com.sk89q.worldedit.Vector;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.StructureType;
@@ -8,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.util.Vector;
 
 /**
  * Created by Timothy Andis (TadahTech) on 7/28/2015.
@@ -16,7 +16,7 @@ import org.bukkit.util.Vector;
 public class BlazeTower extends DefenseStructure {
 
     public BlazeTower(PlayerInfo info) {
-        super(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Blaze Tower.");
+        super(ChatColor.DARK_RED.toString() + ChatColor.BOLD + "Blaze");
         this.setOwner(info);
         info.setCurrentStructure(this);
     }

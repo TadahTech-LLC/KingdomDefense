@@ -11,13 +11,11 @@ import com.tadahtech.fadecloud.kd.map.structures.strucs.Guardian;
 import com.tadahtech.fadecloud.kd.threads.MultipleObjectThread;
 import com.tadahtech.fadecloud.kd.threads.Tickable;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,38 +26,43 @@ import java.util.Map;
 public abstract class Structure extends Tickable {
 
     public static final String[] GUARDIAN_DESC = {
-      " ",
       ChatColor.GREEN + "A healthy ally, is a good ally",
-      ChatColor.GRAY + "Heals all players around it's radius"
+      ChatColor.GRAY + "Heals all players around it's radius",
+      ChatColor.GRAY.toString() + "Cost: "+ ChatColor.AQUA + StructureType.GUARDIAN.getCost()
+
     };
 
     public static final String[] BLAZE_DESC = {
-      " ",
       ChatColor.RED + "Watch your enemies burn!",
-      ChatColor.GRAY + "Shoots players with fireballs within it's range"
+      ChatColor.GRAY + "Shoots players with fireballs within it's range",
+      ChatColor.GRAY.toString() + "Cost: "+ ChatColor.AQUA + StructureType.BLAZE.getCost()
     };
 
     public static final String[] ARCHER_DESC = {
-      " ",
       ChatColor.DARK_GRAY + "A basic defense is often the best",
-      ChatColor.GRAY + "Shoots arrows at nearby enemies"
+      ChatColor.GRAY + "Shoots arrows at nearby enemies",
+      ChatColor.GRAY.toString() + "Cost: "+ ChatColor.AQUA + StructureType.ARCHER.getCost()
+
     };
 
     public static final String[] TESLA_DESC = {
-      " ",
       ChatColor.DARK_AQUA + "Thor would like this one",
-      ChatColor.GRAY + "Shoots lightning at nearby enemies"
+      ChatColor.GRAY + "Shoots lightning at nearby enemies",
+      ChatColor.GRAY.toString() + "Cost: "+ ChatColor.AQUA + StructureType.TESLA.getCost()
+
     };
+
     private String name;
     protected List<Structure> structures = Lists.newArrayList();
     protected MultipleObjectThread<Structure> thread;
-    protected Location firingLocation;
+    protected GridLocation location;
     protected double range;
     protected PlayerInfo owner;
     protected int level;
+    private static File schematicFolder;
 
     static {
-        File schematicFolder = new File(KingdomDefense.getInstance().getDataFolder(), "schematics/");
+        schematicFolder = new File(KingdomDefense.getInstance().getDataFolder(), "structures");
         if (!schematicFolder.exists() && !schematicFolder.mkdirs()) {
             KingdomDefense.getInstance().getLogger().warning("Couldn't create schematics folder");
         }
@@ -67,6 +70,7 @@ public abstract class Structure extends Tickable {
 
     private Map<Integer, StructureSchematic> schematics = new HashMap<>();
     private String schematicName;
+    private int rotation;
 
     public Structure(String name) {
         this.name = name;
@@ -93,28 +97,30 @@ public abstract class Structure extends Tickable {
         this.range = range;
     }
 
-    public Location getFiringLocation() {
-        return firingLocation;
-    }
-
-    public void setFiringLocation(Location firingLocation) {
-        this.firingLocation = firingLocation;
-    }
-
+    @SuppressWarnings("ConstantConditions")
     public StructureSchematic getSchematic(int level) {
         StructureSchematic structureSchematic = schematics.get(level);
         if (structureSchematic != null) {
             return structureSchematic;
         }
-
         try {
-            KingdomDefense nations = KingdomDefense.getInstance();
-            InputStream schematic = nations.getResource("structures/" + this.schematicName + level + ".schematic");
-            if (schematic == null) {
-                nations.getLogger().warning("Failed to find structure 'structures" + File.separator + this.schematicName + level + ".schematic'");
+            if(schematicFolder.listFiles() == null) {
                 return null;
             }
-            CuboidClipboard clipboard = ((MCEditSchematicFormat) MCEditSchematicFormat.MCEDIT).load(schematic);
+            KingdomDefense nations = KingdomDefense.getInstance();
+            File file = null;
+            for(File possible : schematicFolder.listFiles()) {
+                if(possible.getName().equalsIgnoreCase(this.schematicName + "-" + level + ".schematic")) {
+                    file = possible;
+                    break;
+                }
+            }
+            if (file == null) {
+                nations.getLogger().warning("Failed to find structure " + this.schematicName + "-" + level + ".schematic'");
+                return null;
+            }
+
+            CuboidClipboard clipboard = MCEditSchematicFormat.MCEDIT.load(file);
             structureSchematic = new StructureSchematic(clipboard, level);
 
             schematics.put(level, structureSchematic);
@@ -150,7 +156,22 @@ public abstract class Structure extends Tickable {
     }
 
     public int getNextCost() {
-        return 500 * (level + 1);
+        return getStructureType().getCost((level + 1));
     }
 
+    public int getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    public void setGridLocation(GridLocation gridLocation) {
+        this.location = gridLocation;
+    }
+
+    public GridLocation getLocation() {
+        return location;
+    }
 }

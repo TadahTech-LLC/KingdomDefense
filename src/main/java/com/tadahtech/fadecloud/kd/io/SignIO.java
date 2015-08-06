@@ -29,10 +29,6 @@ public class SignIO {
         LobbySign.load(config);
     }
 
-    public void load() {
-
-    }
-
     public void save() {
         for(LobbySign sign : LobbySign.getAll()) {
             config.set("signs." + sign.getArena(), sign.save());

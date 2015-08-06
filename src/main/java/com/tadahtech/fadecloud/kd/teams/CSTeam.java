@@ -103,6 +103,26 @@ public abstract class CSTeam extends Tickable {
         this.lost = lost;
     }
 
+    public Location getRespawn() {
+        LocationType type;
+        switch (this.type) {
+            case CREEPER:
+                type = LocationType.CREEPER_SPAWN;
+                break;
+            case ENDERMAN:
+                type = LocationType.ENDERMAN_SPAWN;
+                break;
+            case SKELETON:
+                type = LocationType.SKELETON_SPAWN;
+                break;
+            case ZOMBIE:
+                type = LocationType.ZOMBIE_SPAWN;
+                break;
+            default: return getBukkitPlayers().get(0).getWorld().getSpawnLocation();
+        }
+        return KingdomDefense.getInstance().getGame().getMap().getLocation(type).get();
+    }
+
     public enum TeamType {
 
         CREEPER,

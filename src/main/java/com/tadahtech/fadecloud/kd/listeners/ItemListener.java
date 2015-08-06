@@ -35,9 +35,11 @@ public class ItemListener implements Listener {
         }
         if(itemStack.getType() == Material.SKULL_ITEM) {
             SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
-            if(meta.getOwner().equalsIgnoreCase(player.getName())) {
-                new PlayerMenu(KingdomDefense.getInstance().getInfoManager().get(player)).open(player);
-                return;
+            if(meta.getOwner() != null) {
+                if(meta.getOwner().equalsIgnoreCase(player.getName())) {
+                    new PlayerMenu(KingdomDefense.getInstance().getInfoManager().get(player)).open(player);
+                    return;
+                }
             }
         }
         ModSpecialItem specialItem = ModSpecialItem.get(itemStack);

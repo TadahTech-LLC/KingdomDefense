@@ -15,7 +15,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +42,7 @@ public class ThorItem extends ModSpecialItem {
 
         World world = player.getWorld();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        List<Location> circle = Utils.circle(player.getLocation(), 8, 1, false, false, 10);
+        List<Location> circle = Utils.circle(player.getLocation(), 8, 1, true, false, 10);
         player.sendMessage(ChatColor.GRAY + "Unleashing the power of the storm...");
         new BukkitRunnable() {
 
@@ -70,7 +69,8 @@ public class ThorItem extends ModSpecialItem {
                         }
                         p.addPotionEffect(BLINDNESS);
                         p.addPotionEffect(SLOWNESS);
-                        world.strikeLightning(p.getLocation());
+                        p.setFireTicks(40);
+                        world.strikeLightningEffect(p.getLocation());
                     });
 
                 }
@@ -79,8 +79,4 @@ public class ThorItem extends ModSpecialItem {
     }
 
 
-    @Override
-    protected long getCooldown() {
-        return TimeUnit.MINUTES.toSeconds(10);
-    }
 }

@@ -48,18 +48,27 @@ public class LocationCommand implements SubCommand {
         Player player = (Player) sender;
         String type = args[0];
         GameMap map = KingdomDefense.getInstance().getMap();
-        Bridge bridge;
-        map.setBridge(null);
+        Bridge bridge = map.getBridge();
         if (type.equalsIgnoreCase("bridgemin")) {
             this.min = player.getLocation();
             player.sendMessage(ChatColor.GREEN + "Min point set");
+            return;
         } else if (type.equalsIgnoreCase("bridgemax")) {
             this.max = player.getLocation();
             player.sendMessage(ChatColor.GREEN + "Max point set");
-        } else if (type.equalsIgnoreCase("setBrigde")) {
+            return;
+        } else if (type.equalsIgnoreCase("setBridge")) {
+            map.setBridge(null);
+            if(max == null) {
+                max = bridge.getMax();
+            }
+            if(min == null) {
+                min = bridge.getMin();
+            }
             bridge = new Bridge(min, max);
             map.setBridge(bridge);
             player.sendMessage(ChatColor.GREEN + "Redid the bridge.");
+            KingdomDefense.getInstance().getMapIO().save();
             return;
         }
         TeamType teamType = TeamType.valueOf(type.toUpperCase());

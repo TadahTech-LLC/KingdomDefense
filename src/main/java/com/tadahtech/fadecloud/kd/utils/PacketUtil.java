@@ -15,15 +15,12 @@ public class PacketUtil {
     }
 
     public static void sendTitleToPlayer(Player player, String text, String subtitle) {
-        EntityPlayer p = ((CraftPlayer) player).getHandle();
-
-        if (text != null) {
-            p.playerConnection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, makeComponent(text)));
-        }
-
-        if (subtitle != null) {
-            p.playerConnection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, makeComponent(text)));
-        }
+        Title title = new Title(text, subtitle);
+        title.setStayTime(1);
+        title.setFadeInTime(0);
+        title.setFadeOutTime(1);
+        title.setTimingsToSeconds();
+        title.send(player);
     }
 
     private static Field bField;

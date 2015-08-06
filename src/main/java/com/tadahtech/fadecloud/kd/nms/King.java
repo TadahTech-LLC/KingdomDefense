@@ -8,8 +8,8 @@ import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_8_R2.Entity;
 import net.minecraft.server.v1_8_R2.EntityLiving;
-import net.minecraft.server.v1_8_R2.GenericAttributes;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Optional;
@@ -29,19 +29,21 @@ public class King {
 
     public King(CSTeam team, GameMap map) {
         this.team = team;
-        Optional<Location> location = map.getLocation(team.getLocationType());
+        Optional<Location> maybe = map.getLocation(team.getLocationType());
+        Location location = maybe.get();
+        location = location.getWorld().getHighestBlockAt(location).getLocation();
         switch (team.getType()) {
             case ZOMBIE:
-                this.entity = CustomEntityType.spawnZombie(location.get(), false);
+                this.entity = CustomEntityType.ZOMBIE.spawn(location.clone());
                 break;
             case CREEPER:
-                this.entity = CustomEntityType.CREEPER.spawn(location.get());
+                this.entity = CustomEntityType.CREEPER.spawn(location.clone());
                 break;
             case ENDERMAN:
-                this.entity = CustomEntityType.ENDERMAN.spawn(location.get());
+                this.entity = CustomEntityType.ENDERMAN.spawn(location.clone());
                 break;
             case SKELETON:
-                this.entity = CustomEntityType.SKELETON.spawn(location.get());
+                this.entity = CustomEntityType.SKELETON.spawn(location.clone());
                 break;
             default:
                 return;
@@ -50,17 +52,20 @@ public class King {
             //cant happen;
             return;
         }
-        this.health = 1000;
-        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), location.get().add(0, 1.2, 0));
+        this.health = 500;
+        LivingEntity entity = (LivingEntity) this.entity.getBukkitEntity();
+        entity.setRemoveWhenFarAway(false);
+        entity.setMetadata("king", new FixedMetadataValue(KingdomDefense.getInstance(), team.getType()));
+        entity.setMaxHealth(health);
+        entity.setHealth(health);
+        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), entity.getLocation().add(0, entity.getEyeHeight() + 0.2, 0));
         this.hologram.appendTextLine(getPrettyHealth());
-        this.entity.getBukkitEntity().setMetadata("king", new FixedMetadataValue(KingdomDefense.getInstance(), team.getType()));
-        this.entity.getAttributeInstance(GenericAttributes.maxHealth).setValue(health);
     }
 
     public String getPrettyHealth() {
         StringBuilder builder = new StringBuilder();
         int total = 10;
-        int health = (int) (this.health / 100);
+        int health = (int) (this.health / 50);
         for(int i = 0; i < health; i++) {
             builder.append(GREEN);
             total--;
@@ -81,7 +86,8 @@ public class King {
 
     public void setHealth(double health) {
         this.health = health;
-        this.hologram.insertTextLine(0, getPrettyHealth());
+        this.hologram.clearLines();
+        this.hologram.appendTextLine(getPrettyHealth());
     }
 
     public CSTeam getTeam() {

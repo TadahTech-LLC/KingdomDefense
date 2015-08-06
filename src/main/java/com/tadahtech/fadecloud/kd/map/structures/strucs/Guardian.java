@@ -2,6 +2,7 @@ package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.map.Island;
 import com.tadahtech.fadecloud.kd.map.StructureType;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
@@ -45,8 +46,9 @@ public class Guardian extends Structure {
             Location location = player.getLocation();
             double z = location.getZ();
             double x = location.getX();
-            double locZ = firingLocation.getZ();
-            double locX = firingLocation.getX();
+            Island island = owner.getCurrentTeam().getIsland();
+            double locZ = getLocation().toWorldLocation(island).getZ();
+            double locX = getLocation().toWorldLocation(island).getX();
             double distance = Math.sqrt(NumberConversions.square(locX - x) + NumberConversions.square(locZ - z));
             if (distance > getRange()) {
                 continue;
@@ -113,6 +115,6 @@ public class Guardian extends Structure {
 
     @Override
     public StructureType getStructureType() {
-        return StructureType.GURADIAN;
+        return StructureType.GUARDIAN;
     }
 }

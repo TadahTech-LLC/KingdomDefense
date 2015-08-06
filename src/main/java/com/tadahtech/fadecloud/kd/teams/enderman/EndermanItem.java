@@ -34,7 +34,7 @@ public class EndermanItem extends ModSpecialItem {
     public void onClick(Player player) {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         info.setInvisible(true);
-        PotionEffect effect =  new PotionEffect(PotionEffectType.INVISIBILITY, 20 * (info.getLevel(TeamType.ENDERMAN) * 2) + 10, 3);
+        PotionEffect effect =  new PotionEffect(PotionEffectType.INVISIBILITY, 20 * (8 + info.getLevel(TeamType.ENDERMAN) * 2) + 10, 3);
         player.addPotionEffect(effect);
         Location location = player.getLocation();
         location.getWorld().playSound(location, Sound.ENDERMAN_TELEPORT, 3.4F, 1.0F);
@@ -46,8 +46,4 @@ public class EndermanItem extends ModSpecialItem {
         }
     }
 
-    @Override
-    protected long getCooldown() {
-        return 120;
-    }
 }

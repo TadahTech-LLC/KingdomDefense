@@ -10,7 +10,9 @@ import com.tadahtech.fadecloud.kd.csc.packets.request.JoinGameRequestPacket;
 import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.csc.packets.response.JoinGameResponsePacket;
 import com.tadahtech.fadecloud.kd.csc.serverComm.BungeeServerTeleporter;
+import com.tadahtech.fadecloud.kd.db.InfoStore;
 import com.tadahtech.fadecloud.kd.game.Game;
+import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.InfoManager;
 import com.tadahtech.fadecloud.kd.io.KitIO;
 import com.tadahtech.fadecloud.kd.io.MapIO;
@@ -18,10 +20,12 @@ import com.tadahtech.fadecloud.kd.io.SignIO;
 import com.tadahtech.fadecloud.kd.listeners.*;
 import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.menu.MenuListener;
-import com.tadahtech.fadecloud.kd.sql.SQLManager;
+import com.tadahtech.fadecloud.kd.scoreboard.Lobbyboard;
+import com.tadahtech.fadecloud.kd.sign.HeartbeatThread;
 import com.tadahtech.fadecloud.kd.threads.ai.FollowingThread;
 import com.tadahtech.fadecloud.kd.threads.ai.TargetingThread;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,15 +42,15 @@ public class KingdomDefense extends JavaPlugin {
     private ServerTeleporter serverTeleporter;
     private Game game;
     private SignIO signIO;
-    private KitIO kitIO;
     private MapIO mapIO;
     //UI-Name -> Server name
     private Map<String, String> serverNames;
     private GameMap map;
     private InfoManager infoManager;
-    private SQLManager sqlManager;
+    private InfoStore infoStore;
     public static boolean EDIT_MODE = false;
     private CommandHandler commandHandler;
+    private Lobbyboard lobbyboard;
 
     public static KingdomDefense getInstance() {
         return instance;
@@ -61,15 +65,8 @@ public class KingdomDefense extends JavaPlugin {
         saveDefaultConfig();
         this.jedisManager = new JedisManager(getConfig());
         this.serverTeleporter = new BungeeServerTeleporter();
-        this.signIO = new SignIO();
-        FileConfiguration config = getConfig();
-        String host = config.getString("sql.host");
-        String pass = config.getString("sql.pass");
-        String db = config.getString("sql.db");
-        String user = config.getString("sql.user");
-        int port = config.getInt("sql.port");
-        this.sqlManager = new SQLManager(host, db, user, pass, port);
-        this.infoManager = new InfoManager(sqlManager);
+        this.infoManager = new InfoManager();
+        this.infoStore = new InfoStore(this.jedisManager.getPool());
         new GameInfoRequestPacket();
         new GameInfoResponsePacket();
         new JoinGameRequestPacket();
@@ -90,15 +87,16 @@ public class KingdomDefense extends JavaPlugin {
                 getServer().getPluginManager().registerEvents(new BlockListener(), this);
                 getServer().getPluginManager().registerEvents(new EntityListener(), this);
             }
-
-            this.kitIO = new KitIO(this);
+            new KitIO(this);
         } else {
-            getServer().getPluginManager().registerEvents(new SignListener(), this);
+            this.lobbyboard = new Lobbyboard();
+            getServer().getPluginManager().registerEvents(new LobbyListener(), this);
+            this.signIO = new SignIO();
+            new HeartbeatThread();
         }
-        getServer().getPluginManager().registerEvents(new ItemListener(), this);
         getServer().getPluginManager().registerEvents(new InfoListener(), this);
+        getServer().getPluginManager().registerEvents(new ItemListener(), this);
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
-
         this.commandHandler = new CommandHandler();
         commandHandler.register(new KDHelpCommand());
         commandHandler.register(new CreateCommand());
@@ -106,14 +104,29 @@ public class KingdomDefense extends JavaPlugin {
         commandHandler.register(new EditModeCommand());
         commandHandler.register(new ChatCommand());
         commandHandler.register(new LocationCommand());
+        commandHandler.register(new CoinCommand());
+        commandHandler.register(new ForceStartCommand());
         new ServerInitPacket().write();
     }
 
     @Override
     public void onDisable() {
-        if(this.signIO != null && this.mapIO != null) {
+        if(this.signIO != null) {
             this.signIO.save();
+        }
+        if(this.mapIO != null) {
             this.mapIO.save();
+            this.map.rollback();
+            this.map.dropBridge();
+        }
+        if(this.game != null) {
+            game.getBukkitPlayers().stream().forEach(player -> redirect(getHubServerName(), player));
+            game.setState(GameState.DOWN);
+            new GameInfoResponsePacket().write();
+        }
+        for(World world : getServer().getWorlds()) {
+            world.getEntities().stream().filter(entity -> !(entity instanceof Player))
+              .filter(entity1 -> entity1 instanceof LivingEntity).forEach(org.bukkit.entity.Entity::remove);
         }
     }
 
@@ -157,8 +170,8 @@ public class KingdomDefense extends JavaPlugin {
         return infoManager;
     }
 
-    public SQLManager getSqlManager() {
-        return sqlManager;
+    public InfoStore getInfoStore() {
+        return infoStore;
     }
 
     public MapIO getMapIO() {
@@ -167,5 +180,9 @@ public class KingdomDefense extends JavaPlugin {
 
     public CommandHandler getCommandHandler() {
         return commandHandler;
+    }
+
+    public Lobbyboard getLobbyboard() {
+        return lobbyboard;
     }
 }

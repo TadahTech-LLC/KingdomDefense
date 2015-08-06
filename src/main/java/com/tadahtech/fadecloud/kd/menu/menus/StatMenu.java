@@ -1,6 +1,7 @@
 package com.tadahtech.fadecloud.kd.menu.menus;
 
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.items.HeadItems;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
@@ -42,9 +43,7 @@ public class StatMenu extends Menu {
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.CREEPER),
             ChatColor.GRAY + "Level: " + ChatColor.AQUA + info.getLevel(TeamType.CREEPER))
           .build();
-        ItemStack skeleton = new ItemBuilder(new ItemStack(Material.SKULL_ITEM))
-          .data((byte) 3)
-          .setOwner("MHF_Skeleton")
+        ItemStack skeleton = new ItemBuilder(HeadItems.SKELETON)
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Skeleton Statistics")
           .lore(" ",
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.SKELETON),
@@ -57,9 +56,7 @@ public class StatMenu extends Menu {
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.ZOMBIE),
             ChatColor.GRAY + "Level: " + ChatColor.AQUA + info.getLevel(TeamType.ZOMBIE))
           .build();
-        ItemStack enderman = new ItemBuilder(new ItemStack(Material.SKULL_ITEM))
-          .data((byte) 3)
-          .setOwner("MHF_Enderman")
+        ItemStack enderman = new ItemBuilder(new ItemBuilder(new ItemStack(Material.SKULL_ITEM)).amount(1).data((byte) 3).setOwner("MHF_Enderman").build())
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Enderman Statistics")
           .lore(" ",
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.ENDERMAN),
@@ -81,7 +78,7 @@ public class StatMenu extends Menu {
     private class ShowButton extends Button {
 
         private ShowButton(ItemStack item) {
-            super(item, () -> {});
+            super(item, player -> {});
         }
     }
 }

@@ -50,8 +50,4 @@ public class CreeperItem extends ModSpecialItem {
         }
     }
 
-    @Override
-    protected long getCooldown() {
-        return 120;
-    }
 }

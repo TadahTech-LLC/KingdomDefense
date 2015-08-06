@@ -75,7 +75,7 @@ public class Region {
 		return (z <= maxZ && z >= minZ) && (x >= minX && x <= maxX) && (y <= maxY && y >= minY);
 	}
 
-	private void resize() {
+	public void resize() {
 		int minX = (this.minX);
 		int maxX = (this.maxX);
 		int minZ = (this.minZ);

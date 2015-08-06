@@ -220,16 +220,20 @@ public class Utils {
         return circleblocks;
     }
 
-    public static String formatTime(long millis) {
-        Long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
-        Long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        //noinspection StringBufferReplaceableByString
-        StringBuilder builder = new StringBuilder();
-        if(minutes > 0) {
-            builder.append(minutes < 10 ? "0" : "").append(minutes).append(":");
-        }
-        builder.append(seconds < 10 ? "0" : "").append(seconds);
-        return builder.toString();
+    public static String formatTime(int timeLeft) {
+        int seconds = timeLeft;
+        final int MINUTES_IN_AN_HOUR = 60;
+        final int SECONDS_IN_A_MINUTE = 60;
+
+        int minutes = seconds / SECONDS_IN_A_MINUTE;
+        seconds -= minutes * SECONDS_IN_A_MINUTE;
+
+        int hours = minutes / MINUTES_IN_AN_HOUR;
+        minutes -= hours * MINUTES_IN_AN_HOUR;
+
+        String min = (minutes > 10 ? "0" + minutes : "" + minutes);
+        String sec = (seconds > 10 ? "0" + seconds : "" + seconds);
+        return min + ":" + sec;
     }
 
     public static long getHours(long millis) {
@@ -245,7 +249,7 @@ public class Utils {
     }
 
     public static String friendly(String name) {
-        return null;
+        return pretty(name);
     }
 
     public static String toString(List<String> collect) {
@@ -258,5 +262,9 @@ public class Utils {
             }
         }
         return builder.toString();
+    }
+
+    public static int parse(String s) {
+        return Integer.parseInt(s);
     }
 }

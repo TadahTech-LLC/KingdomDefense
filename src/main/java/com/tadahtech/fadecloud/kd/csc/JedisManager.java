@@ -45,4 +45,7 @@ public class JedisManager {
         }
     }
 
+    public JedisPool getPool() {
+        return pool;
+    }
 }

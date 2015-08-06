@@ -25,7 +25,7 @@ public class PlayerMenu extends Menu {
     @Override
     protected Button[] setUp() {
         Button[] buttons = new Button[27];
-        buttons = pane(buttons, DyeColor.RED);
+        buttons = pane(buttons, DyeColor.BLACK);
         ItemStack stats = new ItemBuilder(new ItemStack(Material.BOOK_AND_QUILL))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Statistics")
           .lore(ChatColor.GRAY + "Click to view your Statistics page")

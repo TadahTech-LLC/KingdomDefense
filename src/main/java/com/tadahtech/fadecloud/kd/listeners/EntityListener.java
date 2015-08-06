@@ -12,10 +12,7 @@ import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityCombustEvent;
@@ -49,12 +46,26 @@ public class EntityListener implements Listener {
         } else {
             return;
         }
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if(entity.hasMetadata("king")) {
             TeamType teamType = (TeamType) entity.getMetadata("king").get(0).value();
+            if(info.getCurrentTeam().getType() == teamType) {
+                event.setCancelled(true);
+                return;
+            }
             King king = game.getKing(teamType);
             king.setHealth(king.getHealth() - event.getFinalDamage());
             game.moveCheck(player, player.getLocation());
             king.getTeam().getBukkitPlayers().stream().forEach(player1 -> PacketUtil.sendTitleToPlayer(player1, title, sub));
+            return;
+        }
+        if(entity.getType() == EntityType.ZOMBIE) {
+            if(!entity.hasMetadata("noBurn")) {
+                return;
+            }
+            if(info.getCurrentTeam().getType() == TeamType.ZOMBIE) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -86,7 +97,7 @@ public class EntityListener implements Listener {
 
     @EventHandler
     public void onBurn(EntityCombustEvent event) {
-        if(event.getEntity().hasMetadata("noBurn")) {
+        if(event.getEntity().hasMetadata("noBurn") || event.getEntity().hasMetadata("king")) {
             event.setCancelled(true);
         }
     }
@@ -98,6 +109,9 @@ public class EntityListener implements Listener {
             return;
         }
         Player killer = ((LivingEntity) entity).getKiller();
+        if(killer == null) {
+            return;
+        }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(killer);
         Game game = KingdomDefense.getInstance().getGame();
         TeamType teamType = (TeamType) entity.getMetadata("king").get(0).value();

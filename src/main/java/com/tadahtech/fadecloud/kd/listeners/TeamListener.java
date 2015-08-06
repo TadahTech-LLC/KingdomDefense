@@ -4,6 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.Island;
+import com.tadahtech.fadecloud.kd.map.structures.GridLocation;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.teams.enderman.EndermanTeam;
@@ -13,6 +14,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -40,7 +42,20 @@ public class TeamListener implements Listener {
         }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if(!(damagerEntity instanceof Player)) {
-           info.getCurrentTeam().onOtherDamage(event, info);
+            if(damagerEntity instanceof Projectile) {
+                Projectile projectile = (Projectile) damagerEntity;
+                if(projectile.getShooter() == null || !(projectile.getShooter() instanceof Player)) {
+                    info.getCurrentTeam().onOtherDamage(event, info);
+                    return;
+                }
+                Player shooter = (Player) projectile.getShooter();
+                PlayerInfo shooterInfo = KingdomDefense.getInstance().getInfoManager().get(shooter);
+                if(shooterInfo.getCurrentTeam().equals(info.getCurrentTeam())) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+            info.getCurrentTeam().onOtherDamage(event, info);
             return;
         }
         Player damager = (Player) damagerEntity;
@@ -55,6 +70,9 @@ public class TeamListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
+        if(KingdomDefense.EDIT_MODE) {
+            return;
+        }
         Player player = event.getPlayer();
         Location to = event.getTo();
         Location from = event.getFrom();
@@ -64,7 +82,8 @@ public class TeamListener implements Listener {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if(info.getCurrentTeam() != null) {
             Island island = info.getCurrentTeam().getIsland();
-            Optional<Structure> maybe = island.getStructure(to);
+            GridLocation loc = GridLocation.fromWorldLocation(island, player.getLocation());
+            Optional<Structure> maybe = island.getStructure(loc);
             if(maybe.isPresent()) {
                 Structure structure = maybe.get();
                 String message = structure.getName() + " " + structure.getLevel() + ChatColor.DARK_GRAY + " -> Shift-Left-Click to edit";
@@ -72,7 +91,9 @@ public class TeamListener implements Listener {
             }
             if(info.getCurrentTeam().getType() == TeamType.ENDERMAN) {
                 EndermanTeam team = (EndermanTeam) info.getCurrentTeam();
-                team.onMove(info);
+                if(info.isInvisibleFromChance() || info.isInvisible()) {
+                    team.onMove(info);
+                }
             }
         }
         Game game = KingdomDefense.getInstance().getGame();

@@ -5,7 +5,6 @@ import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.econ.EconomyManager;
 import com.tadahtech.fadecloud.kd.econ.EconomyReward;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.items.ThorItem;
 import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.map.LocationType;
@@ -15,13 +14,16 @@ import com.tadahtech.fadecloud.kd.nms.King;
 import com.tadahtech.fadecloud.kd.scoreboard.Gameboard;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
+import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.teams.creeper.CreeperTeam;
 import com.tadahtech.fadecloud.kd.teams.enderman.EndermanTeam;
 import com.tadahtech.fadecloud.kd.teams.skeleton.SkeletonTeam;
 import com.tadahtech.fadecloud.kd.teams.zombie.ZombieTeam;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
+import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -29,6 +31,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.inventivetalent.bossbar.BossBarAPI;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -38,11 +41,11 @@ public class Game {
 
     public static World WORLD;
 
-    private static final long PEACE = 20 * 60 * 15;
+    private static final long PEACE = 15 * 60;
 
     private CSTeam creeper, skeleton, enderman, zombie;
     private List<PlayerInfo> players;
-    private int timeLeft = 1200;
+    private int timeLeft = (int) TimeUnit.MINUTES.toSeconds(20);
     private GameState state;
     private GameMap map;
     private Map<TeamType, King> kings;
@@ -74,18 +77,21 @@ public class Game {
 
     public void addPlayer(PlayerInfo info) {
         this.players.add(info);
+        info.getBukkitPlayer().setGameMode(GameMode.SURVIVAL);
         doTeam(info);
         String message = ChatColor.AQUA + info.getBukkitPlayer().getName() + ChatColor.GRAY + " has joined. (" + ChatColor.YELLOW + getPlayers().size() + "/" + map.getMax() + ChatColor.GRAY + ")";
         if(map.getMin() == getPlayers().size()) {
             countdown();
         }
         gameboard.add(info);
+        gameboard.flip();
         info.getBukkitPlayer().teleport(lobby);
         getBukkitPlayers().stream().forEach(player -> player.sendMessage(message));
     }
 
+    @SuppressWarnings("deprecation")
     private void doTeam(PlayerInfo player) {
-        if(!player.getBukkitPlayer().hasPermission("kd.chooseTeam")) {
+        if(!player.getBukkitPlayer().hasPermission("kd.chooseTeam") && !player.isBeta()) {
             List<CSTeam> teamList = new ArrayList<>(Arrays.asList(teams()));
             Collections.shuffle(teamList);
             CSTeam[] teams = teamList.toArray(new CSTeam[4]);
@@ -96,6 +102,7 @@ public class Game {
                 }
             }
             team.add(player.getBukkitPlayer());
+            player.setCurrentTeam(team);
             Player bukkitPlayer = player.getBukkitPlayer();
             bukkitPlayer.sendMessage(ChatColor.YELLOW.toString() + ChatColor.BOLD + "You're now on the " + team.getType().fancy() + ChatColor.YELLOW + ChatColor.BOLD + " team");
             bukkitPlayer.sendMessage(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Want to chose your own team? Consider donating @ store.fadecloudmc.com");
@@ -111,21 +118,32 @@ public class Game {
 
     }
 
+    public void flip() {
+        this.gameboard.flip();
+    }
+
     public void removePlayer(PlayerInfo info) {
         this.players.remove(info);
-        KingdomDefense.getInstance().getSqlManager().save(info);
+        KingdomDefense.getInstance().getInfoStore().save(info);
         KingdomDefense.getInstance().redirect(KingdomDefense.getInstance().getHubServerName(), info.getBukkitPlayer());
+        this.gameboard.flip();
     }
 
     public void start() {
+        WORLD.getEntities().stream().filter(entity -> !(entity instanceof Player)).forEach(Entity::remove);
         this.kings.put(TeamType.CREEPER, new King(creeper, map));
         this.kings.put(TeamType.ZOMBIE, new King(zombie, map));
         this.kings.put(TeamType.ENDERMAN, new King(enderman, map));
         this.kings.put(TeamType.SKELETON, new King(skeleton, map));
         this.state = GameState.PEACE;
         new GameInfoResponsePacket().write();
+        this.map.getBridge().clear();
+        flip();
         getPlayers().stream().forEach(info -> {
-            info.setCoins(economyManager.getStarting(info));
+            double starting = economyManager.getStarting(info);
+            if (starting > 0) {
+                info.setCoins(info.getCoins() + starting);
+            }
             CSTeam team = info.getCurrentTeam();
             team.loadout(info.getBukkitPlayer());
             LocationType type;
@@ -149,12 +167,12 @@ public class Game {
             Player player = info.getBukkitPlayer();
             player.teleport(location);
             try {
-                CSKit.from("Default").give(player);
+                CSKit.getDefault().give(player);
             } catch (Exception e) {
                 System.out.println("No default kit specified. Skipping this step...");
             }
             if (info.isBeta()) {
-                new ThorItem().give(player, player.getInventory().firstEmpty());
+                player.sendMessage(ModSpecialItem.PREFIX + "You have the Thor kit unlocked, check your king to get it!");
             }
             player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
             PacketUtil.sendTitleToPlayer(player, ChatColor.AQUA + "BEGIN", "");
@@ -164,7 +182,6 @@ public class Game {
             @Override
             public void run() {
                 timeLeft--;
-                gameboard.flip();
                 if(timeLeft == 0) {
                     end();
                     cancel();
@@ -182,6 +199,8 @@ public class Game {
 
                 if(timeLeft == PEACE) {
                     state = GameState.BATTLE;
+                    flip();
+                    new GameInfoResponsePacket().write();
                     map.dropBridge();
                     getBukkitPlayers().stream().forEach(player ->{
                         String title = ChatColor.DARK_RED + "ATTACK!";
@@ -193,7 +212,7 @@ public class Game {
                 if(state == GameState.PEACE && seconds == 0 && minutes > 15) {
                     int time = Math.abs(15 - minutes);
                     String title = ChatColor.DARK_RED.toString() + time;
-                    String subtitle = ChatColor.GRAY + "Minutes Till Battle";
+                    String subtitle = ChatColor.GRAY + Utils.plural("Minute", time) + " Till Battle";
                     getBukkitPlayers().stream().forEach(player -> PacketUtil.sendTitleToPlayer(player, title, subtitle));
                 }
             }
@@ -202,6 +221,7 @@ public class Game {
 
     public void countdown() {
         List<Player> players = getBukkitPlayers();
+        this.state = GameState.COUNTDOWN;
         new BukkitRunnable() {
 
             private int time = 30;
@@ -219,8 +239,9 @@ public class Game {
                     return;
                 }
                 String title = ChatColor.YELLOW.toString() + ChatColor.BOLD + time;
-                players.stream().forEach(player -> PacketUtil.sendTitleToPlayer(player, title, ChatColor.YELLOW + "Game starts in"));
+                players.stream().forEach(player1 -> player1.setLevel(time));
                 if (time % 5 == 0 || time < 10) {
+                    players.stream().forEach(player -> PacketUtil.sendTitleToPlayer(player, title, ChatColor.YELLOW + "Game starts in"));
                     players.stream().forEach(player -> player.playSound(player.getLocation(), Sound.ORB_PICKUP, 5.0F, 1.0F));
                 }
                 time--;
@@ -358,16 +379,16 @@ public class Game {
         String message = ChatColor.RED + "Kingdom Defense : " + ChatColor.AQUA + "fadecloudmc.com";
         if (creeper.canBuild(to)) {
             health = (float) getHealth(TeamType.CREEPER) / 100F;
-            message = ChatColor.DARK_GREEN + "Creeper King Health";
+            message = ChatColor.GREEN + "Creeper King Health";
         } else if (zombie.canBuild(to)) {
             health = (float) getHealth(TeamType.ZOMBIE) / 100F;
             message = ChatColor.DARK_GREEN + "Zombie King Health";
         } else if (enderman.canBuild(to)) {
             health = (float) getHealth(TeamType.ENDERMAN) / 100F;
-            message = ChatColor.DARK_GREEN + "Enderman King Health";
+            message = ChatColor.LIGHT_PURPLE + "Enderman King Health";
         } else if (skeleton.canBuild(to)) {
             health = (float) getHealth(TeamType.SKELETON) / 100F;
-            message = ChatColor.DARK_GREEN + "Skeleton King Health";
+            message = ChatColor.GRAY + "Skeleton King Health";
         }
         BossBarAPI.setMessage(player, message, health);
     }
@@ -420,5 +441,9 @@ public class Game {
 
     public EconomyManager getEconomyManager() {
         return economyManager;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
     }
 }

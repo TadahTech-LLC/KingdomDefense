@@ -40,7 +40,7 @@ public class EndermanTeam extends CSTeam {
             Player player = info.getBukkitPlayer();
             Location location = player.getLocation();
             for(int i = 0; i < 10; i++) {
-                location.getWorld().playEffect(location, Effect.SMOKE, Effect.SMOKE.getData());
+                location.getWorld().playEffect(location, Effect.SMOKE, 0);
             }
         }
     }
@@ -67,6 +67,11 @@ public class EndermanTeam extends CSTeam {
 
     @Override
     public void onHit(EntityDamageByEntityEvent event, PlayerInfo info) {
+        if(!info.getBukkitPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+            info.setInvisible(false);
+            info.setInvisibleFromChance(true);
+            return;
+        }
         if(info.isInvisible()) {
             Player player = info.getBukkitPlayer();
             if(player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) {

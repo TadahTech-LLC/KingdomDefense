@@ -43,15 +43,11 @@ public class SkeletonItem extends ModSpecialItem {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         int level = info.getLevel(TeamType.SKELETON);
         int radius = level * 3;
-        List<Location> circle = Utils.circle(player.getEyeLocation(), radius, 1, false, false, 20);
+        List<Location> circle = Utils.circle(player.getEyeLocation(), radius, 1, true, false, 20);
         for(Location location : circle) {
             CustomFirework.spawn(location, effect);
             location.getWorld().spawn(location, Arrow.class);
         }
     }
 
-    @Override
-    protected long getCooldown() {
-        return 120;
-    }
 }

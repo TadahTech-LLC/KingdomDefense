@@ -3,6 +3,7 @@ package com.tadahtech.fadecloud.kd.menu.menus;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
+import com.tadahtech.fadecloud.kd.map.Island;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.map.structures.WorldEditAssit;
 import com.tadahtech.fadecloud.kd.map.structures.strucs.DefenseStructure;
@@ -34,7 +35,7 @@ public class UpgradeStructureMenu extends Menu {
         Button[] buttons = new Button[27];
         if (structure instanceof Guardian) {
             ItemStack upgrade = new ItemBuilder(new ItemStack(Material.EMERALD_BLOCK))
-              .name(ChatColor.YELLOW.toString() + ChatColor.BOLD)
+              .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Upgrade")
               .lore(" ", ChatColor.GREEN.toString() + ChatColor.BOLD + "Click to Upgrade to " + (structure.getLevel() + 1),
                 ChatColor.RED + "Cost: " + structure.getNextCost())
               .build();
@@ -42,15 +43,13 @@ public class UpgradeStructureMenu extends Menu {
             Guardian structure = (Guardian) this.structure;
             ItemBuilder builder = new ItemBuilder(new ItemStack(Material.EMERALD));
             builder.name(ChatColor.GOLD + "Healing Cooldown");
-            builder.lore(" ",
-              ChatColor.GREEN.toString() + structure.getCooldown() + " " + Utils.plural("second", structure.getCooldown()),
+            builder.lore(ChatColor.GREEN.toString() + structure.getCooldown() + " " + Utils.plural("second", structure.getCooldown()),
               ChatColor.RED + "Next: ",
               ChatColor.GREEN.toString() + (structure.getCooldown() - 5));
             ItemStack health = new ItemBuilder(new Wool(DyeColor.LIME).toItemStack())
               .amount(1)
               .name(ChatColor.GOLD + "Health Per Cycle")
-              .lore(" ",
-                ChatColor.GREEN.toString() + structure.getHealthPerTick(),
+              .lore(ChatColor.GREEN.toString() + structure.getHealthPerTick() + " hearts",
                 ChatColor.RED + "Next: ",
                 ChatColor.GREEN.toString() + (structure.getHealthPerTick() * 1.5))
               .build();
@@ -71,7 +70,8 @@ public class UpgradeStructureMenu extends Menu {
                 structure.setCooldown(structure.getCooldown() - 5);
                 structure.setHealthPerTick(structure.getHealthPerTick() * 1.5);
                 structure.setLevel(structure.getLevel() + 1);
-                WorldEditAssit.pasteStructure(info.getCurrentTeam().getIsland(), player.getLocation(), structure, structure.getLevel());
+                Island island = info.getCurrentTeam().getIsland();
+                WorldEditAssit.pasteStructure(island, structure.getLocation(), structure, structure.getRotation(), structure.getLevel(), true);
                 player.closeInventory();
             });
             return buttons;
@@ -80,23 +80,21 @@ public class UpgradeStructureMenu extends Menu {
         DefenseStructure structure = (DefenseStructure) this.structure;
         ItemBuilder builder = new ItemBuilder(new ItemStack(Material.EMERALD));
         builder.name(ChatColor.GOLD + "Fire Rate");
-        builder.lore(" ",
-          ChatColor.GREEN.toString() + structure.getFireRate(),
+        builder.lore(ChatColor.GREEN.toString() + structure.getFireRate() + " projectiles per second",
           ChatColor.RED + "Next: ",
-          ChatColor.GREEN.toString() + (structure.getFireRate() * 2));
+          ChatColor.GREEN.toString() + (structure.getFireRate() * 2) + " projectiles per second");
 
         buttons[11] = new Button(builder.build(), () -> {});
         ItemStack damage = new ItemBuilder(new ItemStack(Material.ARROW))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Damage")
-          .lore(" ",
-            ChatColor.GREEN.toString() + structure.getDamage(),
+          .lore(ChatColor.GREEN.toString() + structure.getDamage() + "hearts",
             ChatColor.RED + "Next: ",
-            ChatColor.GREEN.toString() + ChatColor.BOLD + (structure.getDamage() * 1.5))
+            ChatColor.GREEN.toString() + ChatColor.BOLD + (structure.getDamage() * 1.5) + " hearts")
           .build();
         buttons[13] = new Button(damage, () -> {});
         ItemStack upgrade = new ItemBuilder(new ItemStack(Material.EMERALD_BLOCK))
-          .name(ChatColor.YELLOW.toString() + ChatColor.BOLD)
-          .lore(" ", ChatColor.GREEN.toString() + ChatColor.BOLD + "Click to Upgrade to " + (structure.getLevel() + 1),
+          .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Upgrade! ")
+          .lore(" ", ChatColor.GREEN.toString() + ChatColor.BOLD + "Click to Upgrade to Level " + (structure.getLevel() + 1),
             ChatColor.RED + "Cost: " + structure.getNextCost())
           .build();
         buttons[17] = new Button(upgrade, player -> {
@@ -114,7 +112,8 @@ public class UpgradeStructureMenu extends Menu {
             structure.setFireRate(structure.getFireRate() * 2);
             structure.setDamage(structure.getDamage() * 1.5);
             structure.setLevel(structure.getLevel() + 1);
-            WorldEditAssit.pasteStructure(info.getCurrentTeam().getIsland(), player.getLocation(), structure, structure.getLevel());
+            Island island = info.getCurrentTeam().getIsland();
+            WorldEditAssit.pasteStructure(island, structure.getLocation(), structure, structure.getRotation(), structure.getLevel(), true);
             player.closeInventory();
             info.sendMessage(structure.getName() + ChatColor.YELLOW + " tower upgraded!.");
         });

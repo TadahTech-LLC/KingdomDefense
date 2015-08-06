@@ -2,6 +2,7 @@ package com.tadahtech.fadecloud.kd.menu.menus;
 
 import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.kit.kits.ThorKit;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import net.md_5.bungee.api.ChatColor;
@@ -19,10 +20,14 @@ import java.util.Collections;
 public class KitMenu extends Menu {
 
     private PlayerInfo info;
+    private ThorKit thorKit;
 
     public KitMenu(PlayerInfo info) {
         super(ChatColor.DARK_PURPLE + "Kits");
         this.info = info;
+        if(thorKit == null) {
+            this.thorKit = new ThorKit();
+        }
     }
 
     @Override
@@ -31,6 +36,9 @@ public class KitMenu extends Menu {
         Button[] buttons = new Button[((kits.length + 8) / 9 * 9)];
         for(int i = 0; i < kits.length; i++) {
             CSKit kit = kits[i];
+            if(kit.getName().equalsIgnoreCase("example")) {
+                continue;
+            }
             ItemStack itemStack = new ItemStack(kit.getItems().get(0));
 
             ItemMeta meta = itemStack.getItemMeta();

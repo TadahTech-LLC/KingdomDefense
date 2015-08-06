@@ -39,16 +39,18 @@ public class ZombieItem extends ModSpecialItem {
             EntityZombie zombie = (EntityZombie) attackZombie.get();
             new BukkitRunnable() {
 
-                private int reps = 0, threeReps = 0, timeLeft = 30; ;
+                private int reps = 0;
+                private int timeLeft = 30;
                 private String green = ChatColor.GREEN + "█";
                 private String red = ChatColor.RED + "█";
 
                 @Override
                 public void run() {
                     int left = 0;
+                    timeLeft -= 3;
                     StringBuilder builder = new StringBuilder();
                     builder.append(ChatColor.GOLD).append(ChatColor.BOLD).append("Time Remaining: ");
-                    for (int i = 10; i > threeReps; i--) {
+                    for (int i = 10; i > reps; i--) {
                         builder.append(green);
                         left++;
                     }
@@ -59,23 +61,15 @@ public class ZombieItem extends ModSpecialItem {
                     builder.append(timeLeft).append("s)");
                     PacketUtil.sendActionBarMessage(player, builder.toString());
                     reps++;
-                    timeLeft--;
-                    if (reps % 3 == 0) {
-                        threeReps++;
-                    }
                     if (reps >= 10) {
                         cancel();
                         zombie.getBukkitEntity().getWorld().strikeLightningEffect(zombie.getBukkitEntity().getLocation());
                         zombie.getBukkitEntity().remove();
                     }
                 }
-            }.runTaskTimer(KingdomDefense.getInstance(), 0L, 20L);
+            }.runTaskTimer(KingdomDefense.getInstance(), 0L, 60L);
         }
     }
 
-    @Override
-    protected long getCooldown() {
-        return 120;
-    }
 }
 

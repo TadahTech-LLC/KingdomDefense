@@ -56,18 +56,20 @@ public class PurchaseStructureMenu extends Menu {
           .build();
         Island island = info.getCurrentTeam().getIsland();
         buttons[10] = new Button(guardian, player -> {
-            int count = island.getCount(StructureType.GURADIAN);
+            int count = island.getCount(StructureType.GUARDIAN);
             if(count >= 4) {
                 info.sendMessage(ChatColor.RED + "There are already 4 Guardian towers!");
                 player.closeInventory();
                 return;
             }
-            if(!charge(StructureType.GURADIAN, info)) {
+            if(!charge(StructureType.GUARDIAN, info)) {
                 player.closeInventory();
                 info.sendMessage(ChatColor.RED + "You cannot afford this!");
                 return;
             }
+            info.remove(StructureType.GUARDIAN.getCost());
             new Guardian(info).give(player);
+            player.closeInventory();
         });
         buttons[12] = new Button(archer, player -> {
             int count = island.getCount(StructureType.ARCHER);
@@ -81,7 +83,9 @@ public class PurchaseStructureMenu extends Menu {
                 info.sendMessage(ChatColor.RED + "You cannot afford this!");
                 return;
             }
+            info.remove(StructureType.ARCHER.getCost());
             new Archer(info).give(player);
+            player.closeInventory();
         });
         buttons[14] = new Button(blaze, player -> {
             int count = island.getCount(StructureType.BLAZE);
@@ -96,6 +100,8 @@ public class PurchaseStructureMenu extends Menu {
                 return;
             }
             new BlazeTower(info).give(player);
+            info.remove(StructureType.BLAZE.getCost());
+            player.closeInventory();
         });
         buttons[16] = new Button(tesla, player ->{
             int count = island.getCount(StructureType.TESLA);
@@ -109,7 +115,9 @@ public class PurchaseStructureMenu extends Menu {
                 info.sendMessage(ChatColor.RED + "You cannot afford this!");
                 return;
             }
+            info.remove(StructureType.TESLA.getCost());
             new TeslaTower(info).give(player);
+            player.closeInventory();
         });
         return buttons;
     }
@@ -120,6 +128,6 @@ public class PurchaseStructureMenu extends Menu {
     }
 
     public boolean charge(StructureType type, PlayerInfo info) {
-        return info.remove(type.getCost());
+        return info.hasEnough(type.getCost());
     }
 }

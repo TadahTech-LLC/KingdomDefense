@@ -1,10 +1,11 @@
 package com.tadahtech.fadecloud.kd.map;
 
 import com.google.common.collect.Maps;
+import com.sk89q.worldedit.Vector;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.map.structures.GridLocation;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.utils.Utils;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -20,8 +21,9 @@ import java.util.stream.Collectors;
 public class Island {
 
     private Region region, castleRegion;
-    private Map<Chunk, Structure> structures;
+    private Map<GridLocation, Structure> structures;
     private int lowest;
+    private Vector min;
 
     public Island(Region region, Region castleRegion) {
         this.region = region;
@@ -29,16 +31,16 @@ public class Island {
         this.structures = new HashMap<>();
     }
 
-    public Optional<Structure> getStructure(Location location) {
-        return Optional.ofNullable(structures.get(location.getChunk()));
+    public Optional<Structure> getStructure(GridLocation location) {
+        return Optional.ofNullable(structures.get(location));
     }
 
     public boolean inCastle(Location location) {
         return castleRegion.canBuild(location);
     }
 
-    public void addStructure(Chunk chunk, Structure structure) {
-        structures.put(chunk, structure);
+    public void addStructure(GridLocation location, Structure structure) {
+        structures.put(location, structure);
     }
 
     public Region getRegion() {
@@ -93,4 +95,10 @@ public class Island {
         return structures.values().stream().filter(structure -> structure.getStructureType() == type).collect(Collectors.toList()).size();
     }
 
+    public Vector getMin() {
+        if(min == null) {
+            min = new Vector(region.getMin().getX(), 0, region.getMin().getZ());
+        }
+        return min;
+    }
 }

@@ -23,6 +23,7 @@ public class CSKit {
     private String[] description;
     private static  Map<UUID, Long> cooldowns = Maps.newHashMap();
 
+
     public CSKit(List<ItemStack> items, String name, String... description) {
         this.items = items;
         this.name = name;
@@ -56,7 +57,7 @@ public class CSKit {
             return;
         }
         getItems().stream().forEach(item -> player.getInventory().addItem(item));
-        player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Chosen " + getName() + "!");
+        player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Given the " + getName() + " kit.");
         player.closeInventory();
         cooldowns.putIfAbsent(player.getUniqueId(), System.currentTimeMillis());
     }
@@ -85,7 +86,6 @@ public class CSKit {
             base += ChatColor.DARK_AQUA.toString() + amount;
             builder.append(base).append(" ").append(ChatColor.WHITE).append("(").append(ChatColor.RESET).append(name).append(ChatColor.WHITE).append(")");
             lore.add(builder.toString());
-            lore.add(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "-------------------");
             builder = new StringBuilder();
             if (enchantments != null && !enchantments.isEmpty()) {
                 builder.append(ChatColor.RED).append("Enchantments: ");
@@ -136,5 +136,9 @@ public class CSKit {
 
     public boolean hasPermission(Player bukkitPlayer) {
         return bukkitPlayer.hasPermission("kd.kits." + getName().toLowerCase());
+    }
+
+    public static CSKit getDefault() {
+        return kits.get("Default");
     }
 }

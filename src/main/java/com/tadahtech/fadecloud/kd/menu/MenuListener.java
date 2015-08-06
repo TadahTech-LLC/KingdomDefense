@@ -41,7 +41,7 @@ public class MenuListener implements Listener {
     public void onClose(InventoryCloseEvent event) {
         Inventory inventory = event.getInventory();
         Player player = (Player) event.getPlayer();
-        Menu menu = Menu.remove(player.getUniqueId());
+        Menu menu = Menu.get(player.getUniqueId());
         String name = inventory.getName();
         if (menu == null) {
             return;

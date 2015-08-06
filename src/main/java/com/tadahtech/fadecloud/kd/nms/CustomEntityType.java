@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.nms;
 
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.nms.mobs.CSCreeper;
 import com.tadahtech.fadecloud.kd.nms.mobs.CSEnderman;
 import com.tadahtech.fadecloud.kd.nms.mobs.CSSkeleton;
@@ -12,6 +13,7 @@ import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by Timothy Andis
@@ -19,9 +21,9 @@ import java.util.Map;
 public enum CustomEntityType {
 
     ZOMBIE("Zombie", 54, CSZombie.class),
-    SKELETON("Skeleton", 54, CSZombie.class),
-    CREEPER("Creeper", 54, CSZombie.class),
-    ENDERMAN("Enderman", 54, CSZombie.class),
+    SKELETON("Skeleton", 51, CSSkeleton.class),
+    CREEPER("Creeper", 50, CSCreeper.class),
+    ENDERMAN("Enderman", 58, CSEnderman.class),
     ;
 
     CustomEntityType(String name, int id, Class<? extends EntityInsentient> custom) {
@@ -77,5 +79,14 @@ public enum CustomEntityType {
             e.printStackTrace();
         }
         return o;
+    }
+
+    public static void register() {
+        Logger logger = KingdomDefense.getInstance().getLogger();
+        logger.info("Registered " + CustomEntityType.ZOMBIE.name() );
+        logger.info("Registered " + CustomEntityType.ENDERMAN.name() );
+        logger.info("Registered " + CustomEntityType.SKELETON.name() );
+        logger.info("Registered " + CustomEntityType.CREEPER.name() );
+
     }
 }

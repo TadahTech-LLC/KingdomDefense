@@ -2,21 +2,22 @@ package com.tadahtech.fadecloud.kd.commands.sub;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.commands.SubCommand;
-import net.md_5.bungee.api.ChatColor;
+import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import org.bukkit.command.CommandSender;
 
 /**
  * Created by Timothy Andis
  */
-public class EditModeCommand implements SubCommand {
+public class ForceStartCommand implements SubCommand {
+
     @Override
     public String getName() {
-        return "tem";
+        return "force";
     }
 
     @Override
     public String getPermission() {
-        return "kd.editmode";
+        return "kd.admin";
     }
 
     @Override
@@ -26,20 +27,17 @@ public class EditModeCommand implements SubCommand {
 
     @Override
     public String getDescription() {
-        return "Toggle Edit mode";
+        return "Force start a game";
     }
 
     @Override
     public String[] getAliases() {
-        return new String[] {
-          "editMode",
-          "toggleEditMode"
-        };
+        return new String[0];
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        KingdomDefense.EDIT_MODE = !KingdomDefense.EDIT_MODE;
-        sender.sendMessage(ChatColor.GREEN + "Toggled Edit mode.");
+        KingdomDefense.getInstance().getGame().start();
+        sender.sendMessage(ModSpecialItem.PREFIX + "Force started the game");
     }
 }

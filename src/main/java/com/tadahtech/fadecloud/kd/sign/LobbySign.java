@@ -65,19 +65,19 @@ public class LobbySign {
     }
 
     public void update(GameInfoResponsePacket responsePacket) {
-        for(Sign sign : signs) {
-            sign.setLine(0, FIRST);
-            sign.setLine(1, ChatColor.BLUE + responsePacket.arena);
-            String players = ChatColor.DARK_BLUE + "(" + responsePacket.players + " / " + responsePacket.max + ")";
-            sign.setLine(2, players);
-            sign.setLine(3, responsePacket.state.format());
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    sign.update(true);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Sign sign : signs) {
+                    sign.setLine(0, FIRST);
+                    sign.setLine(1, ChatColor.BLUE + responsePacket.arena);
+                    String players = ChatColor.DARK_BLUE + "(" + responsePacket.players + " / " + responsePacket.max + ")";
+                    sign.setLine(2, players);
+                    sign.setLine(3, responsePacket.state.format());
+                    sign.update(true, true);
                 }
-            }.runTask(KingdomDefense.getInstance());
-        }
+            }
+        }.runTask(KingdomDefense.getInstance());
     }
 
     public static Collection<LobbySign> getAll() {
@@ -98,17 +98,17 @@ public class LobbySign {
 
     public static void load(FileConfiguration config) {
         ConfigurationSection section = config.getConfigurationSection("signs");
-        if(section == null) {
+        if (section == null) {
             return;
         }
-        for(String s : section.getKeys(false)) {
+        for (String s : section.getKeys(false)) {
             List<String> signsRaw = section.getStringList(s + ".locations");
             List<Sign> signs = Lists.newArrayList();
-            for(String raw : signsRaw) {
+            for (String raw : signsRaw) {
                 Location location = Utils.locFromString(raw);
                 Block block = location.getBlock();
                 BlockState state = block.getState();
-                if(!(state instanceof Sign)) {
+                if (!(state instanceof Sign)) {
                     return;
                 }
                 signs.add((Sign) state);

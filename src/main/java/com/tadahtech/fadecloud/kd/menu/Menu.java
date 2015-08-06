@@ -44,7 +44,7 @@ public abstract class Menu {
 
     public Button[] pane(Button[] buttons, DyeColor color) {
         ItemStack item = ItemBuilder.wrap(new ItemStack(Material.STAINED_GLASS_PANE))
-          .data(color.getWoolData())
+          .data(DyeColor.BLACK.getWoolData())
           .amount(1)
           .name(" ")
           .build();
@@ -65,7 +65,10 @@ public abstract class Menu {
 
     public void open(Player player) {
         this.setButtons(setUp());
-        guis.put(player.getUniqueId(), this);
+        if(guis.get(player.getUniqueId()) != null) {
+            guis.remove(player.getUniqueId());
+        }
+        guis.putIfAbsent(player.getUniqueId(), this);
         int size = (this.buttons.length + 8) / 9 * 9;
         Inventory inventory = Bukkit.createInventory(player, size, getName());
         for (int i = 0; i < buttons.length; i++) {
