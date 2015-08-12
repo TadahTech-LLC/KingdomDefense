@@ -4,7 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
-import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Effect;
@@ -24,9 +24,9 @@ import java.util.List;
 public class EndermanItem extends ModSpecialItem {
 
     public EndermanItem() {
-        super(ItemBuilder.wrap(new ItemStack(Material.EYE_OF_ENDER, 1, (byte) 4))
+        super(ItemBuilder.wrap(new ItemStack(Material.EYE_OF_ENDER, 1))
           .name(ChatColor.GRAY.toString() + ChatColor.BOLD + "Vanish")
-          .lore(" ", ChatColor.GRAY + "Vanish into Thin Air.")
+          .lore(ChatColor.GRAY + "Vanish into Thin Air.")
           .build());
     }
 
@@ -38,7 +38,7 @@ public class EndermanItem extends ModSpecialItem {
         player.addPotionEffect(effect);
         Location location = player.getLocation();
         location.getWorld().playSound(location, Sound.ENDERMAN_TELEPORT, 3.4F, 1.0F);
-        List<Location> circle = Utils.circle(location, 2, 3, true, false, 0);
+        List<Location> circle = Utils.circle(location, 1, 2, true, false, 0);
         for(Location loc : circle) {
             for(int i = 0; i < 10; i++) {
                 loc.getWorld().playEffect(loc, Effect.PARTICLE_SMOKE, 0);

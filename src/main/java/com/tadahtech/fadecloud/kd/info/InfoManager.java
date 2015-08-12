@@ -23,16 +23,15 @@ public class InfoManager {
     }
 
     public PlayerInfo get(UUID uuid) {
+        System.out.println(infoMap);
         Optional<PlayerInfo> maybeInfo = Optional.ofNullable(infoMap.get(uuid));
         if (!maybeInfo.isPresent()) {
             return null;
-
         }
         return maybeInfo.get();
     }
 
     public PlayerInfo get(Player player) {
-        //Check for delayed shit
         return get(player.getUniqueId());
     }
 

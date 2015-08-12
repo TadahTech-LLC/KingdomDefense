@@ -1,6 +1,7 @@
 package com.tadahtech.fadecloud.kd.teams;
 
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.items.WrappedEnchantment;
 import com.tadahtech.fadecloud.kd.teams.creeper.CreeperItem;
 import com.tadahtech.fadecloud.kd.teams.enderman.EndermanItem;

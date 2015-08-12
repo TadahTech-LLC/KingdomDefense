@@ -2,7 +2,6 @@ package com.tadahtech.fadecloud.kd.items;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.utils.CustomFirework;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;

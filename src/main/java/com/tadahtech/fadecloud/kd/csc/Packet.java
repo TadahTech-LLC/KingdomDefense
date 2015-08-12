@@ -21,7 +21,7 @@ public abstract class Packet {
     public Packet() {
         this.name = getClass().getSimpleName();
         this.lastId = lastId + 1;
-        packets.put(name, this);
+        packets.putIfAbsent(name, this);
     }
 
     public String getName() {

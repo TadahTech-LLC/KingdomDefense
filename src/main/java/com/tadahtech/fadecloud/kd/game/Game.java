@@ -14,7 +14,7 @@ import com.tadahtech.fadecloud.kd.nms.King;
 import com.tadahtech.fadecloud.kd.scoreboard.Gameboard;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
-import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.teams.creeper.CreeperTeam;
 import com.tadahtech.fadecloud.kd.teams.enderman.EndermanTeam;
 import com.tadahtech.fadecloud.kd.teams.skeleton.SkeletonTeam;
@@ -101,7 +101,6 @@ public class Game {
                     team = csTeam;
                 }
             }
-            team.add(player.getBukkitPlayer());
             player.setCurrentTeam(team);
             Player bukkitPlayer = player.getBukkitPlayer();
             bukkitPlayer.sendMessage(ChatColor.YELLOW.toString() + ChatColor.BOLD + "You're now on the " + team.getType().fancy() + ChatColor.YELLOW + ChatColor.BOLD + " team");
@@ -145,6 +144,7 @@ public class Game {
                 info.setCoins(info.getCoins() + starting);
             }
             CSTeam team = info.getCurrentTeam();
+
             team.loadout(info.getBukkitPlayer());
             LocationType type;
             switch (team.getType()) {
@@ -165,6 +165,7 @@ public class Game {
             }
             Location location = map.getLocation(type).get();
             Player player = info.getBukkitPlayer();
+            team.applyEffects(player);
             player.teleport(location);
             try {
                 CSKit.getDefault().give(player);

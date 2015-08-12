@@ -124,7 +124,7 @@ public class EntityListener implements Listener {
             player.sendMessage(ChatColor.RED + "You are now out of the game.");
             player.sendMessage(ChatColor.RED + "Feel free to join another, or stay and spectate.");
             player.setGameMode(GameMode.SPECTATOR);
-            GameListener.hubItem.give(player, 8);
+            GameListener.HUB.give(player, 8);
         });
         game.getBukkitPlayers().stream().forEach(player -> {
             String title = killer.getName();

@@ -42,7 +42,7 @@ public abstract class Menu {
         });
     }
 
-    public Button[] pane(Button[] buttons, DyeColor color) {
+    public Button[] pane(Button[] buttons) {
         ItemStack item = ItemBuilder.wrap(new ItemStack(Material.STAINED_GLASS_PANE))
           .data(DyeColor.BLACK.getWoolData())
           .amount(1)

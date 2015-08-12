@@ -6,6 +6,7 @@ import com.tadahtech.fadecloud.kd.achievements.CSAchievement;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
+import com.tadahtech.fadecloud.kd.party.Party;
 import com.tadahtech.fadecloud.kd.scoreboard.Lobbyboard;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
@@ -46,6 +47,8 @@ public class PlayerInfo {
     private boolean invisibleFromChance = false;
     private boolean teamChat = true;
     private Structure currentStructure;
+    private Party party;
+    private Party invitedTo;
 
     public PlayerInfo(Player player) {
         this.uuid = player.getUniqueId();
@@ -348,5 +351,21 @@ public class PlayerInfo {
         return new PlayerInfo(uuid, coins, kills, deaths, kits,
             creeper_level, creeper_wins, zombie_level, zombie_wins, enderman_level, enderman_wins, skeleton_level, skeleton_wins);
 
+    }
+
+    public Party getParty() {
+        return party;
+    }
+
+    public void setParty(Party party) {
+        this.party = party;
+    }
+
+    public void setInvitedTo(Party invitedTo) {
+        this.invitedTo = invitedTo;
+    }
+
+    public Party getInvitedTo() {
+        return invitedTo;
     }
 }

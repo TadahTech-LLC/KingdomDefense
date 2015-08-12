@@ -73,7 +73,13 @@ public abstract class CSTeam extends Tickable {
         this.loadout.load(player);
     }
 
-    public abstract void add(Player player);
+    protected void add(Player player) {
+
+    }
+
+    public void applyEffects(Player player) {
+
+    }
 
     public List<Player> getBukkitPlayers() {
         return players.stream().map(Bukkit::getPlayer).collect(Collectors.toList());

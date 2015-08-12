@@ -12,7 +12,6 @@ import com.tadahtech.fadecloud.kd.map.structures.strucs.TeslaTower;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -32,7 +31,7 @@ public class PurchaseStructureMenu extends Menu {
     @Override
     protected Button[] setUp() {
         Button[] buttons = new Button[27];
-        buttons = pane(buttons, DyeColor.BLACK);
+        buttons = pane(buttons);
         ItemStack guardian = new ItemStack(Material.EMERALD_BLOCK);
         guardian = new ItemBuilder(guardian)
           .name(ChatColor.GREEN.toString() + ChatColor.BOLD + "Guardian")

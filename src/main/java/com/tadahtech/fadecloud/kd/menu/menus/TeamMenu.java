@@ -37,7 +37,6 @@ public class TeamMenu extends Menu {
                 }
                 player.sendMessage(ChatColor.GREEN + "You are on the " + team.getType().fancy() + " team.");
                 KingdomDefense.getInstance().getInfoManager().get(player).setCurrentTeam(team);
-                team.add(player);
                 player.closeInventory();
             });
             slot += 2;

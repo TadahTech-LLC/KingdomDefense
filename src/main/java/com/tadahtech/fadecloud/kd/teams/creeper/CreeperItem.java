@@ -4,7 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
-import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -23,9 +23,11 @@ import java.util.List;
 public class CreeperItem extends ModSpecialItem {
 
     public CreeperItem() {
-        super(ItemBuilder.wrap(new ItemStack(Material.SKULL_ITEM, 1, (byte) 4))
+        super(ItemBuilder.wrap(new ItemStack(Material.SKULL_ITEM))
+          .data((byte) 4)
+          .amount(1)
           .name(ChatColor.GREEN.toString() + ChatColor.BOLD + "Self Destruct")
-          .lore(" ", ChatColor.GRAY + "Right click to summon TNT around you.")
+          .lore(ChatColor.GRAY + "Right click to summon TNT around you.")
           .build());
     }
 

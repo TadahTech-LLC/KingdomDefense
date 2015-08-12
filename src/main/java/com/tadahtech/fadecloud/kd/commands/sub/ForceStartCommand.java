@@ -2,7 +2,7 @@ package com.tadahtech.fadecloud.kd.commands.sub;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.commands.SubCommand;
-import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import org.bukkit.command.CommandSender;
 
 /**

@@ -20,7 +20,7 @@ public class SingularObjectThread<T extends Tickable> {
         this.t = object;
         int delay = 0;
         if (waitForGame) {
-            delay = 20 * 60 * 30;
+            delay = 20 * 60 * 5;
         }
         this.task = new BukkitRunnable() {
             @Override

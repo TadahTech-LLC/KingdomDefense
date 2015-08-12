@@ -1,10 +1,9 @@
-package com.tadahtech.fadecloud.kd.teams;
+package com.tadahtech.fadecloud.kd.items;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.items.HubItem;
 import com.tadahtech.fadecloud.kd.map.Island;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
@@ -49,7 +48,7 @@ public abstract class ModSpecialItem {
         }
         Game game = KingdomDefense.getInstance().getGame();
         if(game != null) {
-            if(this instanceof HubItem) {
+            if(alwaysAllow()) {
                 this.onClick(player);
                 return;
             }
@@ -82,6 +81,10 @@ public abstract class ModSpecialItem {
         }
         itemStack.setDurability((short) 0);
         player.setItemInHand(itemStack);
+    }
+
+    protected boolean alwaysAllow() {
+        return false;
     }
 
     public abstract void onClick(Player player);

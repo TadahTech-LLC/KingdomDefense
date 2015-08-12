@@ -2,6 +2,7 @@ package com.tadahtech.fadecloud.kd.items;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -108,6 +109,28 @@ public class ItemBuilder {
      */
     public ItemStack build() {
         ItemStack item = new ItemStack(this.item.getType(), amount, data);
+        if(item.getType() == Material.SKULL_ITEM) {
+            SkullMeta meta = (SkullMeta) item.getItemMeta();
+            if(meta.getOwner() != null && meta.getOwner().equalsIgnoreCase("MHF_Enderman")) {
+                item = HeadItems.getItem("MHF_Enderman");
+                if (name != null) {
+                    StringBuilder builder = new StringBuilder();
+                    name = name.replace("_", " ");
+                    builder.append(ChatColor.translateAlternateColorCodes('&', name));
+                    meta.setDisplayName(builder.toString());
+                }
+                if (lore != null) {
+                    List<String> lore = new ArrayList<>();
+                    for (String s : this.lore) {
+                        lore.add(ChatColor.translateAlternateColorCodes('&', s));
+                    }
+                    meta.setLore(lore);
+                }
+                meta.setOwner("MHF_Enderman");
+                item.setItemMeta(meta);
+                return item;
+            }
+        }
         ItemMeta meta = item.getItemMeta();
         if (name != null) {
             StringBuilder builder = new StringBuilder();
@@ -144,7 +167,7 @@ public class ItemBuilder {
             skullMeta.setOwner(owner);
             item.setItemMeta(skullMeta);
         }
-        return item;
+        return new ItemStack(item);
     }
 
     @Override

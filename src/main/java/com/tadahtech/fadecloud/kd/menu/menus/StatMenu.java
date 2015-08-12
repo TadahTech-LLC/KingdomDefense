@@ -7,10 +7,12 @@ import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Arrays;
 
 /**
  * Created by Timothy Andis (TadahTech) on 8/1/2015.
@@ -27,7 +29,7 @@ public class StatMenu extends Menu {
     @Override
     protected Button[] setUp() {
         Button[] buttons = new Button[45];
-        buttons = pane(buttons, DyeColor.BLACK);
+        buttons = pane(buttons);
         double kd = info.getKills() / (info.getDeaths() == 0 ? 1 : info.getDeaths());
         ItemStack kills_deaths = new ItemBuilder(new ItemStack(Material.DIAMOND_SWORD))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "PVP Statistics")
@@ -56,12 +58,13 @@ public class StatMenu extends Menu {
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.ZOMBIE),
             ChatColor.GRAY + "Level: " + ChatColor.AQUA + info.getLevel(TeamType.ZOMBIE))
           .build();
-        ItemStack enderman = new ItemBuilder(new ItemBuilder(new ItemStack(Material.SKULL_ITEM)).amount(1).data((byte) 3).setOwner("MHF_Enderman").build())
-          .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Enderman Statistics")
-          .lore(" ",
+        ItemStack enderman = HeadItems.ENDERMAN;
+        ItemMeta meta = enderman.getItemMeta();
+          meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Enderman Statistics");
+          meta.setLore(Arrays.asList(" ",
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.ENDERMAN),
-            ChatColor.GRAY + "Level: " + ChatColor.AQUA + info.getLevel(TeamType.ENDERMAN))
-          .build();
+            ChatColor.GRAY + "Level: " + ChatColor.AQUA + info.getLevel(TeamType.ENDERMAN)));
+        enderman.setItemMeta(meta);
         buttons[13] = new ShowButton(kills_deaths);
         buttons[21] = new ShowButton(creeper);
         buttons[23] = new ShowButton(zombie);

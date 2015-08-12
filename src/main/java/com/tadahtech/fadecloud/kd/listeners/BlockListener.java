@@ -9,7 +9,7 @@ import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.map.structures.WorldEditAssit;
 import com.tadahtech.fadecloud.kd.map.structures.strucs.Guardian;
 import com.tadahtech.fadecloud.kd.menu.menus.UpgradeStructureMenu;
-import com.tadahtech.fadecloud.kd.teams.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;

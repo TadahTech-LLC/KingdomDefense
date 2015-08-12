@@ -7,7 +7,6 @@ import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import com.tadahtech.fadecloud.kd.nms.King;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -39,7 +38,7 @@ public class KingMenu extends Menu {
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "King Health")
           .lore(" ", ChatColor.GREEN.toString() + this.king.getHealth())
           .build();
-        buttons = pane(buttons, DyeColor.BLACK);
+        buttons = pane(buttons);
         buttons[20] = new Button(structures, player -> new PurchaseStructureMenu(info).open(player));
         buttons[24] = new Button(kits, player -> new KitMenu(info).open(player));
         buttons[22] = new Button(king, () ->{});

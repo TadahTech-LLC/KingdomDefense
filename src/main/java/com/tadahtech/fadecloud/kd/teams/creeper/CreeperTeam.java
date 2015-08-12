@@ -61,7 +61,7 @@ public class CreeperTeam extends CSTeam {
     }
 
     @Override
-    public void add(Player player) {
+    public void applyEffects(Player player) {
         player.setWalkSpeed(0.4f);
     }
 

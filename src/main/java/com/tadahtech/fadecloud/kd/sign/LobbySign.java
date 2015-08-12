@@ -3,7 +3,7 @@ package com.tadahtech.fadecloud.kd.sign;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.csc.Packet;
+import com.tadahtech.fadecloud.kd.csc.packets.RequestPacket;
 import com.tadahtech.fadecloud.kd.csc.packets.request.GameInfoRequestPacket;
 import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.game.GameState;
@@ -31,6 +31,7 @@ public class LobbySign {
     private String arena, ui;
     private List<Sign> signs;
     private static final String FIRST = ChatColor.translateAlternateColorCodes('&', "&a[Join]");
+    private RequestPacket packet;
 
     public LobbySign(String arena) {
         this.arena = arena;
@@ -43,7 +44,7 @@ public class LobbySign {
         this.signs = signs;
         signMap.putIfAbsent(arena, this);
         String to = KingdomDefense.getInstance().getServerNames().get(arena);
-        Packet packet = new GameInfoRequestPacket(to);
+        packet = new GameInfoRequestPacket(to, arena);
         packet.write();
     }
 
@@ -60,11 +61,13 @@ public class LobbySign {
         event.getBlock().getState().update();
         sign.update(true);
         String to = KingdomDefense.getInstance().getServerNames().get(arena);
-        Packet packet = new GameInfoRequestPacket(to);
+        packet = new GameInfoRequestPacket(to, arena);
         packet.write();
     }
 
     public void update(GameInfoResponsePacket responsePacket) {
+        List<Sign> signs = Lists.newArrayList(this.signs);
+        packet.respond();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -74,7 +77,9 @@ public class LobbySign {
                     String players = ChatColor.DARK_BLUE + "(" + responsePacket.players + " / " + responsePacket.max + ")";
                     sign.setLine(2, players);
                     sign.setLine(3, responsePacket.state.format());
-                    sign.update(true, true);
+                    sign.update(true);
+//                    Player player = Lists.newArrayList(Bukkit.getOnlinePlayers()).get(0);
+//                    Bukkit.getPluginManager().callEvent(new SignChangeEvent(sign.getBlock(), , sign.getLines() ));
                 }
             }
         }.runTask(KingdomDefense.getInstance());
@@ -126,4 +131,19 @@ public class LobbySign {
         return map;
     }
 
+    public void updateNoResponse() {
+        String red = ChatColor.DARK_RED + "██████████████";
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Sign sign : signs) {
+                    sign.setLine(0, red);
+                    sign.setLine(1, ChatColor.BLUE + arena);
+                    sign.setLine(2, red);
+                    sign.setLine(3, GameState.DOWN.format());
+                    sign.update(true);
+                }
+            }
+        }.runTask(KingdomDefense.getInstance());
+    }
 }

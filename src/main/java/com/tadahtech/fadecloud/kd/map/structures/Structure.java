@@ -78,6 +78,8 @@ public abstract class Structure extends Tickable {
         structures.add(this);
         if(thread == null) {
             this.thread = new MultipleObjectThread<>(structures, true);
+        } else {
+            this.thread.get().add(this);
         }
     }
 

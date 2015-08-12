@@ -26,7 +26,7 @@ public class UpgradeStructureMenu extends Menu {
     private Structure structure;
 
     public UpgradeStructureMenu(Structure structure) {
-        super("Upgrade " + structure.getName());
+        super(ChatColor.DARK_PURPLE + "Upgrade " + ChatColor.stripColor(structure.getName()));
         this.structure = structure;
     }
 
@@ -39,22 +39,24 @@ public class UpgradeStructureMenu extends Menu {
               .lore(" ", ChatColor.GREEN.toString() + ChatColor.BOLD + "Click to Upgrade to " + (structure.getLevel() + 1),
                 ChatColor.RED + "Cost: " + structure.getNextCost())
               .build();
-            buttons = pane(buttons, DyeColor.LIME);
+            buttons = pane(buttons);
             Guardian structure = (Guardian) this.structure;
             ItemBuilder builder = new ItemBuilder(new ItemStack(Material.EMERALD));
             builder.name(ChatColor.GOLD + "Healing Cooldown");
             builder.lore(ChatColor.GREEN.toString() + structure.getCooldown() + " " + Utils.plural("second", structure.getCooldown()),
-              ChatColor.RED + "Next: ",
-              ChatColor.GREEN.toString() + (structure.getCooldown() - 5));
+              ChatColor.GRAY + "Next: " +
+                ChatColor.GREEN.toString() + (structure.getCooldown() - 5) + Utils.plural("second", structure.getCooldown() - 5));
             ItemStack health = new ItemBuilder(new Wool(DyeColor.LIME).toItemStack())
               .amount(1)
               .name(ChatColor.GOLD + "Health Per Cycle")
               .lore(ChatColor.GREEN.toString() + structure.getHealthPerTick() + " hearts",
-                ChatColor.RED + "Next: ",
-                ChatColor.GREEN.toString() + (structure.getHealthPerTick() * 1.5))
+                ChatColor.GRAY + "Next: " +
+                  ChatColor.GREEN.toString() + (structure.getHealthPerTick() * 1.5) + "hearts")
               .build();
-            buttons[11] = new Button(builder.build(), ()-> {});
-            buttons[13] = new Button(health, () -> {} );
+            buttons[11] = new Button(builder.build(), () -> {
+            });
+            buttons[13] = new Button(health, () -> {
+            });
             buttons[17] = new Button(upgrade, player -> {
                 PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
                 if (!info.hasEnough(structure.getNextCost())) {
@@ -76,22 +78,23 @@ public class UpgradeStructureMenu extends Menu {
             });
             return buttons;
         }
-        buttons = pane(buttons, DyeColor.BLUE);
+        buttons = pane(buttons);
         DefenseStructure structure = (DefenseStructure) this.structure;
         ItemBuilder builder = new ItemBuilder(new ItemStack(Material.EMERALD));
         builder.name(ChatColor.GOLD + "Fire Rate");
         builder.lore(ChatColor.GREEN.toString() + structure.getFireRate() + " projectiles per second",
-          ChatColor.RED + "Next: ",
-          ChatColor.GREEN.toString() + (structure.getFireRate() * 2) + " projectiles per second");
+          ChatColor.GRAY + "Next: " + ChatColor.GREEN.toString() + (structure.getFireRate() * 2) + " projectiles per second");
 
-        buttons[11] = new Button(builder.build(), () -> {});
+        buttons[11] = new Button(builder.build(), () -> {
+        });
         ItemStack damage = new ItemBuilder(new ItemStack(Material.ARROW))
-          .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Damage")
-          .lore(ChatColor.GREEN.toString() + structure.getDamage() + "hearts",
-            ChatColor.RED + "Next: ",
-            ChatColor.GREEN.toString() + ChatColor.BOLD + (structure.getDamage() * 1.5) + " hearts")
+          .name(ChatColor.GOLD + "Damage")
+          .lore(ChatColor.GREEN.toString() + structure.getDamage() + " hearts",
+            ChatColor.GRAY + "Next: " +
+              ChatColor.GREEN + (structure.getDamage() * 1.5) + " hearts")
           .build();
-        buttons[13] = new Button(damage, () -> {});
+        buttons[13] = new Button(damage, () -> {
+        });
         ItemStack upgrade = new ItemBuilder(new ItemStack(Material.EMERALD_BLOCK))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Upgrade! ")
           .lore(" ", ChatColor.GREEN.toString() + ChatColor.BOLD + "Click to Upgrade to Level " + (structure.getLevel() + 1),

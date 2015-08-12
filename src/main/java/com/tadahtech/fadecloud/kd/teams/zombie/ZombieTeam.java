@@ -38,15 +38,17 @@ public class ZombieTeam extends CSTeam {
 
     @Override
     public void onRespawn(Player player) {
-        player.setMaxHealth(24.0);
         player.setWalkSpeed(0.1f);
+        player.setMaxHealth(24.0);
+        player.setHealth(24.0);
         super.onRespawn(player);
     }
 
     @Override
-    public void add(Player player) {
+    public void applyEffects(Player player) {
         player.setWalkSpeed(0.1f);
         player.setMaxHealth(24.0);
+        player.setHealth(24.0);
     }
 
     @Override

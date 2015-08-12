@@ -1,9 +1,13 @@
 package com.tadahtech.fadecloud.kd.csc.packets.response;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.csc.packets.ResponsePacket;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.lang.Lang;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -41,7 +45,7 @@ public class JoinGameResponsePacket extends ResponsePacket {
             this.send("yes:" + uuid + ":" + from);
             return;
         }
-        this.send("fail=inProgress:" + uuid + ":" + from);
+        this.send("yes=inProgress:" + uuid + ":" + from);
     }
 
     @Override
@@ -52,24 +56,28 @@ public class JoinGameResponsePacket extends ResponsePacket {
         if(player == null) {
             return;
         }
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if(uuidArray[0].equalsIgnoreCase("yes")) {
             String from = uuidArray[2];
-            player.sendMessage(ChatColor.GREEN + "Connecting you to " + from + "...");
+            if(message.contains("=")) {
+                Lang.GAME_FOUND_TO_SPECTATE.send(info, ImmutableMap.of("server", from));
+                //in process;
+                return;
+            } else {
+                Lang.GAME_FOUND.send(info, ImmutableBiMap.of("server", from));
+            }
             KingdomDefense.getInstance().redirect(from, player);
-
             return;
         }
         String reason = response[1];
         String sent;
         switch (reason.toLowerCase()) {
-            case "inprogress":
-                sent = "There is already a game running!!";
-                break;
             case "noGame":
                 sent = "This server is currently being worked on! It'll be back soon!";
                 break;
             case "full":
                 sent = "This server is full! Try another!";
+                break;
             default:
                 return;
         }

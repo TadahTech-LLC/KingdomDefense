@@ -14,9 +14,11 @@ import com.tadahtech.fadecloud.kd.db.InfoStore;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.InfoManager;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.io.KitIO;
 import com.tadahtech.fadecloud.kd.io.MapIO;
 import com.tadahtech.fadecloud.kd.io.SignIO;
+import com.tadahtech.fadecloud.kd.items.HeadItems;
 import com.tadahtech.fadecloud.kd.listeners.*;
 import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.menu.MenuListener;
@@ -28,6 +30,7 @@ import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +62,7 @@ public class KingdomDefense extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        HeadItems.ENDERMAN.getType();
         this.serverNames = new HashMap<>();
         this.saveResource("kits/Default.yml", false);
         this.saveResource("kits/Example.yml", false);
@@ -90,6 +94,12 @@ public class KingdomDefense extends JavaPlugin {
             new KitIO(this);
         } else {
             this.lobbyboard = new Lobbyboard();
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    lobbyboard.flip();
+                }
+            }.runTaskTimer(this, 20L, 20L);
             getServer().getPluginManager().registerEvents(new LobbyListener(), this);
             this.signIO = new SignIO();
             new HeartbeatThread();
@@ -111,6 +121,7 @@ public class KingdomDefense extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
         if(this.signIO != null) {
             this.signIO.save();
         }
@@ -120,13 +131,13 @@ public class KingdomDefense extends JavaPlugin {
             this.map.dropBridge();
         }
         if(this.game != null) {
+            for(World world : getServer().getWorlds()) {
+                world.getEntities().stream().filter(entity -> !(entity instanceof Player))
+                  .filter(entity1 -> entity1 instanceof LivingEntity).forEach(org.bukkit.entity.Entity::remove);
+            }
+            new GameInfoResponsePacket().write();
             game.getBukkitPlayers().stream().forEach(player -> redirect(getHubServerName(), player));
             game.setState(GameState.DOWN);
-            new GameInfoResponsePacket().write();
-        }
-        for(World world : getServer().getWorlds()) {
-            world.getEntities().stream().filter(entity -> !(entity instanceof Player))
-              .filter(entity1 -> entity1 instanceof LivingEntity).forEach(org.bukkit.entity.Entity::remove);
         }
     }
 

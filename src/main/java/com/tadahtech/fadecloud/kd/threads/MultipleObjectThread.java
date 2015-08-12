@@ -17,8 +17,8 @@ public class MultipleObjectThread<T extends Tickable> {
     public MultipleObjectThread(List<T> object, boolean waitForGame) {
         this.objects = object;
         int delay = 0;
-        if(waitForGame) {
-            delay = 20*60*5;
+        if (waitForGame) {
+            delay = 20 * 60 * 5;
         }
         this.task = new BukkitRunnable() {
             @Override

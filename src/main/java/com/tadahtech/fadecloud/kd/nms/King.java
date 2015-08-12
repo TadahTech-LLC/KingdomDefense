@@ -58,7 +58,7 @@ public class King {
         entity.setMetadata("king", new FixedMetadataValue(KingdomDefense.getInstance(), team.getType()));
         entity.setMaxHealth(health);
         entity.setHealth(health);
-        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), entity.getLocation().add(0, entity.getEyeHeight() + 0.2, 0));
+        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), entity.getLocation().add(0, entity.getEyeHeight() + 0.8, 0));
         this.hologram.appendTextLine(getPrettyHealth());
     }
 

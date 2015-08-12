@@ -5,7 +5,6 @@ import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +24,7 @@ public class PlayerMenu extends Menu {
     @Override
     protected Button[] setUp() {
         Button[] buttons = new Button[27];
-        buttons = pane(buttons, DyeColor.BLACK);
+        buttons = pane(buttons);
         ItemStack stats = new ItemBuilder(new ItemStack(Material.BOOK_AND_QUILL))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Statistics")
           .lore(ChatColor.GRAY + "Click to view your Statistics page")

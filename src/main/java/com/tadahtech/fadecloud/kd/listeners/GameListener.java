@@ -6,6 +6,7 @@ import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.HubItem;
+import com.tadahtech.fadecloud.kd.items.SpectatorItem;
 import com.tadahtech.fadecloud.kd.map.LocationType;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import com.tadahtech.fadecloud.kd.utils.Utils;
@@ -35,7 +36,8 @@ import java.util.stream.Collectors;
  */
 public class GameListener implements Listener {
 
-    public static HubItem hubItem = new HubItem();
+    public static HubItem HUB = new HubItem();
+    public static SpectatorItem SPECTATOR = new SpectatorItem();
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
@@ -51,12 +53,6 @@ public class GameListener implements Listener {
         if (game == null) {
             event.setLoginResult(Result.KICK_OTHER);
             event.setKickMessage(ChatColor.RED + "This server is currently being edited.");
-            return;
-        }
-        if (game.getState() != GameState.WAITING && game.getState() != GameState.COUNTDOWN) {
-            event.setLoginResult(Result.KICK_OTHER);
-            event.setKickMessage(ChatColor.RED + "This game is currently in progress!");
-            return;
         }
     }
 
@@ -67,6 +63,14 @@ public class GameListener implements Listener {
         }
         event.setJoinMessage(null);
         Player player = event.getPlayer();
+        Game game = KingdomDefense.getInstance().getGame();
+        if(game.getState() != GameState.WAITING && game.getState() != GameState.COUNTDOWN) {
+            //in progress
+            player.setGameMode(GameMode.SPECTATOR);
+            player.teleport(game.getMap().getLocation(LocationType.LOBBY).get());
+            SPECTATOR.give(player, 1);
+            return;
+        }
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         player.setFoodLevel(20);
@@ -74,13 +78,13 @@ public class GameListener implements Listener {
         player.setWalkSpeed(0.2F);
         player.setHealth(20.0D);
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        Game game = KingdomDefense.getInstance().getGame();
+
         game.addPlayer(info);
         new GameInfoResponsePacket().write();
         String top = ChatColor.AQUA.toString() + ChatColor.BOLD + "Kingdom Defense";
         String bottom = ChatColor.GOLD.toString() + ChatColor.BOLD + "fadecloudmc.com";
         PacketUtil.sendTabToPlayer(player, top, bottom);
-        hubItem.give(player, 8);
+        HUB.give(player, 8);
     }
 
     @EventHandler
@@ -141,7 +145,7 @@ public class GameListener implements Listener {
         info.getCurrentTeam().onRespawn(player);
         event.setRespawnLocation(info.getCurrentTeam().getRespawn());
         if (player.getGameMode() == GameMode.SPECTATOR) {
-            hubItem.give(player, 8);
+            HUB.give(player, 8);
         }
     }
 

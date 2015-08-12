@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
+import com.google.common.collect.Maps;
 import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -29,8 +30,6 @@ public abstract class DefenseStructure extends Structure {
     protected int fireRate = 1;
     protected double damage = 1;
     protected long last;
-    protected boolean has;
-    protected Player target;
 
     public static ItemStack GUARDIAN, ARCHER, BLAZE, TESLA;
 
@@ -57,10 +56,11 @@ public abstract class DefenseStructure extends Structure {
           .build();
     }
 
-    private Map<Integer, List<Vector>> launchSourceVectors;
+    protected Map<Integer, List<Vector>> launchSourceVectors;
 
     public DefenseStructure(String name) {
         super(name);
+        this.launchSourceVectors = Maps.newHashMap();
     }
 
     protected void targetPlayer(Player player) {
