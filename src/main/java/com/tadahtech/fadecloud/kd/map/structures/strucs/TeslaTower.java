@@ -1,7 +1,6 @@
 package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
 import com.sk89q.worldedit.Vector;
-import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.StructureType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -13,10 +12,8 @@ import org.bukkit.entity.Player;
  */
 public class TeslaTower extends DefenseStructure {
 
-    public TeslaTower(PlayerInfo info) {
+    public TeslaTower() {
         super(ChatColor.AQUA.toString() + ChatColor.BOLD + "Tesla");
-        this.setOwner(info);
-        info.setCurrentStructure(this);
     }
 
     @Override

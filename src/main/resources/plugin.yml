@@ -2,5 +2,6 @@ name: KingdomDefense
 version: 1.0-SNAPSHOT
 main: com.tadahtech.fadecloud.kd.KingdomDefense
 load: POSTWORLD
+soft-depend: [Multiverse-Core]
 commands:
   kd:

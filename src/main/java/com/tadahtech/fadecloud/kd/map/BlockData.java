@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.map;
 
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,6 +25,7 @@ public class BlockData {
 
     public void set(Location location) {
         location.getBlock().setTypeIdAndData(type.getId(), data, true);
+        location.getWorld().playEffect(location, Effect.STEP_SOUND, location.getBlock().getType());
     }
 
     @Override

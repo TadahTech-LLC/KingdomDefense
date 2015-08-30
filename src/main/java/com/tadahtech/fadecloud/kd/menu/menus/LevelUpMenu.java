@@ -44,10 +44,10 @@ public class LevelUpMenu extends Menu {
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Zombie Level Up")
           .lore(lore(TeamType.ZOMBIE))
           .build();
-        skeleton = new ItemBuilder(HeadItems.getItem("MHF_Skeleton"))
+        skeleton = new ItemBuilder(HeadItems.SKELETON)
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Skeleton Level Up")
           .lore(lore(TeamType.SKELETON))
-          .build();
+          .cloneBuild();
         creeper = new ItemBuilder(new ItemStack(Material.SKULL_ITEM))
           .data((byte) 4)
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Creeper Level Up")
@@ -167,7 +167,7 @@ public class LevelUpMenu extends Menu {
 
     @Override
     public void onClose(Player player) {
-
+        remove(player.getUniqueId());
     }
 
     public int getCost(TeamType teamType) {

@@ -1,5 +1,7 @@
 package com.tadahtech.fadecloud.kd.teams.zombie;
 
+import com.google.common.collect.Lists;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.map.Island;
@@ -11,6 +13,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Timothy Andis
@@ -63,29 +68,10 @@ public class ZombieTeam extends CSTeam {
         builder.data((byte) 2);
         builder.amount(getSize());
         builder.name(ChatColor.DARK_GREEN + "Zombie Team");
-        String[] lore = {
-          " ",
-          ChatColor.GRAY + "Gruhhhh Brainzzz",
-          ChatColor.GRAY + "Defend the King Zombie with the aid of the Unforgotten",
-          ChatColor.GRAY + "Your strength is mightier than those of the living",
-          ChatColor.GRAY + "You deal 0.5 x more damage per melee attack",
-          ChatColor.GRAY + "But be warned, you move slower than the rest..",
-          " ",
-          ChatColor.RED + "Active Ability: ",
-          ChatColor.GRAY + "Aid eof Anduril",
-          ChatColor.GRAY + "Summon The Dead to aide your conquest",
-          ChatColor.RED + "Passive Ability: ",
-          ChatColor.GRAY + "Gladiator",
-          ChatColor.GRAY + "Receive 2-8 more hearts.",
-          ChatColor.GRAY + "But regenerate at 1/4 the normal speed",
-          " ",
-          ChatColor.RED + "Levels: 4",
-          ChatColor.GREEN + "1-4 " + ChatColor.GRAY + "Undead Warriors",
-          ChatColor.GREEN + "12-18 " + ChatColor.GRAY + "More hearts",
-          ChatColor.GRAY + "Undead Warriors spawned is equal to your level",
-          ChatColor.GRAY + "Max health increase is 2x your level + 10"
-        };
-        builder.lore(lore);
+        List<String> loreRaw = KingdomDefense.getInstance().getConfig().getStringList("zombie-desc");
+        List<String> lore = Lists.newArrayList();
+        lore.addAll(loreRaw.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList()));
+        builder.lore(lore.toArray(new String[lore.size()]));
         return builder.build();
     }
 

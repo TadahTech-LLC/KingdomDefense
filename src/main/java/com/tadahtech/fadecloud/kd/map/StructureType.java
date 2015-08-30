@@ -15,6 +15,9 @@ public enum StructureType {
     ;
 
     public int getCost(int level) {
+        if(level == 5) {
+            return -1;
+        }
         FileConfiguration config = KingdomDefense.getInstance().getConfig();
         String costRaw = config.getString("costs." + name());
         if(costRaw == null) {

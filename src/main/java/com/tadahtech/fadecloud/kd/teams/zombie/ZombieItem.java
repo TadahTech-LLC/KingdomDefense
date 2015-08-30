@@ -3,10 +3,10 @@ package com.tadahtech.fadecloud.kd.teams.zombie;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.nms.mobs.AttackZombie;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
-import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
-import com.tadahtech.fadecloud.kd.utils.PacketUtil;
+import com.tadahtech.fadecloud.kd.threads.AIThread;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_8_R2.EntityZombie;
 import org.bukkit.Material;
@@ -20,7 +20,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ZombieItem extends ModSpecialItem {
 
     public ZombieItem() {
-        super(ItemBuilder.wrap(new ItemStack(Material.SKULL_ITEM, 1, (byte) 2))
+        super(ItemBuilder.wrap(new ItemStack(Material.SKULL_ITEM))
+          .data((byte) 2)
           .name(ChatColor.GREEN.toString() + ChatColor.BOLD + "Undead Warrior")
           .lore(" ", ChatColor.GRAY + "Summon 1-4 Zombies to fight nearest enemies",
             ChatColor.GRAY + "Lasts for 30 seconds.")
@@ -38,36 +39,13 @@ public class ZombieItem extends ModSpecialItem {
             AttackZombie attackZombie = new AttackZombie(info);
             EntityZombie zombie = (EntityZombie) attackZombie.get();
             new BukkitRunnable() {
-
-                private int reps = 0;
-                private int timeLeft = 30;
-                private String green = ChatColor.GREEN + "█";
-                private String red = ChatColor.RED + "█";
-
                 @Override
                 public void run() {
-                    int left = 0;
-                    timeLeft -= 3;
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(ChatColor.GOLD).append(ChatColor.BOLD).append("Time Remaining: ");
-                    for (int i = 10; i > reps; i--) {
-                        builder.append(green);
-                        left++;
-                    }
-                    for (int i = 0; i < left; ) {
-                        builder.append(red);
-                    }
-                    builder.append(ChatColor.GRAY).append(" (");
-                    builder.append(timeLeft).append("s)");
-                    PacketUtil.sendActionBarMessage(player, builder.toString());
-                    reps++;
-                    if (reps >= 10) {
-                        cancel();
-                        zombie.getBukkitEntity().getWorld().strikeLightningEffect(zombie.getBukkitEntity().getLocation());
-                        zombie.getBukkitEntity().remove();
-                    }
+                    zombie.getBukkitEntity().getWorld().strikeLightningEffect(zombie.getBukkitEntity().getLocation());
+                    zombie.getBukkitEntity().remove();
+                    AIThread.ENTITES.remove(attackZombie);
                 }
-            }.runTaskTimer(KingdomDefense.getInstance(), 0L, 60L);
+            }.runTaskLater(KingdomDefense.getInstance(), 20L * 30);
         }
     }
 

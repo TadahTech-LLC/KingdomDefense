@@ -5,7 +5,7 @@ import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
-import com.tadahtech.fadecloud.kd.nms.King;
+import com.tadahtech.fadecloud.kd.king.King;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -27,10 +27,7 @@ public class KingMenu extends Menu {
 
     @Override
     protected Button[] setUp() {
-        Button[] buttons = new Button[45];
-        ItemStack structures = new ItemBuilder(new ItemStack(Material.ANVIL))
-          .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Purchase Structures")
-          .build();
+        Button[] buttons = new Button[27];
         ItemStack kits = new ItemBuilder(new ItemStack(Material.GOLD_SWORD))
           .name(ChatColor.YELLOW.toString() + ChatColor.BOLD + "View Kits")
           .build();
@@ -39,9 +36,8 @@ public class KingMenu extends Menu {
           .lore(" ", ChatColor.GREEN.toString() + this.king.getHealth())
           .build();
         buttons = pane(buttons);
-        buttons[20] = new Button(structures, player -> new PurchaseStructureMenu(info).open(player));
-        buttons[24] = new Button(kits, player -> new KitMenu(info).open(player));
-        buttons[22] = new Button(king, () ->{});
+        buttons[12] = new Button(kits, player -> new KitMenu(info).open(player));
+        buttons[15] = new Button(king, () ->{});
         return buttons;
     }
 

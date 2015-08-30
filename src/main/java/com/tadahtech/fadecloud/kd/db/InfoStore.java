@@ -27,14 +27,14 @@ public class InfoStore {
             @Override
             public void run() {
                 try {
-                    String message = jedis.get(NAMESPACE + ":" + uuid);
+                    String message = jedis.get(NAMESPACE + ":" + uuid.toString());
                     if (message == null) {
                         new PlayerInfo(uuid);
                         return;
                     }
                     PlayerInfo.fromString(message);
-                } catch (JedisException ignored) {
-                    ignored.printStackTrace();
+                } catch (Exception ignored) {
+
                 } finally {
                     jedisPool.returnResource(jedis);
                 }
@@ -49,7 +49,7 @@ public class InfoStore {
             @Override
             public void run() {
                 try {
-                    jedis.set(NAMESPACE + ":" + info.getUuid(), info.toString());
+                    jedis.set(NAMESPACE + ":" + info.getUuid().toString(), info.toString());
                 } catch (JedisException ignored) {
                     ignored.printStackTrace();
                 } finally {

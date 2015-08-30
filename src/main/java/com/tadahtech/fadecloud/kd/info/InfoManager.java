@@ -1,6 +1,7 @@
 package com.tadahtech.fadecloud.kd.info;
 
 import com.google.common.collect.Maps;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -19,13 +20,14 @@ public class InfoManager {
     }
 
     public void put(PlayerInfo info) {
+        infoMap.remove(info.getUuid());
         infoMap.putIfAbsent(info.getUuid(), info);
     }
 
     public PlayerInfo get(UUID uuid) {
-        System.out.println(infoMap);
         Optional<PlayerInfo> maybeInfo = Optional.ofNullable(infoMap.get(uuid));
         if (!maybeInfo.isPresent()) {
+            KingdomDefense.getInstance().getInfoStore().load(uuid);
             return null;
         }
         return maybeInfo.get();
@@ -39,6 +41,7 @@ public class InfoManager {
         return infoMap.remove(player.getUniqueId());
     }
 
-    public void remove(PlayerInfo info) {
+    public void clear() {
+        infoMap.clear();
     }
 }

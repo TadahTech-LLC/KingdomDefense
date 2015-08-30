@@ -2,7 +2,6 @@ package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
 import com.sk89q.worldedit.Vector;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.StructureType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
@@ -15,10 +14,8 @@ import org.bukkit.metadata.FixedMetadataValue;
  */
 public class Archer extends DefenseStructure {
 
-    public Archer(PlayerInfo info) {
+    public Archer() {
         super(ChatColor.GRAY.toString() + ChatColor.BOLD + "Archer");
-        this.setOwner(info);
-        info.setCurrentStructure(this);
     }
 
     @Override

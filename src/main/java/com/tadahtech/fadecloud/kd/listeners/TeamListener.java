@@ -1,11 +1,9 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.map.Island;
-import com.tadahtech.fadecloud.kd.map.structures.GridLocation;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
+import com.tadahtech.fadecloud.kd.map.structures.StructureRegion;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.teams.enderman.EndermanTeam;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
@@ -41,6 +39,10 @@ public class TeamListener implements Listener {
             return;
         }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+        if(info.isInvincible()) {
+            event.setCancelled(true);
+            return;
+        }
         if(!(damagerEntity instanceof Player)) {
             if(damagerEntity instanceof Projectile) {
                 Projectile projectile = (Projectile) damagerEntity;
@@ -81,12 +83,15 @@ public class TeamListener implements Listener {
         }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         if(info.getCurrentTeam() != null) {
-            Island island = info.getCurrentTeam().getIsland();
-            GridLocation loc = GridLocation.fromWorldLocation(island, player.getLocation());
-            Optional<Structure> maybe = island.getStructure(loc);
+            Optional<Structure> maybe = StructureRegion.getStructure(to);
             if(maybe.isPresent()) {
                 Structure structure = maybe.get();
-                String message = structure.getName() + " " + structure.getLevel() + ChatColor.DARK_GRAY + " -> Shift-Left-Click to edit";
+                int level = structure.getLevel();
+                String message = structure.getName() + " " + structure.getLevel();
+                if(level <= 0) {
+                    message = ChatColor.AQUA + "Inactive.";
+                }
+                message = message  + ChatColor.GOLD + " -> Shift-Left-Click to edit";
                 PacketUtil.sendActionBarMessage(player, message);
             }
             if(info.getCurrentTeam().getType() == TeamType.ENDERMAN) {
@@ -96,7 +101,5 @@ public class TeamListener implements Listener {
                 }
             }
         }
-        Game game = KingdomDefense.getInstance().getGame();
-        game.moveCheck(player, to);
     }
 }

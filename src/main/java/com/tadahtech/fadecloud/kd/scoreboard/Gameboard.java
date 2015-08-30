@@ -3,11 +3,9 @@ package com.tadahtech.fadecloud.kd.scoreboard;
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.Map;
 import java.util.UUID;
@@ -18,7 +16,7 @@ import java.util.UUID;
 public class Gameboard {
 
     private Game game;
-    private Map<UUID, BufferedObjective> objectives = Maps.newHashMap();
+    private Map<UUID, SimpleScoreboard> objectives = Maps.newHashMap();
 
     public Gameboard(Game game) {
         this.game = game;
@@ -27,29 +25,27 @@ public class Gameboard {
     public void flip() {
         game.getPlayers().stream().forEach(info -> {
             Player player = info.getBukkitPlayer();
-            BufferedObjective objective = objectives.get(player.getUniqueId());
+            SimpleScoreboard objective = objectives.get(player.getUniqueId());
             if (objective == null) {
-                Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-                objective = new BufferedObjective(scoreboard);
-                player.setScoreboard(scoreboard);
-                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                objective.setTitle(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+                objective = new SimpleScoreboard(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+                player.setScoreboard(objective.getScoreboard());
                 this.objectives.put(player.getUniqueId(), objective);
             }
-            objective.setLine(15, color("&8&m-------"));
-            objective.setLine(13, ChatColor.GRAY + "Online: ");
-            objective.setLine(12, ChatColor.GREEN.toString() + Bukkit.getOnlinePlayers().size() + "/" + game.getMap().getMax());
-            objective.setLine(11, color("&8&m&l-"));
-            objective.setLine(10, ChatColor.GRAY + "Coins: ");
-            objective.setLine(9, ChatColor.YELLOW.toString() + info.getCoins());
-            objective.setLine(8, color("&8&m&l-&r"));
-            objective.setLine(7, color("&7Map"));
-            objective.setLine(6, ChatColor.RED + game.getMap().getName());
-            objective.setLine(5, color("&8&m&o-&r"));
-            objective.setLine(4, color("&7Stage"));
-            objective.setLine(3, game.getState().format());
-            objective.setLine(2, color("&8&m-------&r"));
-            objective.flip();
+            objective.add(color("&8&m-------"), 15);
+            objective.add(ChatColor.GRAY + "Online: ", 13);
+            objective.add(ChatColor.GREEN.toString() + game.getPlayers().size() + "/" + game.getMap().getMax(), 12);
+            objective.add(color("&8&m&l-"), 11);
+            objective.add(ChatColor.GRAY + "Coins: ", 10);
+            objective.add(ChatColor.YELLOW.toString() + info.getCoins(), 9);
+            objective.add(color("&8&m&l-&r"), 8);
+            objective.add(color("&7Map"), 7);
+            objective.add(ChatColor.RED + game.getMap().getName(), 6);
+            objective.add(color("&8&m&o-&r"), 5);
+            objective.add(color("&7Stage"), 4);
+            String form = game.getState().format() + ChatColor.GRAY + " (" + ChatColor.GREEN + Utils.formatTime(game.getTimeLeft()) + ChatColor.GRAY + ")";
+            objective.add(form, 3);
+            objective.add(color("&8&m-------&r"), 2);
+            objective.update();
         });
     }
 
@@ -58,11 +54,8 @@ public class Gameboard {
     }
 
     public void add(PlayerInfo info) {
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        info.getBukkitPlayer().setScoreboard(scoreboard);
-        BufferedObjective objective = new BufferedObjective(scoreboard);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setTitle(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+        SimpleScoreboard objective = new SimpleScoreboard(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+        info.getBukkitPlayer().setScoreboard(objective.getScoreboard());
         this.objectives.putIfAbsent(info.getUuid(), objective);
     }
 }

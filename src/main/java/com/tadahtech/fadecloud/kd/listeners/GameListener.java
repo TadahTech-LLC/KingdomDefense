@@ -1,12 +1,15 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
+import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.items.HubItem;
-import com.tadahtech.fadecloud.kd.items.SpectatorItem;
+import com.tadahtech.fadecloud.kd.items.misc.ChooseTeamItem;
+import com.tadahtech.fadecloud.kd.items.misc.HubItem;
+import com.tadahtech.fadecloud.kd.items.misc.ShopReItem;
+import com.tadahtech.fadecloud.kd.items.misc.SpectatorItem;
 import com.tadahtech.fadecloud.kd.map.LocationType;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import com.tadahtech.fadecloud.kd.utils.Utils;
@@ -18,12 +21,13 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -38,11 +42,15 @@ public class GameListener implements Listener {
 
     public static HubItem HUB = new HubItem();
     public static SpectatorItem SPECTATOR = new SpectatorItem();
+    public static ChooseTeamItem TEAM = new ChooseTeamItem();
+
+    public static List<String> NAMES = Lists.newArrayList("iBagel");
 
     @EventHandler
     public void onPreJoin(AsyncPlayerPreLoginEvent event) {
         Game game = KingdomDefense.getInstance().getGame();
-        if (event.getName().equalsIgnoreCase("TadahTech") || event.getName().equalsIgnoreCase("DaddyMew")) {
+        if (event.getName().equalsIgnoreCase("BilboBaggins") || event.getName().equalsIgnoreCase("DaddyMew") ||
+          event.getName().equalsIgnoreCase("Eriic") || event.getName().equalsIgnoreCase("RevengeBlade") || NAMES.contains(event.getName())) {
             return;
         }
         if (KingdomDefense.EDIT_MODE) {
@@ -56,7 +64,7 @@ public class GameListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
         if(KingdomDefense.EDIT_MODE) {
             return;
@@ -65,13 +73,11 @@ public class GameListener implements Listener {
         Player player = event.getPlayer();
         Game game = KingdomDefense.getInstance().getGame();
         if(game.getState() != GameState.WAITING && game.getState() != GameState.COUNTDOWN) {
-            //in progress
-            player.setGameMode(GameMode.SPECTATOR);
-            player.teleport(game.getMap().getLocation(LocationType.LOBBY).get());
-            SPECTATOR.give(player, 1);
+            game.spectate(player);
             return;
         }
         player.getInventory().clear();
+        player.setGameMode(GameMode.SURVIVAL);
         player.getInventory().setArmorContents(null);
         player.setFoodLevel(20);
         player.setMaxHealth(20);
@@ -81,10 +87,9 @@ public class GameListener implements Listener {
 
         game.addPlayer(info);
         new GameInfoResponsePacket().write();
-        String top = ChatColor.AQUA.toString() + ChatColor.BOLD + "Kingdom Defense";
-        String bottom = ChatColor.GOLD.toString() + ChatColor.BOLD + "fadecloudmc.com";
-        PacketUtil.sendTabToPlayer(player, top, bottom);
         HUB.give(player, 8);
+        TEAM.give(player, 0);
+        new ShopReItem().give(player, 2);
     }
 
     @EventHandler
@@ -92,8 +97,8 @@ public class GameListener implements Listener {
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         Game game = KingdomDefense.getInstance().getGame();
-        game.flip();
         game.removePlayer(info);
+        game.flip();
         new GameInfoResponsePacket().write();
     }
 
@@ -107,26 +112,28 @@ public class GameListener implements Listener {
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         StringBuilder builder = new StringBuilder();
+        String teamName = info.getCurrentTeam() == null ? "" : info.getCurrentTeam().getType().fancy();
+        event.setFormat(event.getFormat().replace("{TEAM_NAME}", teamName));
         List<Player> players = game.getBukkitPlayers();
         if (player.getGameMode() == GameMode.SPECTATOR) {
             players = game.getBukkitPlayers().stream().filter(player1 -> player1.getGameMode() == GameMode.SPECTATOR)
               .collect(Collectors.toList());
             builder.append(ChatColor.DARK_GRAY)
-              .append("[").append(ChatColor.DARK_AQUA).append("SPECTATOR").append(ChatColor.DARK_GRAY).append("] ");
+              .append("[").append(ChatColor.DARK_AQUA).append("Spectator").append(ChatColor.DARK_GRAY).append("] ");
             builder.append(ChatColor.AQUA).append(player.getName());
             builder.append(" ").append(ChatColor.GRAY).append("»").append(ChatColor.WHITE).append(" ").append(event.getMessage());
             players.stream().forEach(player1 -> player1.sendMessage(builder.toString()));
             return;
         }
         if (info.isTeamChat()) {
-            builder.append(ChatColor.BLUE).append("[TEAM] ");
+            builder.append(ChatColor.AQUA).append("[Team] ");
             players = game.getPlayers().stream()
               .filter(info1 -> info.getCurrentTeam().equals(info1.getCurrentTeam()))
               .map(PlayerInfo::getBukkitPlayer)
               .collect(Collectors.toList());
         }
         if (info.isBeta()) {
-            builder.append(ChatColor.RED).append("[").append(ChatColor.GOLD).append("BETA").append(ChatColor.RED).append("] ").append(ChatColor.RESET);
+            builder.append(ChatColor.GOLD).append("[").append(ChatColor.DARK_RED).append("Beta").append(ChatColor.GOLD).append("] ").append(ChatColor.RESET);
         }
         if (info.getCurrentTeam() != null) {
             builder.append(ChatColor.DARK_GRAY).append("[");
@@ -140,13 +147,23 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
+        if(KingdomDefense.getInstance().getGame() == null) {
+            return;
+        }
+        Game game = KingdomDefense.getInstance().getGame();
+        if(game.getState() != GameState.BATTLE && game.getState() != GameState.PEACE) {
+            return;
+        }
         Player player = event.getPlayer();
-        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        info.getCurrentTeam().onRespawn(player);
-        event.setRespawnLocation(info.getCurrentTeam().getRespawn());
         if (player.getGameMode() == GameMode.SPECTATOR) {
             HUB.give(player, 8);
+            event.setRespawnLocation(game.getLobby());
+            return;
         }
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+        event.setRespawnLocation(info.getCurrentTeam().getRespawn());
+        info.getCurrentTeam().onRespawn(player);
+
     }
 
     @EventHandler
@@ -192,14 +209,14 @@ public class GameListener implements Listener {
         }
 
         info.setDeaths(info.getDeaths() + 1);
-        String message = ChatColor.BLUE + player.getName() + ChatColor.GRAY + " plummeted to his death at the hands of " + ChatColor.BLUE + name;
+        String message = ChatColor.AQUA + player.getName() + ChatColor.GRAY + " plummeted to his death at the hands of " + ChatColor.AQUA + name;
         Bukkit.broadcastMessage(message);
         player.setMetadata("noMessage", new FixedMetadataValue(KingdomDefense.getInstance(), 0));
     }
 
     @EventHandler
-    public void onHungerLoss(FoodLevelChangeEvent event) {
-        event.setCancelled(true);
+    public void onArmorClick(InventoryClickEvent event) {
+
     }
 
     @EventHandler
@@ -209,6 +226,8 @@ public class GameListener implements Listener {
         event.setDroppedExp(0);
 
         Player player = event.getEntity();
+
+        player.spigot().respawn();
 
         Player killer = player.getKiller();
 
@@ -226,7 +245,7 @@ public class GameListener implements Listener {
 
         if (player.hasMetadata("void")) {
             player.removeMetadata("void", KingdomDefense.getInstance());
-            Bukkit.broadcastMessage(ChatColor.BLUE + player.getName() + ChatColor.GRAY + " tried to fly, but failed.");
+            Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + ChatColor.GRAY + " tried to fly, but failed.");
             return;
         }
 
@@ -244,7 +263,7 @@ public class GameListener implements Listener {
         killerInfo.setCoins(killerInfo.getCoins() + 10);
         killerInfo.getBukkitPlayer().playSound(killer.getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
 
-        String message = ChatColor.BLUE + killer.getName() + ChatColor.GRAY + " killed " + ChatColor.BLUE + player.getName() + ChatColor.GRAY + (inhand.equalsIgnoreCase("AIR") ? "!" : " with " + inhand);
+        String message = ChatColor.AQUA + killer.getName() + ChatColor.GRAY + " killed " + ChatColor.AQUA + player.getName() + ChatColor.GRAY + (inhand.equalsIgnoreCase("AIR") ? " with his bare hands. Savage!" : " with " + inhand);
 
         Bukkit.broadcastMessage(message);
     }

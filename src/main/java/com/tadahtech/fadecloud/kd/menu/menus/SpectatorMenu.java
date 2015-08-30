@@ -40,8 +40,8 @@ public class SpectatorMenu extends Menu {
             ItemStack itemStack = HeadItems.getItem(player.getName());
             ItemMeta builder = itemStack.getItemMeta();
             builder.setDisplayName(ChatColor.AQUA + player.getName());
-            builder.setLore(Arrays.asList(ChatColor.GRAY + "Health: " + player.getHealth(),
-              ChatColor.GRAY + "Team: " + (team == null ? "None" : team.getType().fancy())));
+            builder.setLore(Arrays.asList(ChatColor.GRAY + "Health: " + ChatColor.AQUA + player.getHealth(),
+              ChatColor.GRAY + "Team: " + ChatColor.AQUA + (team == null ? "None" : team.getType().fancy())));
             itemStack.setItemMeta(builder);
             buttons[i] = new Button(itemStack, player1 -> {
                 player1.teleport(player);
@@ -55,6 +55,6 @@ public class SpectatorMenu extends Menu {
 
     @Override
     public void onClose(Player player) {
-
+        remove(player.getUniqueId());
     }
 }

@@ -9,20 +9,17 @@ import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Created by Timothy Andis
  */
 public class Lobbyboard {
 
-    private Map<UUID, BufferedObjective> objectives;
+    private Map<UUID, SimpleScoreboard> objectives;
     private InfoManager infoManager;
 
     public Lobbyboard() {
@@ -32,27 +29,26 @@ public class Lobbyboard {
 
     public void flip() {
         List<Player> players = Lists.newArrayList(Bukkit.getOnlinePlayers());
-        players.stream().map(infoManager::get).collect(Collectors.toList()).forEach(info -> {
-            Player player = info.getBukkitPlayer();
-            BufferedObjective objective = objectives.get(player.getUniqueId());
-            String creeper_wins = ChatColor.GREEN.toString() + info.getWins(TeamType.CREEPER);
-            String zombie_wins = ChatColor.DARK_GREEN.toString() + info.getWins(TeamType.ZOMBIE);
-            String skeleton_wins = ChatColor.GRAY.toString() + info.getWins(TeamType.SKELETON);
-            String enderman_wins = ChatColor.LIGHT_PURPLE.toString() + info.getWins(TeamType.ENDERMAN);
+        players.forEach(player -> {
+            PlayerInfo info = infoManager.get(player);
+            if (info == null) {
+                KingdomDefense.getInstance().getInfoStore().load(player.getUniqueId());
+                return;
+            }
+            SimpleScoreboard objective = objectives.get(player.getUniqueId());
+            String wins = ChatColor.AQUA.toString() + (info.getWins(TeamType.CREEPER)  + info.getWins(TeamType.ZOMBIE)
+              + info.getWins(TeamType.SKELETON) + info.getWins(TeamType.ENDERMAN));
             String kills = ChatColor.getByChar('b').toString() + info.getKills();
             String deaths = ChatColor.getByChar('4').toString() + info.getDeaths();
             String coins = ChatColor.getByChar('e').toString() + info.getCoins();
             if (objective == null) {
-                Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-                objective = new BufferedObjective(scoreboard);
-                player.setScoreboard(scoreboard);
-                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                objective.setTitle(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+                objective = new SimpleScoreboard(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+                objective.send(player);
                 this.objectives.putIfAbsent(player.getUniqueId(), objective);
             }
             objective.setLine(15, color("&8&m-------"));
             objective.setLine(13, ChatColor.GRAY + "Wins: ");
-            objective.setLine(12, creeper_wins + "-" + zombie_wins + "-" + skeleton_wins + "-" + enderman_wins);
+            objective.setLine(12, wins);
             objective.setLine(11, color("&8&m&l-"));
             objective.setLine(10, ChatColor.GRAY + "Kills: ");
             objective.setLine(9, kills);
@@ -63,7 +59,7 @@ public class Lobbyboard {
             objective.setLine(4, color("&7Coins"));
             objective.setLine(3, coins);
             objective.setLine(2, color("&8&m-------&r"));
-            objective.flip();
+            objective.update();
         });
     }
 
@@ -72,12 +68,14 @@ public class Lobbyboard {
     }
 
     public void add(PlayerInfo info) {
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        info.getBukkitPlayer().setScoreboard(scoreboard);
-        BufferedObjective objective = new BufferedObjective(scoreboard);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setTitle(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+        this.objectives.remove(info.getUuid());
+        SimpleScoreboard objective = new SimpleScoreboard(ChatColor.translateAlternateColorCodes('&', "&8&l(&bK&fD&8&l)"));
+        objective.send(info.getBukkitPlayer());
         this.objectives.putIfAbsent(info.getUuid(), objective);
     }
 
+    public void remove(Player player) {
+        this.objectives.remove(player.getUniqueId());
+        player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+    }
 }

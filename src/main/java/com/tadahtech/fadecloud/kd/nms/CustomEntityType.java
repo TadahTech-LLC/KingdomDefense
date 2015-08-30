@@ -1,10 +1,7 @@
 package com.tadahtech.fadecloud.kd.nms;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.nms.mobs.CSCreeper;
-import com.tadahtech.fadecloud.kd.nms.mobs.CSEnderman;
-import com.tadahtech.fadecloud.kd.nms.mobs.CSSkeleton;
-import com.tadahtech.fadecloud.kd.nms.mobs.CSZombie;
+import com.tadahtech.fadecloud.kd.nms.mobs.*;
 import net.minecraft.server.v1_8_R2.EntityInsentient;
 import net.minecraft.server.v1_8_R2.EntityLiving;
 import net.minecraft.server.v1_8_R2.World;
@@ -24,7 +21,7 @@ public enum CustomEntityType {
     SKELETON("Skeleton", 51, CSSkeleton.class),
     CREEPER("Creeper", 50, CSCreeper.class),
     ENDERMAN("Enderman", 58, CSEnderman.class),
-    ;
+    VILLAGER("Villager", 120, KDVillager.class);
 
     CustomEntityType(String name, int id, Class<? extends EntityInsentient> custom) {
         addToMaps(custom, name, id);
@@ -53,6 +50,9 @@ public enum CustomEntityType {
                 break;
             case ZOMBIE:
                 entity = new CSZombie(world, false);
+                break;
+            case VILLAGER:
+                entity = new KDVillager(world);
                 break;
             default:
                 return null;

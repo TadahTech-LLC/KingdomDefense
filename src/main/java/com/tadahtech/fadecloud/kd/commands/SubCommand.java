@@ -7,16 +7,20 @@ import org.bukkit.command.CommandSender;
  */
 public interface SubCommand {
 
-    public String getName();
+    String getName();
 
-    public String getPermission();
+    String getPermission();
 
-    public boolean isPlayerOnly();
+    boolean isPlayerOnly();
 
-    public String getDescription();
+    String getDescription();
 
-    public String[] getAliases();
+    String[] getAliases();
 
-    public void execute(CommandSender sender, String[] args);
+    void execute(CommandSender sender, String[] args);
+
+    default boolean isInternal() {
+        return false;
+    }
 
 }

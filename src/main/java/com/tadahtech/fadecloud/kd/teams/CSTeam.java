@@ -2,13 +2,12 @@ package com.tadahtech.fadecloud.kd.teams;
 
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.Island;
 import com.tadahtech.fadecloud.kd.map.LocationType;
-import com.tadahtech.fadecloud.kd.threads.SingularObjectThread;
 import com.tadahtech.fadecloud.kd.threads.Tickable;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -27,7 +26,7 @@ public abstract class CSTeam extends Tickable {
     protected TeamType type;
     protected Loadout loadout;
     protected List<UUID> players;
-    protected SingularObjectThread<CSTeam> thread;
+
     protected final Random random = new Random();
     protected Island island;
     private boolean lost;
@@ -37,7 +36,6 @@ public abstract class CSTeam extends Tickable {
         this.island = island;
         this.loadout = loadout;
         this.players = Lists.newArrayList();
-        this.thread = new SingularObjectThread<>(this, false, 20);
     }
 
     public TeamType getType() {
@@ -70,19 +68,22 @@ public abstract class CSTeam extends Tickable {
         Location location = KingdomDefense.getInstance().getGame().getMap().getLocation(type).get();
         player.teleport(location);
         player.setHealth(player.getMaxHealth());
+        KingdomDefense.getInstance().getInfoManager().get(player).setCurrentTeam(this);
         this.loadout.load(player);
     }
 
-    protected void add(Player player) {
-
+    public void add(Player player) {
+        this.players.add(player.getUniqueId());
     }
 
-    public void applyEffects(Player player) {
-
-    }
+    public abstract void applyEffects(Player player);
 
     public List<Player> getBukkitPlayers() {
-        return players.stream().map(Bukkit::getPlayer).collect(Collectors.toList());
+        Game game = KingdomDefense.getInstance().getGame();
+        return game.getPlayers().stream()
+          .filter(info -> info.getCurrentTeam().equals(this))
+          .map(PlayerInfo::getBukkitPlayer)
+          .collect(Collectors.toList());
     }
 
     public Island getIsland() {
@@ -127,6 +128,10 @@ public abstract class CSTeam extends Tickable {
             default: return getBukkitPlayers().get(0).getWorld().getSpawnLocation();
         }
         return KingdomDefense.getInstance().getGame().getMap().getLocation(type).get();
+    }
+
+    public List<UUID> getPlayers() {
+        return players;
     }
 
     public enum TeamType {
@@ -188,4 +193,5 @@ public abstract class CSTeam extends Tickable {
             return "";
         }
     }
+
 }

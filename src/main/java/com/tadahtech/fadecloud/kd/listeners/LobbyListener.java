@@ -1,26 +1,29 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
+import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.csc.Packet;
 import com.tadahtech.fadecloud.kd.csc.packets.request.JoinGameRequestPacket;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.items.ItemBuilder;
+import com.tadahtech.fadecloud.kd.shop.shops.KitShop;
 import com.tadahtech.fadecloud.kd.sign.LobbySign;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,9 +62,10 @@ public class LobbyListener implements Listener {
         if (!(block.getState() instanceof Sign)) {
             return;
         }
+        event.setCancelled(true);
         Sign sign = (Sign) block.getState();
         String[] lines_ = sign.getLines();
-        List<String> lines = new ArrayList<>(Arrays.asList(lines_).stream().map(ChatColor::stripColor).collect(Collectors.toList()));
+        List<String> lines = Lists.newArrayList(lines_).stream().map(ChatColor::stripColor).collect(Collectors.toList());
         String first = lines.get(0);
         if (!first.equalsIgnoreCase("[Join]")) {
             return;
@@ -78,20 +82,28 @@ public class LobbyListener implements Listener {
         packet.write();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
-        ItemBuilder builder = new ItemBuilder(new ItemStack(Material.SKULL_ITEM));
-        builder.data((byte) 3);
-        builder.name(ChatColor.AQUA.toString() + "Profile");
-        builder.lore(ChatColor.GRAY + "Right click to view your profile");
-        builder.setOwner(info.getBukkitPlayer().getName());
-        if(info.getBukkitPlayer().getItemInHand().getType() == Material.SKULL_ITEM) {
-            return;
-        }
-        info.getBukkitPlayer().getInventory().setItem(1, builder.build());
         KingdomDefense.getInstance().getLobbyboard().add(info);
         KingdomDefense.getInstance().getLobbyboard().flip();
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onQuit(PlayerQuitEvent event) {
+        KingdomDefense.getInstance().getLobbyboard().remove(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEntityEvent event) {
+        Entity entity = event.getRightClicked();
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
+        event.setCancelled(true);
+        if(entity instanceof Villager) {
+            Villager villager = (Villager) entity;
+            if(villager.isCustomNameVisible()) {
+                KitShop.INSTANCE.getMenu(info.getBukkitPlayer()).open(info.getBukkitPlayer());
+            }
+        }
     }
 }

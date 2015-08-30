@@ -131,12 +131,32 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             locations.put(LocationType.LOBBY, player.getLocation());
-            return new BridgeMinPrompt();
+            return new CenterLocationPrompt();
         }
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
             return "Stand in the place where you want the lobby to be (waiting area before a game), then type \"lobby\'";
+        }
+
+    }
+
+    private class CenterLocationPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            locations.put(LocationType.CENTER, player.getLocation());
+            return new BridgeMinPrompt();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where you want the crate to fall to, then type \"next\'";
         }
 
     }
@@ -211,12 +231,32 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             locations.put(LocationType.CREEPER_KING, player.getLocation());
-            return new ZombieSpawn();
+            return new CreeperVillagerPrompt();
         }
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
             return "Stand in the place where you want the Creeper King to be, then type \"next\'";
+        }
+
+    }
+
+    private class CreeperVillagerPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            locations.put(LocationType.CREEPER_VILLAGER, player.getLocation());
+            return new ZombieSpawn();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where you want the Creeper Shop to be, then type \"next\'";
         }
 
     }
@@ -251,12 +291,32 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             locations.put(LocationType.ZOMBIE_KING, player.getLocation());
-            return new EndermanSpawn();
+            return new ZombieVillagerPrompt();
         }
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
             return "Stand in the place where you want the Zombie King to be, then type \"next\'";
+        }
+
+    }
+
+    private class ZombieVillagerPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            locations.put(LocationType.ZOMBIE_VILLAGER, player.getLocation());
+            return new EndermanSpawn();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where you want the Zombie Shop to be, then type \"next\'";
         }
 
     }
@@ -291,12 +351,32 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             locations.put(LocationType.ENDERMAN_KING, player.getLocation());
-            return new SkeletonSpawn();
+            return new EndermanVillagerPrompt();
         }
 
         @Override
         public String getPromptText(ConversationContext conversationContext) {
             return "Stand in the place where you want the Enderman King to be, then type \"next\'";
+        }
+
+    }
+
+    private class EndermanVillagerPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            locations.put(LocationType.ENDERMAN_VILLAGER, player.getLocation());
+            return new SkeletonSpawn();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where you want the Enderman Shop to be, then type \"next\'";
         }
 
     }
@@ -331,7 +411,7 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             locations.put(LocationType.SKELETON_KING, player.getLocation());
-            return new SkeletonIslandMin();
+            return new SkeletonVillagerPrompt();
         }
 
         @Override
@@ -341,8 +421,28 @@ public class GameMapCreator {
 
     }
 
+    private class SkeletonVillagerPrompt extends ValidatingPrompt {
+
+        @Override
+        protected boolean isInputValid(ConversationContext conversationContext, String s) {
+            return s.equalsIgnoreCase("next");
+        }
+
+        @Override
+        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
+            locations.put(LocationType.SKELETON_VILLAGER, player.getLocation());
+            return new SkeletonIslandMin();
+        }
+
+        @Override
+        public String getPromptText(ConversationContext conversationContext) {
+            return "Stand in the place where you want the Skeleton Shop to be, then type \"next\'";
+        }
+
+    }
+
     private Island island;
-    private Location regionmin, regionmax, castleMin, castleMax;
+    private Location regionmin, regionmax;
 
     private class SkeletonIslandMin extends ValidatingPrompt {
 
@@ -374,7 +474,10 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             regionmax = player.getLocation();
-            return new SkeletonIslandCastleMin();
+            Region region = new Region(regionmin, regionmax);
+            island = new Island(region);
+            islands.put(TeamType.SKELETON, island);
+            return new ZombieIslandMin();
         }
 
         @Override
@@ -382,49 +485,6 @@ public class GameMapCreator {
             return "Stand in the place where you want the Skeleton Island Max Point to be, then type \"next\'";
         }
 
-    }
-
-    private class SkeletonIslandCastleMin extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMin = player.getLocation();
-            return new SkeletonIslandCastledMax();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Skeleton Castle Min Point to be, then type \"next\'";
-        }
-
-    }
-
-    private class SkeletonIslandCastledMax extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMax = player.getLocation();
-            Region region = new Region(regionmin, regionmax);
-            Region castle = new Region(castleMin, castleMax);
-            island = new Island(region, castle);
-            islands.put(TeamType.SKELETON, island);
-            return new ZombieIslandMin();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Skeleton Castle Max Point to be, then type \"next\'";
-        }
     }
 
     private class ZombieIslandMin extends ValidatingPrompt {
@@ -457,7 +517,10 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             regionmax = player.getLocation();
-            return new ZombieIslandCastleMin();
+            Region region = new Region(regionmin, regionmax);
+            island = new Island(region);
+            islands.put(TeamType.ZOMBIE, island);
+            return new CreeperIslandMin();
         }
 
         @Override
@@ -465,49 +528,6 @@ public class GameMapCreator {
             return "Stand in the place where you want the Zombie Island Max Point to be, then type \"next\'";
         }
 
-    }
-
-    private class ZombieIslandCastleMin extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMin = player.getLocation();
-            return new ZombieIslandCastledMax();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Zombie Castle Min Point to be, then type \"next\'";
-        }
-
-    }
-
-    private class ZombieIslandCastledMax extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMax = player.getLocation();
-            Region region = new Region(regionmin, regionmax);
-            Region castle = new Region(castleMin, castleMax);
-            island = new Island(region, castle);
-            islands.put(TeamType.ZOMBIE, island);
-            return new CreeperIslandMin();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Zombie Castle Max Point to be, then type \"next\'";
-        }
     }
 
     private class CreeperIslandMin extends ValidatingPrompt {
@@ -540,7 +560,10 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             regionmax = player.getLocation();
-            return new CreeperIslandCastleMin();
+            Region region = new Region(regionmin, regionmax);
+            island = new Island(region);
+            islands.put(TeamType.CREEPER, island);
+            return new EndermanIslandMin();
         }
 
         @Override
@@ -550,48 +573,6 @@ public class GameMapCreator {
 
     }
 
-    private class CreeperIslandCastleMin extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMin = player.getLocation();
-            return new CreeperIslandCastledMax();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Creeper Castle Min Point to be, then type \"next\'";
-        }
-
-    }
-
-    private class CreeperIslandCastledMax extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMax = player.getLocation();
-            Region region = new Region(regionmin, regionmax);
-            Region castle = new Region(castleMin, castleMax);
-            island = new Island(region, castle);
-            islands.put(TeamType.CREEPER, island);
-            return new EndermanIslandMin();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Creeper Castle Max Point to be, then type \"next\'";
-        }
-    }
 
     private class EndermanIslandMin extends ValidatingPrompt {
 
@@ -623,7 +604,16 @@ public class GameMapCreator {
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String s) {
             regionmax = player.getLocation();
-            return new EndermanIslandCastleMin();
+            Region region = new Region(regionmin, regionmax);
+            island = new Island(region);
+            islands.put(TeamType.ENDERMAN, island);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    done();
+                }
+            }.runTaskLater(KingdomDefense.getInstance(), 1L);
+            return END_OF_CONVERSATION;
         }
 
         @Override
@@ -633,57 +623,8 @@ public class GameMapCreator {
 
     }
 
-    private class EndermanIslandCastleMin extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMin = player.getLocation();
-            return new EndermanIslandCastledMax();
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Enderman Castle Min Point to be, then type \"next\'";
-        }
-
-    }
-
-    private class EndermanIslandCastledMax extends ValidatingPrompt {
-
-        @Override
-        protected boolean isInputValid(ConversationContext conversationContext, String s) {
-            return s.equalsIgnoreCase("next");
-        }
-
-        @Override
-        protected Prompt acceptValidatedInput(ConversationContext context, String s) {
-            castleMax = player.getLocation();
-            Region region = new Region(regionmin, regionmax);
-            Region castle = new Region(castleMin, castleMax);
-            island = new Island(region, castle);
-            islands.put(TeamType.ENDERMAN, island);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    done();
-                }
-            }.runTaskLater(KingdomDefense.getInstance(), 2L);
-            return END_OF_CONVERSATION;
-        }
-
-        @Override
-        public String getPromptText(ConversationContext conversationContext) {
-            return "Stand in the place where you want the Enderman Castle Max Point to be, then type \"next\'";
-        }
-    }
-
     public void done() {
-        String[] authors = { "TadahTech"};
+        String[] authors = { "TadahTech", "Eriic", "DaddyMew" };
         Bridge bridge = new Bridge(bridgeMin, bridgeMax);
         GameMap map = new GameMap(locations, authors, name, min, max, islands, bridge);
         player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Map Built! Saving....");

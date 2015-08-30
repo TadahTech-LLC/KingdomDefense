@@ -82,10 +82,10 @@
         </dependency>
         <dependency>
             <groupId>com.tadahtech.fadecloud</groupId>
-            <artifactId>Crystals</artifactId>
+            <artifactId>NametagEdit</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>${libs.dir}/FadeCrystals.jar</systemPath>
+            <systemPath>${libs.dir}/NametagEdit.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.tadahtech.pub</groupId>

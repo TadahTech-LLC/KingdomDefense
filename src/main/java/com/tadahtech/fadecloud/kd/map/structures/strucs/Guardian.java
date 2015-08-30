@@ -2,11 +2,8 @@ package com.tadahtech.fadecloud.kd.map.structures.strucs;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.map.Island;
 import com.tadahtech.fadecloud.kd.map.StructureType;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
-import com.tadahtech.fadecloud.kd.teams.CSTeam;
-import com.tadahtech.fadecloud.kd.teams.zombie.ZombieTeam;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -15,8 +12,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Timothy Andis
@@ -27,28 +22,28 @@ public class Guardian extends Structure {
     private long lastHeal;
     private int cooldown;
 
-    public Guardian(PlayerInfo info) {
+    public Guardian() {
         super(ChatColor.GREEN.toString() + ChatColor.BOLD + "Guardian");
-        this.setOwner(info);
         this.cooldown = 20;
-        this.lastHeal = System.currentTimeMillis();
-        info.setCurrentStructure(this);
+        this.lastHeal = 0;
+        this.range = 20;
     }
 
     @Override
     public void tick() {
-        long diff = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - lastHeal);
-        if(diff - cooldown > 0) {
-            return;
+        if(lastHeal != 0) {
+            long curr = System.currentTimeMillis();
+            if(cooldown - ((curr - lastHeal) / 1000) > 0) {
+                return;
+            }
         }
         this.lastHeal = System.currentTimeMillis();
         for (Player player : owner.getCurrentTeam().getBukkitPlayers()) {
             Location location = player.getLocation();
             double z = location.getZ();
             double x = location.getX();
-            Island island = owner.getCurrentTeam().getIsland();
-            double locZ = getLocation().toWorldLocation(island).getZ();
-            double locX = getLocation().toWorldLocation(island).getX();
+            double locZ = getFiring().getZ();
+            double locX = getFiring().getX();
             double distance = Math.sqrt(NumberConversions.square(locX - x) + NumberConversions.square(locZ - z));
             if (distance > getRange()) {
                 continue;
@@ -57,12 +52,15 @@ public class Guardian extends Structure {
             if (!info.getCurrentTeam().equals(owner.getCurrentTeam())) {
                 continue;
             }
-            CSTeam team = info.getCurrentTeam();
             double health = healthPerTick;
-            if (team instanceof ZombieTeam) {
-                health *= 0.3;
+            if(player.getHealth() == player.getMaxHealth()) {
+                continue;
             }
-            player.setHealth(player.getHealth() + health);
+            double newHealth = health + player.getHealth();
+            if(newHealth > player.getMaxHealth()) {
+                newHealth = (newHealth - player.getMaxHealth());
+            }
+            player.setHealth(newHealth);
             player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.0F, 1.8F);
             int yaw = (int) player.getLocation().getYaw() + 45;
             while (yaw < 0)

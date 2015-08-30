@@ -2,10 +2,7 @@ package com.tadahtech.fadecloud.kd.nms.mobs;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.nms.NMS;
-import net.minecraft.server.v1_8_R2.EntityHuman;
-import net.minecraft.server.v1_8_R2.EntitySkeleton;
-import net.minecraft.server.v1_8_R2.PathfinderGoalLookAtPlayer;
-import net.minecraft.server.v1_8_R2.World;
+import net.minecraft.server.v1_8_R2.*;
 import org.bukkit.metadata.FixedMetadataValue;
 
 /**
@@ -18,6 +15,11 @@ public class CSSkeleton extends EntitySkeleton {
         NMS.clearGoals(targetSelector, goalSelector);
         this.goalSelector.a(8, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
         getBukkitEntity().setMetadata("noBurn", new FixedMetadataValue(KingdomDefense.getInstance(), true));
+    }
+
+    @Override
+    public void collide(Entity entity) {
+
     }
 
     @Override

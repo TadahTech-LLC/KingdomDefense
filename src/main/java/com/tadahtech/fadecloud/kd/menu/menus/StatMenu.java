@@ -57,8 +57,8 @@ public class StatMenu extends Menu {
           .lore(" ",
             ChatColor.GRAY + "Wins: " + ChatColor.AQUA + info.getWins(TeamType.ZOMBIE),
             ChatColor.GRAY + "Level: " + ChatColor.AQUA + info.getLevel(TeamType.ZOMBIE))
-          .build();
-        ItemStack enderman = HeadItems.ENDERMAN;
+          .cloneBuild();
+        ItemStack enderman = HeadItems.ENDERMAN.clone();
         ItemMeta meta = enderman.getItemMeta();
           meta.setDisplayName(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Enderman Statistics");
           meta.setLore(Arrays.asList(" ",
@@ -75,7 +75,7 @@ public class StatMenu extends Menu {
 
     @Override
     public void onClose(Player player) {
-
+        remove(player.getUniqueId());
     }
 
     private class ShowButton extends Button {

@@ -45,13 +45,15 @@ public class EconomyManager {
             rewards = Lists.newArrayList();
         }
         rewards.add(new ParticipationReward(10));
-        info.sendMessage(ChatColor.BLUE.toString() + ChatColor.BOLD + "============================");
-        info.sendMessage("Kingdom Defense: ");
+        info.sendMessage(ChatColor.AQUA.toString() + ChatColor.BOLD + ChatColor.STRIKETHROUGH + "================================");
+        info.sendMessage(ChatColor.AQUA.toString() + ChatColor.BOLD + "Kingdom Defense: ");
+        info.sendMessage(" ");
         for(EconomyReward reward : rewards) {
-            info.sendMessage("  " + reward.toString());
+            info.sendMessage(ChatColor.GRAY + "  * " + reward.toString());
             info.addCoins(reward.getAmount());
         }
-        info.sendMessage(ChatColor.BLUE.toString() + ChatColor.BOLD + "============================");
+        info.sendMessage(" ");
+        info.sendMessage(ChatColor.AQUA.toString() + ChatColor.BOLD + ChatColor.STRIKETHROUGH + "================================");
         info.sendMessage(" ");
     }
 
@@ -62,9 +64,6 @@ public class EconomyManager {
         double base = 250;
         if(info.getBukkitPlayer().hasPermission("kd.beta")) {
             base = 500;
-        }
-        if(info.getCoins() > 0) {
-            base = 0;
         }
         return base;
     }

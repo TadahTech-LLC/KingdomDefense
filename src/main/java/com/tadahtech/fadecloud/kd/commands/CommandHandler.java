@@ -31,9 +31,9 @@ public class CommandHandler implements CommandExecutor {
     public void register(SubCommand command) {
         String[] aliases = command.getAliases();
         String name = command.getName();
-        subCommands.put(name, command);
+        subCommands.put(name.toLowerCase(), command);
         if (aliases != null && aliases.length > 0) {
-            Arrays.asList(aliases).stream().forEach(s -> subCommandAliases.put(s, command));
+            Arrays.asList(aliases).stream().forEach(s -> subCommandAliases.put(s.toLowerCase(), command));
         }
     }
 
@@ -49,6 +49,8 @@ public class CommandHandler implements CommandExecutor {
         }
         //No command, or alias registered.
         if (subCommand == null) {
+            sender.sendMessage(ChatColor.RED + "Idk whut this is");
+            sender.sendMessage(args[0]);
             return true;
         }
         String[] cmdArgs = new String[args.length];

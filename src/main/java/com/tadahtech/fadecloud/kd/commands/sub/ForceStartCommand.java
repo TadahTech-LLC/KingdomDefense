@@ -2,7 +2,7 @@ package com.tadahtech.fadecloud.kd.commands.sub;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.commands.SubCommand;
-import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.lang.Lang;
 import org.bukkit.command.CommandSender;
 
 /**
@@ -38,6 +38,6 @@ public class ForceStartCommand implements SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         KingdomDefense.getInstance().getGame().start();
-        sender.sendMessage(ModSpecialItem.PREFIX + "Force started the game");
+        sender.sendMessage(Lang.PREFIX + "Force started the game");
     }
 }

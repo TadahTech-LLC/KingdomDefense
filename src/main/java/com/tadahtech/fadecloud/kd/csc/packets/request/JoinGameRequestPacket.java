@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.csc.packets.request;
 
+import com.google.common.collect.ImmutableMap;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.csc.packets.RequestPacket;
 import com.tadahtech.fadecloud.kd.csc.packets.ResponsePacket;
@@ -28,7 +29,7 @@ public class JoinGameRequestPacket extends RequestPacket {
             return;
         }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        Lang.NO_GAME_FOUND.send(info);
+        Lang.NO_GAME_FOUND.send(info, ImmutableMap.of("server", getServer()));
     }
 
     private UUID uuid;

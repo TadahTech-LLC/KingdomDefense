@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.info;
 
+import ca.wacos.nametagedit.NametagAPI;
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.achievements.CSAchievement;
@@ -14,6 +15,9 @@ import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,17 +42,19 @@ public class PlayerInfo {
     private List<CSAchievement> achievements;
     private double coins;
     private Player bukkitPlayer;
-    private int kills, deaths;
+    private int kills, deaths, blocksBroken;
 
     /*
      * Current Game Related Information.
      */
     private boolean invisible = false;
     private boolean invisibleFromChance = false;
-    private boolean teamChat = true;
+    private boolean teamChat = false;
     private Structure currentStructure;
     private Party party;
     private Party invitedTo;
+    private boolean invincible, beenTold;
+    private int foundChests;
 
     public PlayerInfo(Player player) {
         this.uuid = player.getUniqueId();
@@ -121,7 +127,7 @@ public class PlayerInfo {
     }
 
     public int getWins(TeamType teamType) {
-        if(this.teamWins == null) {
+        if (this.teamWins == null) {
             this.teamWins = new HashMap<TeamType, Integer>() {{
                 put(TeamType.CREEPER, 0);
                 put(TeamType.ZOMBIE, 0);
@@ -146,11 +152,7 @@ public class PlayerInfo {
     }
 
     public Player getBukkitPlayer() {
-        if(bukkitPlayer != null) {
-            return bukkitPlayer;
-        }
-
-        return (this.bukkitPlayer = Bukkit.getPlayer(uuid));
+        return Bukkit.getPlayer(uuid);
     }
 
     public int getLevel(TeamType team) {
@@ -164,28 +166,35 @@ public class PlayerInfo {
     public void setCurrentTeam(CSTeam currentTeam) {
         this.currentTeam = currentTeam;
         Player player = getBukkitPlayer();
-        String name = player.getName();
-        if(name.length() > 14) {
-            name = name.substring(0, 14);
-        }
         switch (currentTeam.getType()) {
             case CREEPER:
-                player.setPlayerListName(ChatColor.GREEN + name);
+                NametagAPI.setNametagHard(player.getName(), ChatColor.GREEN + "[Creeper] ", "");
                 break;
             case ZOMBIE:
-                player.setPlayerListName(ChatColor.DARK_GREEN + name);
+                NametagAPI.setNametagHard(player.getName(), ChatColor.DARK_GREEN + "[Zombie] ", "");
                 break;
             case SKELETON:
-                player.setPlayerListName(ChatColor.GRAY + name);
+                NametagAPI.setNametagHard(player.getName(), ChatColor.GRAY + "[Skeleton] ", "");
                 break;
             case ENDERMAN:
-                player.setPlayerListName(ChatColor.LIGHT_PURPLE + name);
+                NametagAPI.setNametagHard(player.getName(), ChatColor.LIGHT_PURPLE + "[Enderman] ", "");
                 break;
         }
     }
 
     public void setInvisible(boolean invisible) {
         this.invisible = invisible;
+        if(invisible) {
+            ItemStack[] armor = bukkitPlayer.getInventory().getArmorContents();
+            bukkitPlayer.getInventory().setArmorContents(null);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    bukkitPlayer.getInventory().setArmorContents(armor);
+                    bukkitPlayer.removePotionEffect(PotionEffectType.INVISIBILITY);
+                }
+            }.runTaskLater(KingdomDefense.getInstance(), 20L * 8);
+        }
     }
 
     public boolean isInvisible() {
@@ -194,6 +203,17 @@ public class PlayerInfo {
 
     public void setInvisibleFromChance(boolean invisibleFromChance) {
         this.invisibleFromChance = invisibleFromChance;
+        if(invisibleFromChance) {
+            ItemStack[] armor = bukkitPlayer.getInventory().getArmorContents();
+            bukkitPlayer.getInventory().setArmorContents(null);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    bukkitPlayer.getInventory().setArmorContents(armor);
+                    bukkitPlayer.removePotionEffect(PotionEffectType.INVISIBILITY);
+                }
+            }.runTaskLater(KingdomDefense.getInstance(), 20L * 8);
+        }
     }
 
     public boolean isInvisibleFromChance() {
@@ -227,9 +247,9 @@ public class PlayerInfo {
     public void setCoins(double coins) {
         this.coins = coins;
         Game game = KingdomDefense.getInstance().getGame();
-        if(game == null) {
+        if (game == null) {
             Lobbyboard lobbyboard = KingdomDefense.getInstance().getLobbyboard();
-            if(lobbyboard != null) {
+            if (lobbyboard != null) {
                 lobbyboard.flip();
             }
             return;
@@ -252,14 +272,6 @@ public class PlayerInfo {
     public boolean remove(double amount) {
         setCoins(this.coins - amount);
         return true;
-    }
-
-    public Structure getCurrentStructure() {
-        return currentStructure;
-    }
-
-    public void setCurrentStructure(Structure currentStructure) {
-        this.currentStructure = currentStructure;
     }
 
     public int getDeaths() {
@@ -287,18 +299,10 @@ public class PlayerInfo {
         teamLevels.put(type, i);
     }
 
-    public boolean hasBeenRequested() {
-        return requested;
-    }
-
-    public void setRequested(boolean requested) {
-        this.requested = requested;
-    }
-
     public void setWins(TeamType creeper, int creeper_wins) {
         this.teamWins.put(creeper, creeper_wins);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -349,7 +353,7 @@ public class PlayerInfo {
         int enderman_wins = Utils.parse(str[11]);
         int skeleton_wins = Utils.parse(str[12]);
         return new PlayerInfo(uuid, coins, kills, deaths, kits,
-            creeper_level, creeper_wins, zombie_level, zombie_wins, enderman_level, enderman_wins, skeleton_level, skeleton_wins);
+          creeper_level, creeper_wins, zombie_level, zombie_wins, enderman_level, enderman_wins, skeleton_level, skeleton_wins);
 
     }
 
@@ -367,5 +371,49 @@ public class PlayerInfo {
 
     public Party getInvitedTo() {
         return invitedTo;
+    }
+
+    public void setInvincible(boolean invincible) {
+        this.invincible = invincible;
+    }
+
+    public boolean isInvincible() {
+        return invincible;
+    }
+
+    public void addWin(TeamType type) {
+        setWins(type, (getWins(type) + 1));
+    }
+
+    public boolean hasBeenTold() {
+        return beenTold;
+    }
+
+    public void setBeenTold(boolean beenTold) {
+        this.beenTold = beenTold;
+        if(beenTold) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    setBeenTold(false);
+                }
+            }.runTaskLater(KingdomDefense.getInstance(), 20L * 30);
+        }
+    }
+
+    public int getBlocksBroken() {
+        return blocksBroken;
+    }
+
+    public void setBlocksBroken(int blocksBroken) {
+        this.blocksBroken = blocksBroken;
+    }
+
+    public int getFoundChests() {
+        return foundChests;
+    }
+
+    public void setFoundChests(int foundChests) {
+        this.foundChests = foundChests;
     }
 }

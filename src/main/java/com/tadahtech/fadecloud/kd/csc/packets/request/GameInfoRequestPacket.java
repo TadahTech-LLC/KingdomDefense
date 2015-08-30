@@ -28,7 +28,6 @@ public class GameInfoRequestPacket extends RequestPacket {
 
     @Override
     public ResponsePacket getResponse(String message) {
-        respond();
         return new GameInfoResponsePacket();
     }
 

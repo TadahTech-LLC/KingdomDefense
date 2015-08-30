@@ -1,19 +1,16 @@
 package com.tadahtech.fadecloud.kd.listeners;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.game.GameState;
+import com.tadahtech.fadecloud.kd.creation.StructureRegionCreator;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.map.Island;
-import com.tadahtech.fadecloud.kd.map.structures.GridLocation;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
-import com.tadahtech.fadecloud.kd.map.structures.WorldEditAssit;
-import com.tadahtech.fadecloud.kd.map.structures.strucs.Guardian;
+import com.tadahtech.fadecloud.kd.map.structures.StructureRegion;
+import com.tadahtech.fadecloud.kd.menu.menus.StructureMenu;
 import com.tadahtech.fadecloud.kd.menu.menus.UpgradeStructureMenu;
-import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,7 +29,7 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        if(KingdomDefense.EDIT_MODE) {
+        if (KingdomDefense.EDIT_MODE) {
             return;
         }
         Location location = event.getBlock().getLocation();
@@ -46,12 +43,8 @@ public class BlockListener implements Listener {
             return;
         }
         Island island = info.getCurrentTeam().getIsland();
-        GridLocation gridLocation = GridLocation.fromWorldLocation(island, location);
-        Optional<Structure> maybe = info.getCurrentTeam().getIsland().getStructure(gridLocation);
+        Optional<Structure> maybe = StructureRegion.getStructure(location);
         if (!maybe.isPresent()) {
-            if (island.inCastle(location)) {
-                event.setCancelled(true);
-            }
             return;
         }
         event.setCancelled(true);
@@ -60,9 +53,16 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
-        if(KingdomDefense.EDIT_MODE) {
+        Optional<StructureRegionCreator> creator = StructureRegionCreator.get(event.getPlayer());
+        if(creator.isPresent()) {
+            event.setCancelled(true);
+            creator.get().onClick(event.getBlockPlaced().getLocation());
             return;
         }
+        if (KingdomDefense.EDIT_MODE) {
+            return;
+        }
+
         ItemStack inhand = event.getItemInHand();
         Location location = event.getBlock().getLocation();
         Player player = event.getPlayer();
@@ -71,48 +71,8 @@ public class BlockListener implements Listener {
             return;
         }
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        Island island = info.getCurrentTeam().getIsland();
-        if (!island.getRegion().canBuild(location)) {
-            return;
-        }
-        if (island.inCastle(location)) {
-            event.setCancelled(true);
-            info.sendMessage(ChatColor.RED + "You cannot place in your castle!");
-            return;
-        }
-        if(!island.getRegion().canBuild(location)) {
-            if(KingdomDefense.getInstance().getGame().getState() != GameState.BATTLE) {
-                info.getBukkitPlayer().sendMessage(ChatColor.RED + "You can't place that here!");
-                event.setCancelled(true);
-                return;
-            }
-        }
-        GridLocation gridLocation = GridLocation.fromWorldLocation(island, location);
-        Optional<Structure> maybe = info.getCurrentTeam().getIsland().getStructure(gridLocation);
+        Optional<Structure> maybe = StructureRegion.getStructure(location);
         if (!maybe.isPresent()) {
-            if (inhand == null || inhand.getType() == Material.AIR) {
-                return;
-            }
-            Structure structure = info.getCurrentStructure();
-            if (structure == null) {
-                return;
-            }
-            if(!WorldEditAssit.structureCheck(island, gridLocation, structure, 1)) {
-                info.sendMessage(ChatColor.RED + "You have something in the way!");
-                return;
-            }
-            if(!WorldEditAssit.pasteStructure(island, gridLocation, structure, 0, 1, true)) {
-                return;
-            }
-            info.setCurrentStructure(null);
-            structure.setLevel(1);
-            if(structure instanceof Guardian) {
-                Guardian guardian = (Guardian) structure;
-                guardian.setHealthPerTick(2);
-                guardian.setCooldown(20);
-            }
-            event.setCancelled(true);
-            info.sendMessage(ModSpecialItem.PREFIX + structure.getName() + ChatColor.YELLOW + " created! " + (4 - island.getCount(structure.getStructureType())) + " more can be made.");
             return;
         }
         event.setCancelled(true);
@@ -121,7 +81,7 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if(KingdomDefense.EDIT_MODE) {
+        if (KingdomDefense.EDIT_MODE) {
             return;
         }
         Player player = event.getPlayer();
@@ -140,12 +100,16 @@ public class BlockListener implements Listener {
         if (info.getCurrentTeam() == null) {
             return;
         }
-        Island island = info.getCurrentTeam().getIsland();
-        GridLocation gridLocation = GridLocation.fromWorldLocation(island, location);
-        Optional<Structure> maybe = info.getCurrentTeam().getIsland().getStructure(gridLocation);
+        Optional<Structure> maybe = StructureRegion.getStructure(location);
         if (maybe.isPresent()) {
+            event.setCancelled(true);
             Structure structure = maybe.get();
-            new UpgradeStructureMenu(structure).open(player);
+            if(structure.isActive()) {
+                new UpgradeStructureMenu(structure).open(player);
+            } else {
+                new StructureMenu(structure).open(player);
+            }
         }
     }
+
 }

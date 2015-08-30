@@ -1,9 +1,9 @@
 package com.tadahtech.fadecloud.kd.kit.kits;
 
-import com.tadahtech.fadecloud.kd.items.ThorItem;
+import com.google.common.collect.Lists;
+import com.tadahtech.fadecloud.kd.items.special.ThorItem;
 import com.tadahtech.fadecloud.kd.kit.CSKit;
-
-import java.util.Collections;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * Created by Timothy Andis
@@ -11,6 +11,6 @@ import java.util.Collections;
 public class ThorKit extends CSKit {
 
     public ThorKit() {
-        super(Collections.singletonList(new ThorItem().getItem()), "Thor", "Rule the Skies!");
+        super(Lists.newArrayList(new ThorItem().getItem()), "Thor", ChatColor.AQUA + "Rule the Skies!");
     }
 }

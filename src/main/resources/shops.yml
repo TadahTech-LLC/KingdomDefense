@@ -1,0 +1,13 @@
+game:
+  items:
+    "Still Doesnt Matter":
+      material: STONE
+      amount: 64
+      price: 1
+kits:
+  prices:
+    Default: 0
+    Thor: 10000
+    Healer: 10000
+    Example: -1
+

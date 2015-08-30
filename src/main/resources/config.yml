@@ -4,8 +4,17 @@ host: localhost
 password: password
 #-----------------------------------------
 
+zombie-desc:
+- 'Here'
+creeper-desc:
+- 'ETC'
+enderman-desc:
+- 'Got it'
+skeleton-desc:
+- 'i gope so'
+
 #The name of the world
-world: world
+world: gameWorld
 
 #Set this value to true for editing the map.
 edit-mode: true

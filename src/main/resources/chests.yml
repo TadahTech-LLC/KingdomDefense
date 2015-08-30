@@ -1,0 +1,65 @@
+tier-1:
+  max-items: 2
+  chance: 5.0
+  items:
+    '0':
+      material: STONE_SWORD
+      amount: 1
+      name: null
+      lore: null
+      data: 0
+      enchants:
+      - DAMAGE_ALL:1
+    '1':
+      material: DIAMOND_AXE
+    '2':
+      material: BOW
+      enchants:
+      - ARROW_DAMAGE:1
+    '3':
+      material: GOLDEN_APPLE
+      amount: 5
+tier-2:
+  max-items: 2
+  chance: 3.0
+  items:
+    '0':
+      material: IRON_SWORD
+      enchants:
+      - DAMAGE_ALL:1
+      - KNOCKBACK:1
+    '1':
+      material: DIAMOND_CHESTPLATE
+      enchants:
+      - PROTECTION_ENVIRONMENTAL:1
+    '2':
+      material: BOW
+      enchants:
+      - ARROW_DAMAGE:1
+      - FLAME:1
+    '3':
+      material: GOLDEN_APPLE
+      amount: 5
+tier-3:
+  max-items: 2
+  chance: 1.5
+  items:
+    '0':
+      material: DIAMOND_SWORD
+      amount: 1
+      data: 200
+      enchants:
+      - DAMAGE_ALL:2
+      - FIRE_ASPECT:1
+      - KNOCKBACK:1
+    '1':
+      material: DIAMOND_AXE
+    '2':
+      material: BOW
+      enchants:
+      - ARROW_DAMAGE:3
+      - ARROW_INFINITE:1
+    '3':
+      material: GOLDEN_APPLE
+      amount: 1
+      data: 1

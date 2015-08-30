@@ -17,7 +17,7 @@ public class PacketUtil {
     public static void sendTitleToPlayer(Player player, String text, String subtitle) {
         Title title = new Title(text, subtitle);
         title.setStayTime(1);
-        title.setFadeInTime(0);
+        title.setFadeInTime(1);
         title.setFadeOutTime(1);
         title.setTimingsToSeconds();
         title.send(player);

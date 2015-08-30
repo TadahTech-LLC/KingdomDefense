@@ -46,6 +46,6 @@ public class TeamMenu extends Menu {
 
     @Override
     public void onClose(Player player) {
-
+        remove(player.getUniqueId());
     }
 }

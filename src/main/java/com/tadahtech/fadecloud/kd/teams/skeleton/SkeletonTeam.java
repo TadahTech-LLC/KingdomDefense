@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.teams.skeleton;
 
+import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
@@ -16,6 +17,9 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Timothy Andis (TadahTech) on 7/29/2015.
@@ -49,7 +53,7 @@ public class SkeletonTeam extends CSTeam {
     }
 
     @Override
-    public void add(Player player) {
+    public void applyEffects(Player player) {
 
     }
 
@@ -65,28 +69,10 @@ public class SkeletonTeam extends CSTeam {
         builder.data((byte) 3);
         builder.amount(getSize());
         builder.name(ChatColor.DARK_GRAY + "Skeleton Team");
-        String[] lore = {
-          " ",
-          ChatColor.GRAY + "\"Nothing should be feared more than a well trained bowman\"",
-          ChatColor.GRAY + "Defend the King Skeleton with ranged prowess",
-          ChatColor.GRAY + "You are 12% stronger using ranged weapons",
-          ChatColor.GRAY + "But be warned, you do 30% less damage using melee",
-          " ",
-          ChatColor.RED + "Active Ability: ",
-          ChatColor.GRAY + "Arrow Storm",
-          ChatColor.GRAY + "Rain arrows on your foes from the heavens",
-          ChatColor.RED + "Passive Ability: ",
-          ChatColor.GRAY + "Ranger",
-          ChatColor.GRAY + "Take up to 20% less damage from ranged attacks.",
-          ChatColor.GRAY + "Gain 1-4 Arrows (Max 64) every 10 seconds",
-          " ",
-          ChatColor.RED + "Levels: 4",
-          ChatColor.GREEN + "5%-20% " + ChatColor.GRAY + "Less Damage from Ranged attacks",
-          ChatColor.GREEN + "1-4 " + ChatColor.GRAY + "Arrows per 10 seconds",
-          ChatColor.GRAY + "Damage Reduction is equal to 5% X your level",
-          ChatColor.GRAY + "1 Arrow per level"
-        };
-        builder.lore(lore);
+        List<String> loreRaw = KingdomDefense.getInstance().getConfig().getStringList("skeleton-desc");
+        List<String> lore = Lists.newArrayList();
+        lore.addAll(loreRaw.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList()));
+        builder.lore(lore.toArray(new String[lore.size()]));
         itemStack = builder.build();
         SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
         meta.setOwner("MHF_Skeleton");

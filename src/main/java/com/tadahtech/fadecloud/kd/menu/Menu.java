@@ -48,13 +48,8 @@ public abstract class Menu {
           .amount(1)
           .name(" ")
           .build();
-        for(int i = 0; i < 9; i++) {
+        for(int i = 0; i < buttons.length; i++) {
             buttons[i] = create(item);
-            buttons[i + (buttons.length - 9)] = buttons[i];
-        }
-        for(int a = 9; a < buttons.length; a += 9) {
-            buttons[a] = buttons[0];
-            buttons[a + 8] = buttons[0];
         }
         return buttons;
     }
@@ -68,7 +63,7 @@ public abstract class Menu {
         if(guis.get(player.getUniqueId()) != null) {
             guis.remove(player.getUniqueId());
         }
-        guis.putIfAbsent(player.getUniqueId(), this);
+        guis.put(player.getUniqueId(), this);
         int size = (this.buttons.length + 8) / 9 * 9;
         Inventory inventory = Bukkit.createInventory(player, size, getName());
         for (int i = 0; i < buttons.length; i++) {
@@ -129,7 +124,9 @@ public abstract class Menu {
         this.name = title;
     }
 
-    public abstract void onClose(Player player);
+    public void onClose(Player player) {
+        guis.remove(player.getUniqueId());
+    }
 
     public static Menu remove(UUID uniqueId) {
         return guis.remove(uniqueId);

@@ -4,8 +4,6 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.commands.SubCommand;
 import com.tadahtech.fadecloud.kd.map.Bridge;
 import com.tadahtech.fadecloud.kd.map.GameMap;
-import com.tadahtech.fadecloud.kd.map.Island;
-import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -52,11 +50,9 @@ public class LocationCommand implements SubCommand {
         if (type.equalsIgnoreCase("bridgemin")) {
             this.min = player.getLocation();
             player.sendMessage(ChatColor.GREEN + "Min point set");
-            return;
         } else if (type.equalsIgnoreCase("bridgemax")) {
             this.max = player.getLocation();
             player.sendMessage(ChatColor.GREEN + "Max point set");
-            return;
         } else if (type.equalsIgnoreCase("setBridge")) {
             map.setBridge(null);
             if(max == null) {
@@ -68,17 +64,6 @@ public class LocationCommand implements SubCommand {
             bridge = new Bridge(min, max);
             map.setBridge(bridge);
             player.sendMessage(ChatColor.GREEN + "Redid the bridge.");
-            KingdomDefense.getInstance().getMapIO().save();
-            return;
-        }
-        TeamType teamType = TeamType.valueOf(type.toUpperCase());
-        Island island = map.getIslands().get(teamType);
-        String loc = args[1];
-        if (loc.equalsIgnoreCase("castleMin")) {
-            island.getCastleRegion().setMin(player.getLocation());
-        } else if (loc.equalsIgnoreCase("castleMax")) {
-            island.getCastleRegion().setMax(player.getLocation());
-        } else if (loc.equalsIgnoreCase("save")) {
             KingdomDefense.getInstance().getMapIO().save();
         }
     }

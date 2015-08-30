@@ -2,8 +2,13 @@ package com.tadahtech.fadecloud.kd.listeners;
 
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.menu.menus.PlayerMenu;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.items.HeadItems;
+import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
+import com.tadahtech.fadecloud.kd.items.misc.ShopReItem;
+import com.tadahtech.fadecloud.kd.menu.menus.PlayerMenu;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -81,5 +87,20 @@ public class ItemListener implements Listener {
             }
             event.getDrops().remove(itemStack);
         }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
+        ItemBuilder builder = new ItemBuilder(HeadItems.getItem(event.getPlayer().getName()));
+        builder.data((byte) 3);
+        builder.name(ChatColor.AQUA.toString() + "Profile" + ChatColor.GRAY + "(Right Click)");
+        builder.lore(ChatColor.GRAY + "Right click to view your profile");
+        if(info.getBukkitPlayer().getItemInHand().getType() == Material.SKULL_ITEM) {
+            return;
+        }
+        info.getBukkitPlayer().getInventory().setItem(1, builder.cloneBuild());
+        new ShopReItem().give(info.getBukkitPlayer(), 2);
     }
 }

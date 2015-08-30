@@ -7,9 +7,6 @@ import net.md_5.bungee.api.ChatColor;
  */
 public class EconomyReward {
 
-    private final String BLUE = ChatColor.BLUE.toString() + ChatColor.BOLD + "=";
-    private final String GRAY = ChatColor.GRAY.toString() + ChatColor.BOLD + "=";
-
     private String reason;
     private double amount;
 
@@ -29,11 +26,8 @@ public class EconomyReward {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
-            builder.append(BLUE).append(GRAY);
-        }
-        builder.append(ChatColor.GREEN).append(ChatColor.BOLD).append(reason)
-          .append(ChatColor.WHITE).append(" - ").append(ChatColor.GOLD).append(ChatColor.BOLD).append(amount);
+        builder.append(ChatColor.GREEN).append(reason)
+          .append(ChatColor.WHITE).append(" - ").append(ChatColor.GOLD).append(amount);
         return builder.toString();
     }
 

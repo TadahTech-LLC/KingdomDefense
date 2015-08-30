@@ -1,5 +1,7 @@
 package com.tadahtech.fadecloud.kd.map;
 
+import com.google.common.collect.Maps;
+import com.tadahtech.fadecloud.kd.utils.Utils;
 import org.bukkit.Location;
 
 import java.util.HashMap;
@@ -31,7 +33,31 @@ public class Region {
 		regions.putIfAbsent(id, this);
 	}
 
-	public static Region get(int id) {
+    public int getMinX() {
+        return minX;
+    }
+
+    public int getMaxX() {
+        return maxX;
+    }
+
+    public int getMinY() {
+        return minY;
+    }
+
+    public int getMaxY() {
+        return maxY;
+    }
+
+    public int getMinZ() {
+        return minZ;
+    }
+
+    public int getMaxZ() {
+        return maxZ;
+    }
+
+    public static Region get(int id) {
 		return regions.get(id);
 	}
 
@@ -100,23 +126,30 @@ public class Region {
 
 	public void setMin(Location min) {
 		this.min = min;
+        resize();
 		this.minX = min.getBlockX();
 		this.maxX = max.getBlockX();
 		this.minY = min.getBlockY();
 		this.maxY = max.getBlockY();
 		this.minZ = min.getBlockZ();
 		this.maxZ = max.getBlockZ();
-        resize();
 	}
 
 	public void setMax(Location max) {
 		this.max = max;
+        resize();
 		this.minX = min.getBlockX();
 		this.maxX = max.getBlockX();
 		this.minY = min.getBlockY();
 		this.maxY = max.getBlockY();
 		this.minZ = min.getBlockZ();
 		this.maxZ = max.getBlockZ();
-        resize();
+	}
+
+	public Map<String, Object> save() {
+		Map<String, Object> map = Maps.newHashMap();
+        map.put("min", Utils.locToString(min));
+        map.put("max", Utils.locToString(max));
+		return map;
 	}
 }

@@ -1,5 +1,6 @@
 package com.tadahtech.fadecloud.kd.map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.game.Game;
@@ -9,11 +10,11 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Created by Timothy Andis
@@ -24,6 +25,7 @@ public class Bridge {
     private Location min, max;
     private Map<Location, BlockData> dataMap;
     private World world;
+    private boolean hasDropped = false;
     private int minX, maxX, minY, maxY, minZ, maxZ;
 
     public Bridge(Location min, Location max) {
@@ -59,7 +61,7 @@ public class Bridge {
         int maxZ = (this.maxZ);
         int minY = this.minY;
         int maxY = this.maxY;
-        if(minY > maxX) {
+        if(minY > maxY) {
             this.maxY = minY;
             this.minY = maxY;
         }
@@ -71,17 +73,20 @@ public class Bridge {
             this.maxZ = minZ;
             this.minZ = maxZ;
         }
-        collect();
+
     }
 
     public void collect() {
-        this.dataMap.clear();
+        if(dataMap.size() > 0) {
+            return;
+        }
         for(int x = minX; x <= maxX; x++) {
             for(int y = minY; y <= maxY; y++) {
                 for(int z = minZ; z < maxZ; z++) {
                     Location location = new Location(world, x, y, z);
                     Block block = location.getBlock();
-                    if(SKIP.contains(block.getType())) {
+                    Material type = block.getType();
+                    if(SKIP.contains(type)) {
                         continue;
                     }
                     BlockData data = new BlockData(block);
@@ -89,13 +94,38 @@ public class Bridge {
                 }
             }
         }
-        KingdomDefense.getInstance().getLogger().info("Loaded Bridge Region..." + dataMap.size() + "\n" + dataMap);
+        KingdomDefense.getInstance().getLogger().info("Loaded Bridge Region..." + dataMap.size());
+    }
+
+    public void placeAll() {
+        dataMap.entrySet().stream().forEach(entry -> entry.getValue().set(entry.getKey()));
     }
 
     public void place() {
-        for(Entry<Location, BlockData> entry : dataMap.entrySet()) {
-            entry.getValue().set(entry.getKey());
-        }
+        List<Location> locations = Lists.newArrayList(this.dataMap.keySet());
+        new BukkitRunnable() {
+
+            private int size = locations.size();
+            private int index;
+
+            @Override
+            public void run() {
+                if(index == (size - 1)) {
+                    cancel();
+                    hasDropped = true;
+                    return;
+                }
+                for(int i = 0; i < 50; i++) {
+                    Location location = locations.get(index);
+                    index++;
+                    BlockData data = dataMap.get(location);
+                    if (data == null) {
+                        return;
+                    }
+                    data.set(location);
+                }
+            }
+        }.runTaskTimer(KingdomDefense.getInstance(), 0L, 10L);
     }
 
     public Map<String, Object> save() {

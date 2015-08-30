@@ -1,15 +1,21 @@
 package com.tadahtech.fadecloud.kd.kit;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.tadahtech.fadecloud.kd.lang.Lang;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by Timothy Andis
@@ -22,7 +28,6 @@ public class CSKit {
     private String name;
     private String[] description;
     private static  Map<UUID, Long> cooldowns = Maps.newHashMap();
-
 
     public CSKit(List<ItemStack> items, String name, String... description) {
         this.items = items;
@@ -52,69 +57,50 @@ public class CSKit {
             player.sendMessage(ChatColor.RED + "You are not allowed to use this kit!!");
             return;
         }
-        if(!canUse(player)) {
-            player.sendMessage(ChatColor.RED + "You cannot use this Kit right now!");
-            return;
-        }
         getItems().stream().forEach(item -> player.getInventory().addItem(item));
-        player.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Given the " + getName() + " kit.");
+        if(!getName().equalsIgnoreCase("default")) {
+            Lang.KIT_EQUIPPED.send(player, ImmutableMap.of("kit", getName()));
+        }
+
         player.closeInventory();
         cooldowns.putIfAbsent(player.getUniqueId(), System.currentTimeMillis());
     }
 
     public List<String> toLore() {
-        List<String> lore = new ArrayList<>();
+        List<String> lore = Lists.newArrayList();
         for(String s : getDescription()) {
             lore.add(ChatColor.translateAlternateColorCodes('&', s));
         }
         lore.add(" ");
-        lore.add(ChatColor.GREEN.toString() + ChatColor.BOLD + "Contents: ");
-        lore.add(ChatColor.LIGHT_PURPLE.toString() + ChatColor.BOLD + "-------------------");
-        StringBuilder builder = new StringBuilder();
+        lore.add(ChatColor.AQUA.toString() + "Contents: ");
+        lore.add(" ");
         for (ItemStack item : items) {
-            String name = Utils.friendly(item.getType().name());
-            if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-                name = item.getItemMeta().getDisplayName();
+            StringBuilder builder = new StringBuilder();
+            ItemMeta meta = item.getItemMeta();
+            Map<Enchantment, Integer> enchantments = meta.getEnchants();
+            String base = ChatColor.AQUA + friendly(item.getType());
+            if(item.getData().getData() > 0) {
+                base = ChatColor.AQUA + dyeName(item.getData().getData()) +  friendly(item.getType());
             }
-            int amount = item.getAmount();
-            Map<Enchantment, Integer> enchantments = item.getEnchantments();
-            String base = ChatColor.DARK_AQUA + friendly(item.getType());
-            if(item.getDurability() > 0) {
-                base = ChatColor.DARK_AQUA + dyeName((byte) item.getDurability()) +  friendly(item.getType());
-            }
-            base += ChatColor.AQUA + " x";
-            base += ChatColor.DARK_AQUA.toString() + amount;
-            builder.append(base).append(" ").append(ChatColor.WHITE).append("(").append(ChatColor.RESET).append(name).append(ChatColor.WHITE).append(")");
-            lore.add(builder.toString());
-            builder = new StringBuilder();
-            if (enchantments != null && !enchantments.isEmpty()) {
-                builder.append(ChatColor.RED).append("Enchantments: ");
-                lore.add(builder.toString());
-                builder = new StringBuilder();
+            builder.append(base);
+            if(enchantments != null && !enchantments.isEmpty()) {
+                builder.append(" ").append(ChatColor.DARK_GRAY).append("(");
                 for (Enchantment enchantment : enchantments.keySet()) {
                     Integer level = enchantments.get(enchantment);
                     String enchantName = friendlyName(enchantment.getName());
                     enchantName = enchantName.substring(0, 1).toUpperCase() + enchantName.substring(1).toLowerCase();
-                    builder.append(ChatColor.GREEN).append(enchantName).append(" ").append(ChatColor.RED).append(level);
+                    builder.append(ChatColor.GRAY).append(enchantName).append(" ").append(ChatColor.GRAY).append(level);
+                    builder.append(ChatColor.DARK_GRAY).append(")");
                     lore.add(builder.toString());
-                    builder = new StringBuilder();
                 }
             }
+            lore.add(builder.toString());
         }
         return lore;
     }
 
     public boolean canUse(Player player) {
-        if(cooldowns.get(player.getUniqueId()) == null) {
-            return true;
-        }
-        long current = System.currentTimeMillis();
-        long in = cooldowns.get(player.getUniqueId());
-        boolean cd = TimeUnit.MINUTES.toSeconds(4) - ((current - in) / 1000) <= 0;
-        if(cd) {
-            cooldowns.remove(player.getUniqueId());
-        }
-        return cd;
+        return true;
     }
 
     private String dyeName(byte data) {

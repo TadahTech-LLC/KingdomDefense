@@ -4,6 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.csc.packets.ResponsePacket;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
+import com.tadahtech.fadecloud.kd.sign.HeartbeatThread;
 import com.tadahtech.fadecloud.kd.sign.LobbySign;
 import org.bukkit.Bukkit;
 
@@ -53,6 +54,7 @@ public class GameInfoResponsePacket extends ResponsePacket {
         this.players = Integer.parseInt(str[2]);
         this.max = Integer.parseInt(str[3]);
         Optional<LobbySign> maybeSign = LobbySign.get(arena);
+        HeartbeatThread.respond();
         if(!maybeSign.isPresent()) {
             new LobbySign(arena);
         } else {

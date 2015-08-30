@@ -3,15 +3,16 @@ package com.tadahtech.fadecloud.kd.sign;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
-import com.tadahtech.fadecloud.kd.csc.packets.RequestPacket;
+import com.tadahtech.fadecloud.kd.csc.Packet;
 import com.tadahtech.fadecloud.kd.csc.packets.request.GameInfoRequestPacket;
 import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,16 +23,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by Timothy Andis (TadahTech) on 7/27/2015.
+ * Created by Timothy Andis
  */
 public class LobbySign {
 
     public static Map<String, LobbySign> signMap = new HashMap<>();
 
     private String arena, ui;
-    private List<Sign> signs;
+    private List<Location> signs;
     private static final String FIRST = ChatColor.translateAlternateColorCodes('&', "&a[Join]");
-    private RequestPacket packet;
 
     public LobbySign(String arena) {
         this.arena = arena;
@@ -39,17 +39,17 @@ public class LobbySign {
         signMap.putIfAbsent(arena, this);
     }
 
-    public LobbySign(String arena, List<Sign> signs) {
+    public LobbySign(String arena, List<Location> signs) {
         this.arena = arena;
         this.signs = signs;
         signMap.putIfAbsent(arena, this);
         String to = KingdomDefense.getInstance().getServerNames().get(arena);
-        packet = new GameInfoRequestPacket(to, arena);
+        Packet packet = new GameInfoRequestPacket(to, arena);
         packet.write();
     }
 
     public void create(Sign sign, SignChangeEvent event) {
-        signs.add(sign);
+        signs.add(sign.getBlock().getLocation());
         event.setLine(0, FIRST);
         String name = arena;
         name = ChatColor.BLUE + name;
@@ -61,25 +61,27 @@ public class LobbySign {
         event.getBlock().getState().update();
         sign.update(true);
         String to = KingdomDefense.getInstance().getServerNames().get(arena);
-        packet = new GameInfoRequestPacket(to, arena);
+        Packet packet = new GameInfoRequestPacket(to, arena);
         packet.write();
     }
 
     public void update(GameInfoResponsePacket responsePacket) {
-        List<Sign> signs = Lists.newArrayList(this.signs);
-        packet.respond();
+        List<Location> signs = Lists.newArrayList(this.signs);
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Sign sign : signs) {
+                for (Location location : signs) {
+                    Sign sign = (Sign) location.getBlock().getState();
+                    if(sign.getLocation().getBlock().getRelative(BlockFace.NORTH).getType() == Material.AIR) {
+                        continue;
+                    }
                     sign.setLine(0, FIRST);
                     sign.setLine(1, ChatColor.BLUE + responsePacket.arena);
                     String players = ChatColor.DARK_BLUE + "(" + responsePacket.players + " / " + responsePacket.max + ")";
                     sign.setLine(2, players);
                     sign.setLine(3, responsePacket.state.format());
                     sign.update(true);
-//                    Player player = Lists.newArrayList(Bukkit.getOnlinePlayers()).get(0);
-//                    Bukkit.getPluginManager().callEvent(new SignChangeEvent(sign.getBlock(), , sign.getLines() ));
+                    Bukkit.getPluginManager().callEvent(new SignChangeEvent(sign.getBlock(), null, sign.getLines() ));
                 }
             }
         }.runTask(KingdomDefense.getInstance());
@@ -97,7 +99,7 @@ public class LobbySign {
         return arena;
     }
 
-    public List<Sign> getSigns() {
+    public List<Location> getSigns() {
         return signs;
     }
 
@@ -108,15 +110,10 @@ public class LobbySign {
         }
         for (String s : section.getKeys(false)) {
             List<String> signsRaw = section.getStringList(s + ".locations");
-            List<Sign> signs = Lists.newArrayList();
+            List<Location> signs = Lists.newArrayList();
             for (String raw : signsRaw) {
                 Location location = Utils.locFromString(raw);
-                Block block = location.getBlock();
-                BlockState state = block.getState();
-                if (!(state instanceof Sign)) {
-                    return;
-                }
-                signs.add((Sign) state);
+                signs.add(location);
             }
             new LobbySign(s, signs);
         }
@@ -126,7 +123,7 @@ public class LobbySign {
     public Map<String, Object> save() {
         Map<String, Object> map = Maps.newHashMap();
         List<String> signs = Lists.newArrayList();
-        signs.addAll(this.signs.stream().map(sign -> Utils.locToString(sign.getLocation())).collect(Collectors.toList()));
+        signs.addAll(this.signs.stream().map(Utils::locToString).collect(Collectors.toList()));
         map.put("locations", signs);
         return map;
     }
@@ -136,7 +133,8 @@ public class LobbySign {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Sign sign : signs) {
+                for (Location location : signs) {
+                    Sign sign = (Sign) location.getBlock().getState();
                     sign.setLine(0, red);
                     sign.setLine(1, ChatColor.BLUE + arena);
                     sign.setLine(2, red);

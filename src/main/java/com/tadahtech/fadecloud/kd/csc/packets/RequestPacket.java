@@ -42,7 +42,7 @@ public abstract class RequestPacket extends Packet {
                 handleNoResponse();
                 cancel();
             }
-        }.runTaskLater(KingdomDefense.getInstance(), 20L * 10);
+        }.runTaskLater(KingdomDefense.getInstance(), 20L);
     }
 
     protected abstract void handleNoResponse();

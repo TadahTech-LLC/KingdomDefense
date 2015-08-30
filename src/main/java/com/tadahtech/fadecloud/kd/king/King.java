@@ -1,23 +1,35 @@
-package com.tadahtech.fadecloud.kd.nms;
+package com.tadahtech.fadecloud.kd.king;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.king.attacks.CreeperKingAttack;
+import com.tadahtech.fadecloud.kd.king.attacks.KnockbackAttack;
+import com.tadahtech.fadecloud.kd.king.attacks.ZombieKingAttack;
+import com.tadahtech.fadecloud.kd.lang.Lang;
 import com.tadahtech.fadecloud.kd.map.GameMap;
+import com.tadahtech.fadecloud.kd.nms.CustomEntityType;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_8_R2.Entity;
 import net.minecraft.server.v1_8_R2.EntityLiving;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Created by Timothy Andis (TadahTech) on 7/27/2015.
  */
 public class King {
+
+    private List<KingAttack> attacks;
 
     private String GREEN = ChatColor.GREEN + "❤";
     private String RED = ChatColor.RED + "❤";
@@ -26,18 +38,24 @@ public class King {
     private double health;
     private CSTeam team;
     private Hologram hologram;
+    private PlayerInfo lastDamager;
+    private Location spawn;
 
     public King(CSTeam team, GameMap map) {
         this.team = team;
+        this.attacks = Lists.newArrayList();
+        attacks.add(new KnockbackAttack());
         Optional<Location> maybe = map.getLocation(team.getLocationType());
         Location location = maybe.get();
-        location = location.getWorld().getHighestBlockAt(location).getLocation();
+        this.spawn = location;
         switch (team.getType()) {
             case ZOMBIE:
                 this.entity = CustomEntityType.ZOMBIE.spawn(location.clone());
+                this.attacks.add(new ZombieKingAttack());
                 break;
             case CREEPER:
                 this.entity = CustomEntityType.CREEPER.spawn(location.clone());
+                this.attacks.add(new CreeperKingAttack());
                 break;
             case ENDERMAN:
                 this.entity = CustomEntityType.ENDERMAN.spawn(location.clone());
@@ -48,7 +66,7 @@ public class King {
             default:
                 return;
         }
-        if(entity == null) {
+        if (entity == null) {
             //cant happen;
             return;
         }
@@ -58,19 +76,20 @@ public class King {
         entity.setMetadata("king", new FixedMetadataValue(KingdomDefense.getInstance(), team.getType()));
         entity.setMaxHealth(health);
         entity.setHealth(health);
+        entity.setCustomNameVisible(true);
         this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), entity.getLocation().add(0, entity.getEyeHeight() + 0.8, 0));
-        this.hologram.appendTextLine(getPrettyHealth());
+        setHealth(health);
     }
 
     public String getPrettyHealth() {
         StringBuilder builder = new StringBuilder();
         int total = 10;
         int health = (int) (this.health / 50);
-        for(int i = 0; i < health; i++) {
+        for (int i = 0; i < health; i++) {
             builder.append(GREEN);
             total--;
         }
-        for(int i = 0; i < total; i++) {
+        for (int i = 0; i < total; i++) {
             builder.append(RED);
         }
         return builder.toString();
@@ -87,10 +106,55 @@ public class King {
     public void setHealth(double health) {
         this.health = health;
         this.hologram.clearLines();
-        this.hologram.appendTextLine(getPrettyHealth());
+        this.hologram.appendTextLine(getPrettyHealth() + ChatColor.RED + " (" + health + ")");
+        entity.setCustomName(getPrettyHealth() + ChatColor.RED + " (" + health + ")");
     }
 
     public CSTeam getTeam() {
         return team;
+    }
+
+    public void remove() {
+        this.hologram.delete();
+        this.entity.getBukkitEntity().remove();
+    }
+
+    public void hit(double damage) {
+        setHealth(getHealth() - damage);
+        getTeam().getBukkitPlayers().stream().forEach(Lang.KING_BEING_ATTACKED::send);
+        Random random = new Random();
+        attacks.stream().forEach(KingAttack::hit);
+        KingAttack kingAttack = attacks.get(random.nextInt(attacks.size()));
+        if (!kingAttack.should()) {
+            return;
+        }
+        LivingEntity livingEntity = (LivingEntity) this.entity.getBukkitEntity();
+        livingEntity.getNearbyEntities(10, 10, 10)
+          .stream()
+          .filter(entity -> entity instanceof Player)
+          .map(entity -> (Player) entity)
+          .filter(player -> {
+              PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+              return !info.getCurrentTeam().equals(this.getTeam());
+          })
+          .forEach(player -> {
+              kingAttack.attack(player, this);
+              kingAttack.message(player, this);
+          });
+    }
+
+    public void setLastDamager(PlayerInfo lastDamager) {
+        this.lastDamager = lastDamager;
+    }
+
+    public PlayerInfo getLastDamager() {
+        return lastDamager;
+    }
+
+    public void respawn(boolean b) {
+        this.entity.getBukkitEntity().teleport(spawn);
+        if(b) {
+            this.entity.setHealth(entity.getMaxHealth());
+        }
     }
 }

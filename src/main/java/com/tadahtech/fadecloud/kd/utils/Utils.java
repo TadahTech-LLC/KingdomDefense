@@ -1,11 +1,13 @@
 package com.tadahtech.fadecloud.kd.utils;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import com.tadahtech.fadecloud.kd.items.ItemBuilder;
+import com.tadahtech.fadecloud.kd.items.WrappedEnchantment;
+import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,7 @@ public class Utils {
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        builder.append(location.getWorld().getName()).append(",").append(location.getBlockX()).append(",").append(location.getBlockY()).append(",").append(location.getBlockZ()).append(",").append(location.getYaw()).append(",").append(location.getPitch());
+        builder.append(location.getWorld().getName()).append(",").append(location.getX()).append(",").append(location.getY()).append(",").append(location.getZ()).append(",").append(location.getYaw()).append(",").append(location.getPitch());
         return builder.toString();
     }
 
@@ -42,9 +44,12 @@ public class Utils {
         }
         String[] str = s.split(",");
         World world = Bukkit.getWorld(str[0]);
-        int x = Integer.parseInt(str[1]);
-        int y = Integer.parseInt(str[2]);
-        int z = Integer.parseInt(str[3]);
+        if(world == null) {
+            world = new WorldCreator(str[0]).createWorld();
+        }
+        double x = Double.parseDouble(str[1]);
+        double y = Double.parseDouble(str[2]);
+        double z = Double.parseDouble(str[3]);
         float yaw = Float.parseFloat(str[4]);
         float pitch = Float.parseFloat(str[5]);
         return new Location(world, x, y, z, yaw, pitch);
@@ -74,6 +79,58 @@ public class Utils {
         return result;
     }
 
+    public static ItemStack fromSection(ConfigurationSection section) {
+        Material material = Material.matchMaterial(section.getString("material"));
+        if (material == null) {
+            return null;
+        }
+        int amount = section.getInt("amount", 1);
+        byte data = (byte) section.getDouble("data", 0);
+        ItemStack item = new ItemStack(material);
+        List<String> lore = new ArrayList<>();
+        List<String> list;
+        if ((list = section.getStringList("lore")) != null) {
+            list.stream().forEach(string -> lore.add(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', string)));
+        }
+        ItemBuilder builder = ItemBuilder.wrap(item);
+        builder.amount(amount);
+        builder.data(data);
+        String n = section.getString("name");
+        builder.lore(lore.toArray(new String[lore.size()]));
+        if(n != null) {
+            builder.name(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', n));
+        }
+        if (section.getStringList("enchants") != null) {
+            List<String> enchants = section.getStringList("enchants");
+            List<WrappedEnchantment> enchantments = Lists.newArrayList();
+            for (int i = 0; i < enchantments.size(); i++) {
+                String string = enchants.get(i);
+                String[] str = string.split(":");
+                String enchantName = str[0];
+                int level = Integer.parseInt(str[1]);
+                Enchantment enchantment;
+                try {
+                    enchantment = Enchantment.getByName(enchantName);
+                } catch (Exception e) {
+                    enchantment = Utils.getEnchantmentName(enchantName);
+                }
+                if (enchantment != null) {
+                    enchantments.add(new WrappedEnchantment(enchantment, level));
+                }
+            }
+            builder.enchant(enchantments.toArray(new WrappedEnchantment[enchantments.size()]));
+        }
+        if(section.getString("color") != null) {
+            String colorString = section.getString("color");
+            int r = Integer.parseInt(colorString.split(", ")[0]);
+            int g = Integer.parseInt(colorString.split(", ")[1]);
+            int b = Integer.parseInt(colorString.split(", ")[2]);
+            Color color = Color.fromRGB(r, g, b);
+            builder.color(color);
+        }
+        return builder.cloneBuild();
+    }
+    
     public static Enchantment getEnchantmentName(String friendlyName) {
         if (friendlyName != null) {
             if (friendlyName.equalsIgnoreCase("Sharpness") || friendlyName.equalsIgnoreCase("Sharp"))
@@ -231,8 +288,8 @@ public class Utils {
         int hours = minutes / MINUTES_IN_AN_HOUR;
         minutes -= hours * MINUTES_IN_AN_HOUR;
 
-        String min = (minutes > 10 ? "0" + minutes : "" + minutes);
-        String sec = (seconds > 10 ? "0" + seconds : "" + seconds);
+        String min = (minutes < 10 ? "0" + minutes : "" + minutes);
+        String sec = (seconds < 10 ? "0" + seconds : "" + seconds);
         return min + ":" + sec;
     }
 
@@ -266,5 +323,18 @@ public class Utils {
 
     public static int parse(String s) {
         return Integer.parseInt(s);
+    }
+
+    public static String locToXYZ(Location firing) {
+        return firing.getBlockX() + "," + firing.getBlockY() + "," + firing.getBlockZ();
+    }
+
+    public static Location fromXYZ(String string, Player player) {
+        World world = player.getWorld();
+        String[] str = string.split(",");
+        int x = Integer.parseInt(str[0]);
+        int y = Integer.parseInt(str[1]);
+        int z = Integer.parseInt(str[2]);
+        return new Location(world, x, y, z);
     }
 }

@@ -15,7 +15,7 @@ public abstract class AIThread extends BukkitRunnable {
     public static List<CustomEntity> ENTITES = new ArrayList<>();
 
     public AIThread() {
-        this.runTaskTimer(KingdomDefense.getInstance(), 20 * 60 * 30, 1L);
+        this.runTaskTimerAsynchronously(KingdomDefense.getInstance(), 20 * 60 * 5, 15L);
     }
 
 }

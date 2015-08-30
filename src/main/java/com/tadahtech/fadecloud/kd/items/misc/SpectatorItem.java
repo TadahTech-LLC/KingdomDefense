@@ -1,5 +1,7 @@
-package com.tadahtech.fadecloud.kd.items;
+package com.tadahtech.fadecloud.kd.items.misc;
 
+import com.tadahtech.fadecloud.kd.items.ItemBuilder;
+import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.menu.menus.SpectatorMenu;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;

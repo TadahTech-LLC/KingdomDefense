@@ -4,6 +4,7 @@ import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.game.Game;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.lang.Lang;
 import com.tadahtech.fadecloud.kd.map.Island;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
@@ -17,8 +18,6 @@ import java.util.*;
  * Created by Timothy Andis
  */
 public abstract class ModSpecialItem {
-
-    public static final String PREFIX = ChatColor.DARK_GRAY.toString() + ChatColor.BOLD + "[" + ChatColor.AQUA + "KingdomDefense" + ChatColor.DARK_GRAY + ChatColor.BOLD + "] " + ChatColor.YELLOW;
 
     private Map<UUID, Long> cooldowns = new HashMap<>();
     protected ItemStack itemStack;
@@ -46,14 +45,25 @@ public abstract class ModSpecialItem {
         if (playerInteractEvent.getAction().name().contains("LEFT")) {
             return;
         }
-        Game game = KingdomDefense.getInstance().getGame();
-        if(game != null) {
-            if(alwaysAllow()) {
-                this.onClick(player);
+        if(alwaysAllow()) {
+            this.onClick(player);
+            this.use(player);
+            ItemStack itemStack = player.getItemInHand();
+            if (itemStack == null) {
                 return;
             }
+            short dur = itemStack.getDurability();
+            if (dur == 0) {
+                return;
+            }
+            itemStack.setDurability((short) 0);
+            player.setItemInHand(itemStack);
+            return;
+        }
+        Game game = KingdomDefense.getInstance().getGame();
+        if(game != null) {
             if(game.getState() != GameState.BATTLE) {
-                player.sendMessage(PREFIX + "You can't use this during peace time!");
+                player.sendMessage(Lang.PREFIX + "You can't use this during peace time!");
                 return;
             }
             PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
@@ -65,22 +75,11 @@ public abstract class ModSpecialItem {
         }
         if (!canUse(player)) {
             long time = 60 - (System.currentTimeMillis() - cooldowns.get(player.getUniqueId())) / 1000;
-            String message = PREFIX + "You need to wait " + (time < 10 ? "0" + time : time ) + (time == 1 ? " second" : " seconds") + " before using this again";
+            String message = Lang.PREFIX + "You need to wait " + (time < 10 ? "0" + time : time ) + (time == 1 ? " second" : " seconds") + " before using this again";
             player.sendMessage(message);
             return;
         }
         this.onClick(player);
-        this.use(player);
-        ItemStack itemStack = player.getItemInHand();
-        if (itemStack == null) {
-            return;
-        }
-        short dur = itemStack.getDurability();
-        if (dur == 0) {
-            return;
-        }
-        itemStack.setDurability((short) 0);
-        player.setItemInHand(itemStack);
     }
 
     protected boolean alwaysAllow() {

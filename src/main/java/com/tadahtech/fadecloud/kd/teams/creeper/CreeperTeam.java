@@ -1,5 +1,7 @@
 package com.tadahtech.fadecloud.kd.teams.creeper;
 
+import com.google.common.collect.Lists;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.items.ItemBuilder;
 import com.tadahtech.fadecloud.kd.map.Island;
@@ -13,6 +15,9 @@ import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Timothy Andis
@@ -77,30 +82,10 @@ public class CreeperTeam extends CSTeam {
         builder.data((byte) 4);
         builder.amount(getSize());
         builder.name(ChatColor.GREEN + "Creeper Team");
-        String[] lore = {
-          " ",
-          ChatColor.GRAY + "Hissssssss BOMB",
-          ChatColor.GRAY + "Defend the King Creeper with explosive might",
-          ChatColor.GRAY + "Become resistant, by up to 80%, of explosive damage",
-          ChatColor.GRAY + "Move faster than all the rest",
-          ChatColor.GRAY + "But be warned, you do 30% less damage per hit.",
-          " ",
-          ChatColor.RED + "Active Ability: ",
-          ChatColor.GRAY + "Self Destruct",
-          ChatColor.GRAY + "Summon a wall of TNT to surround you",
-          ChatColor.GRAY + "Be careful! There's up to a 20% chance to end your life.",
-          ChatColor.RED + "Passive Ability: ",
-          ChatColor.GRAY + "Explosive Expert",
-          ChatColor.GRAY + "Take 40%-80% less damage from explosions.",
-          ChatColor.GRAY + "Damage is 40% + (10% X your level)",
-          " ",
-          ChatColor.RED + "Levels: 4",
-          ChatColor.GREEN + "1-4 " + ChatColor.GRAY + "Block radius for Self Destruct",
-          ChatColor.GREEN + "20%-5% " + ChatColor.GRAY + "Chance to die on Self Destruct",
-          ChatColor.GRAY + "Radius is equal to your level",
-          ChatColor.GRAY + "Chance is 20% divided by your level"
-        };
-        builder.lore(lore);
+        List<String> loreRaw = KingdomDefense.getInstance().getConfig().getStringList("creeper-desc");
+        List<String> lore = Lists.newArrayList();
+        lore.addAll(loreRaw.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).collect(Collectors.toList()));
+        builder.lore(lore.toArray(new String[lore.size()]));
         return builder.build();
     }
 

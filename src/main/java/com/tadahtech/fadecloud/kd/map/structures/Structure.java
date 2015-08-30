@@ -1,24 +1,23 @@
 package com.tadahtech.fadecloud.kd.map.structures;
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.google.common.collect.Lists;
-import com.sk89q.worldedit.CuboidClipboard;
-import com.sk89q.worldedit.data.DataException;
-import com.sk89q.worldedit.schematic.MCEditSchematicFormat;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
+import com.tadahtech.fadecloud.kd.lang.Lang;
 import com.tadahtech.fadecloud.kd.map.StructureType;
 import com.tadahtech.fadecloud.kd.map.structures.strucs.Guardian;
-import com.tadahtech.fadecloud.kd.threads.MultipleObjectThread;
 import com.tadahtech.fadecloud.kd.threads.Tickable;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Timothy Andis
@@ -53,33 +52,25 @@ public abstract class Structure extends Tickable {
     };
 
     private String name;
-    protected List<Structure> structures = Lists.newArrayList();
-    protected MultipleObjectThread<Structure> thread;
-    protected GridLocation location;
+    private static List<Structure> structures = Lists.newArrayList();
     protected double range;
     protected PlayerInfo owner;
     protected int level;
-    private static File schematicFolder;
+    protected Location firing;
 
-    static {
-        schematicFolder = new File(KingdomDefense.getInstance().getDataFolder(), "structures");
-        if (!schematicFolder.exists() && !schematicFolder.mkdirs()) {
-            KingdomDefense.getInstance().getLogger().warning("Couldn't create schematics folder");
-        }
-    }
-
-    private Map<Integer, StructureSchematic> schematics = new HashMap<>();
-    private String schematicName;
-    private int rotation;
+    private String baseName;
+    public StructureTickThread THREAD;
+    private boolean active;
 
     public Structure(String name) {
         this.name = name;
-        this.schematicName = ChatColor.stripColor(name.replace(" ", "_"));
+        this.firing = null;
+        this.baseName = ChatColor.stripColor(name.replace(" ", "_"));
+        this.range = 20;
         structures.add(this);
-        if(thread == null) {
-            this.thread = new MultipleObjectThread<>(structures, true);
-        } else {
-            this.thread.get().add(this);
+        if(THREAD == null) {
+            THREAD = new StructureTickThread();
+            THREAD.runTaskTimer(KingdomDefense.getInstance(), 20L, 20L);
         }
     }
 
@@ -97,41 +88,6 @@ public abstract class Structure extends Tickable {
 
     public void setRange(double range) {
         this.range = range;
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    public StructureSchematic getSchematic(int level) {
-        StructureSchematic structureSchematic = schematics.get(level);
-        if (structureSchematic != null) {
-            return structureSchematic;
-        }
-        try {
-            if(schematicFolder.listFiles() == null) {
-                return null;
-            }
-            KingdomDefense nations = KingdomDefense.getInstance();
-            File file = null;
-            for(File possible : schematicFolder.listFiles()) {
-                if(possible.getName().equalsIgnoreCase(this.schematicName + "-" + level + ".schematic")) {
-                    file = possible;
-                    break;
-                }
-            }
-            if (file == null) {
-                nations.getLogger().warning("Failed to find structure " + this.schematicName + "-" + level + ".schematic'");
-                return null;
-            }
-
-            CuboidClipboard clipboard = MCEditSchematicFormat.MCEDIT.load(file);
-            structureSchematic = new StructureSchematic(clipboard, level);
-
-            schematics.put(level, structureSchematic);
-            return structureSchematic;
-        } catch (IOException | DataException e) {
-            KingdomDefense.getInstance().getLogger().severe("Couldn't load structure schematic");
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public int getType() {
@@ -161,19 +117,57 @@ public abstract class Structure extends Tickable {
         return getStructureType().getCost((level + 1));
     }
 
-    public int getRotation() {
-        return rotation;
+    public Location getFiring() {
+        return firing;
     }
 
-    public void setRotation(int rotation) {
-        this.rotation = rotation;
+    public String getBaseName() {
+        return baseName;
     }
 
-    public void setGridLocation(GridLocation gridLocation) {
-        this.location = gridLocation;
+    public void setFiring(Location firing) {
+        this.firing = firing;
     }
 
-    public GridLocation getLocation() {
-        return location;
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void activate(PlayerInfo info) {
+        setLevel(1);
+        setActive(true);
+        setOwner(info);
+        Hologram hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), firing.clone().add(0, 0.3, 0));
+        hologram.appendTextLine(ChatColor.DARK_AQUA + baseName + " " + ChatColor.GOLD + getLevel());
+        if (this instanceof Guardian) {
+            Guardian guardian = (Guardian) this;
+            guardian.setHealthPerTick(2);
+            guardian.setCooldown(20);
+        }
+        info.getBukkitPlayer().playSound(info.getBukkitPlayer().getLocation(), Sound.LEVEL_UP, 1.0F, 1.0F);
+        info.sendMessage(Lang.PREFIX + getBaseName() + ChatColor.YELLOW + " activated!");
+    }
+
+    public class StructureTickThread extends BukkitRunnable {
+
+        @Override
+        public void run() {
+            structures.forEach(structure -> {
+                if(!structure.isActive()) {
+                    return;
+                }
+                if(owner == null) {
+                    return;
+                }
+                if(KingdomDefense.getInstance().getGame().getState() != GameState.BATTLE) {
+                    return;
+                }
+                structure.tick();
+            });
+        }
     }
 }
