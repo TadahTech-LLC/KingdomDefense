@@ -7,12 +7,15 @@ import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.lang.Lang;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +26,21 @@ public class SellListener implements Listener {
 
     private Map<Material, Integer> PRICES = Maps.newHashMap();
 
-    public SellListener(Map<Material, Integer> prices) {
-        this.PRICES.putAll(prices);
+    public SellListener() {
+        File file = new File(KingdomDefense.getInstance().getDataFolder(), "item-prices.yml");
+        if(!file.exists()) {
+            KingdomDefense.getInstance().saveResource("item-prices.yml", true);
+        }
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        List<String> section = config.getStringList("items");
+        Map<Material, Integer> prices = Maps.newHashMap();
+        for(String s : section) {
+            String[] str = s.split(":");
+            Material material = Material.getMaterial(str[0].toUpperCase());
+            int price = Integer.parseInt(str[1]);
+            prices.put(material, price);
+        }
+        this.PRICES = prices;
         KingdomDefense.getInstance().getServer().getPluginManager().registerEvents(this, KingdomDefense.getInstance());
     }
 

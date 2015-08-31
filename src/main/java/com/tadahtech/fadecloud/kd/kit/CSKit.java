@@ -3,14 +3,14 @@ package com.tadahtech.fadecloud.kd.kit;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.tadahtech.fadecloud.kd.KingdomDefense;
+import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.lang.Lang;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collection;
 import java.util.List;
@@ -53,48 +53,31 @@ public class CSKit {
     }
 
     public void give(Player player) {
-        if(!hasPermission(player)) {
+        if(!hasPermission(player) && !getDefault().equals(this)) {
             player.sendMessage(ChatColor.RED + "You are not allowed to use this kit!!");
             return;
         }
-        getItems().stream().forEach(item -> player.getInventory().addItem(item));
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
+
         if(!getName().equalsIgnoreCase("default")) {
+            if(info.getActiveKit() != null && info.getActiveKit().equals(this)) {
+                Lang.KIT_ALREADY_CHOSEN.send(player, ImmutableMap.of("kit", getName()));
+                return;
+            } else if (info.getActiveKit() != null) {
+                CSKit kit = info.getActiveKit();
+                kit.getItems().forEach(itemStack -> player.getInventory().remove(itemStack));
+            }
+            info.setActiveKit(this);
             Lang.KIT_EQUIPPED.send(player, ImmutableMap.of("kit", getName()));
         }
-
+        getItems().stream().forEach(item -> player.getInventory().addItem(item));
         player.closeInventory();
-        cooldowns.putIfAbsent(player.getUniqueId(), System.currentTimeMillis());
     }
 
     public List<String> toLore() {
         List<String> lore = Lists.newArrayList();
         for(String s : getDescription()) {
             lore.add(ChatColor.translateAlternateColorCodes('&', s));
-        }
-        lore.add(" ");
-        lore.add(ChatColor.AQUA.toString() + "Contents: ");
-        lore.add(" ");
-        for (ItemStack item : items) {
-            StringBuilder builder = new StringBuilder();
-            ItemMeta meta = item.getItemMeta();
-            Map<Enchantment, Integer> enchantments = meta.getEnchants();
-            String base = ChatColor.AQUA + friendly(item.getType());
-            if(item.getData().getData() > 0) {
-                base = ChatColor.AQUA + dyeName(item.getData().getData()) +  friendly(item.getType());
-            }
-            builder.append(base);
-            if(enchantments != null && !enchantments.isEmpty()) {
-                builder.append(" ").append(ChatColor.DARK_GRAY).append("(");
-                for (Enchantment enchantment : enchantments.keySet()) {
-                    Integer level = enchantments.get(enchantment);
-                    String enchantName = friendlyName(enchantment.getName());
-                    enchantName = enchantName.substring(0, 1).toUpperCase() + enchantName.substring(1).toLowerCase();
-                    builder.append(ChatColor.GRAY).append(enchantName).append(" ").append(ChatColor.GRAY).append(level);
-                    builder.append(ChatColor.DARK_GRAY).append(")");
-                    lore.add(builder.toString());
-                }
-            }
-            lore.add(builder.toString());
         }
         return lore;
     }

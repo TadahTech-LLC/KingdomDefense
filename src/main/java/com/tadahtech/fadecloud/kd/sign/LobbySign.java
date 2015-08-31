@@ -9,7 +9,6 @@ import com.tadahtech.fadecloud.kd.csc.packets.response.GameInfoResponsePacket;
 import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -71,6 +70,9 @@ public class LobbySign {
             @Override
             public void run() {
                 for (Location location : signs) {
+                    if(!(location.getBlock().getState() instanceof Sign)) {
+                        continue;
+                    }
                     Sign sign = (Sign) location.getBlock().getState();
                     if(sign.getLocation().getBlock().getRelative(BlockFace.NORTH).getType() == Material.AIR) {
                         continue;
@@ -81,7 +83,6 @@ public class LobbySign {
                     sign.setLine(2, players);
                     sign.setLine(3, responsePacket.state.format());
                     sign.update(true);
-                    Bukkit.getPluginManager().callEvent(new SignChangeEvent(sign.getBlock(), null, sign.getLines() ));
                 }
             }
         }.runTask(KingdomDefense.getInstance());
@@ -92,6 +93,9 @@ public class LobbySign {
     }
 
     public static Optional<LobbySign> get(String arena) {
+        if(arena ==null) {
+            return null;
+        }
         return Optional.ofNullable(signMap.get(arena));
     }
 
@@ -134,6 +138,9 @@ public class LobbySign {
             @Override
             public void run() {
                 for (Location location : signs) {
+                    if(!(location.getBlock().getState() instanceof Sign)) {
+                        continue;
+                    }
                     Sign sign = (Sign) location.getBlock().getState();
                     sign.setLine(0, red);
                     sign.setLine(1, ChatColor.BLUE + arena);

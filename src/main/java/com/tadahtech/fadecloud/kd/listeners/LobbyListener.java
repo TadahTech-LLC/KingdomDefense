@@ -8,7 +8,6 @@ import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.shop.shops.KitShop;
 import com.tadahtech.fadecloud.kd.sign.LobbySign;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -74,10 +73,8 @@ public class LobbyListener implements Listener {
         String server = KingdomDefense.getInstance().getServerNames().get(uiname);
         Packet packet = new JoinGameRequestPacket(server, player);
         if (!LobbySign.get(uiname).isPresent()) {
-            new LobbySign(uiname);
+            new LobbySign(uiname).getSigns().add(sign.getLocation());
             //Fuck bukkit man.
-            SignChangeEvent signChangeEvent = new SignChangeEvent(block, player, new String[]{"[KD]", uiname, " ", " "});
-            Bukkit.getPluginManager().callEvent(signChangeEvent);
         }
         packet.write();
     }

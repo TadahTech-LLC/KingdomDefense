@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
@@ -93,14 +94,21 @@ public class ItemListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         event.setJoinMessage(null);
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
-        ItemBuilder builder = new ItemBuilder(HeadItems.getItem(event.getPlayer().getName()));
-        builder.data((byte) 3);
-        builder.name(ChatColor.AQUA.toString() + "Profile" + ChatColor.GRAY + "(Right Click)");
-        builder.lore(ChatColor.GRAY + "Right click to view your profile");
-        if(info.getBukkitPlayer().getItemInHand().getType() == Material.SKULL_ITEM) {
-            return;
-        }
-        info.getBukkitPlayer().getInventory().setItem(1, builder.cloneBuild());
-        new ShopReItem().give(info.getBukkitPlayer(), 2);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Player player = info.getBukkitPlayer();
+                ItemStack first = player.getInventory().getItem(1);
+                if(first != null && first.getType() == Material.SKULL_ITEM) {
+                    return;
+                }
+                ItemBuilder builder = new ItemBuilder(HeadItems.getItem(player.getName()));
+                builder.data((byte) 3);
+                builder.name(ChatColor.AQUA.toString() + "Profile" + ChatColor.GRAY + " (Right Click)");
+                builder.lore(ChatColor.GRAY + "Right click to view your profile");
+                info.getBukkitPlayer().getInventory().setItem(1, builder.cloneBuild());
+                new ShopReItem().give(info.getBukkitPlayer(), 2);
+            }
+        }.runTaskLater(KingdomDefense.getInstance(), 3l);
     }
 }

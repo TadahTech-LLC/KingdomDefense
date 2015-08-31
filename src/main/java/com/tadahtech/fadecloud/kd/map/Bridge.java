@@ -115,17 +115,28 @@ public class Bridge {
                     hasDropped = true;
                     return;
                 }
-                for(int i = 0; i < 50; i++) {
+                for(int i = 0; i < 500; i++) {
+                    if(index == (size - 1)) {
+                        cancel();
+                        hasDropped = true;
+                        return;
+                    }
                     Location location = locations.get(index);
                     index++;
                     BlockData data = dataMap.get(location);
                     if (data == null) {
                         return;
                     }
-                    data.set(location);
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            data.set(location);
+                        }
+                    }.runTask(KingdomDefense.getInstance());
+
                 }
             }
-        }.runTaskTimer(KingdomDefense.getInstance(), 0L, 10L);
+        }.runTaskTimerAsynchronously(KingdomDefense.getInstance(), 0L, 20L);
     }
 
     public Map<String, Object> save() {

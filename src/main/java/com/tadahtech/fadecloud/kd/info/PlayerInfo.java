@@ -12,6 +12,7 @@ import com.tadahtech.fadecloud.kd.scoreboard.Lobbyboard;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.utils.Utils;
+import javafx.beans.binding.Bindings;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -55,6 +56,7 @@ public class PlayerInfo {
     private Party invitedTo;
     private boolean invincible, beenTold;
     private int foundChests;
+    private CSKit activeKit;
 
     public PlayerInfo(Player player) {
         this.uuid = player.getUniqueId();
@@ -415,5 +417,13 @@ public class PlayerInfo {
 
     public void setFoundChests(int foundChests) {
         this.foundChests = foundChests;
+    }
+
+    public CSKit getActiveKit() {
+        return activeKit;
+    }
+
+    public void setActiveKit(CSKit activeKit) {
+        this.activeKit = activeKit;
     }
 }

@@ -154,7 +154,7 @@ public class ChestListener implements Listener {
         Entry<Location, Material> map = types.remove(player.getUniqueId());
         map.getKey().getBlock().setType(map.getValue());
         map.getKey().getWorld().playEffect(map.getKey(), Effect.STEP_SOUND, map.getValue());
-        player.playEffect(map.getKey(), Effect.EXPLOSION, 0.0D);
+        player.playEffect(map.getKey(), Effect.EXPLOSION, 0);
         player.playSound(player.getLocation(), Sound.CHEST_CLOSE, 1.0F, 1.0F);
     }
 

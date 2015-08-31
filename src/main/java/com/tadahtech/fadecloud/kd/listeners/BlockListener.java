@@ -3,7 +3,6 @@ package com.tadahtech.fadecloud.kd.listeners;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.creation.StructureRegionCreator;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
-import com.tadahtech.fadecloud.kd.map.Island;
 import com.tadahtech.fadecloud.kd.map.structures.Structure;
 import com.tadahtech.fadecloud.kd.map.structures.StructureRegion;
 import com.tadahtech.fadecloud.kd.menu.menus.StructureMenu;
@@ -18,7 +17,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -42,7 +40,6 @@ public class BlockListener implements Listener {
         if (info == null) {
             return;
         }
-        Island island = info.getCurrentTeam().getIsland();
         Optional<Structure> maybe = StructureRegion.getStructure(location);
         if (!maybe.isPresent()) {
             return;
@@ -63,7 +60,6 @@ public class BlockListener implements Listener {
             return;
         }
 
-        ItemStack inhand = event.getItemInHand();
         Location location = event.getBlock().getLocation();
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.SPECTATOR) {

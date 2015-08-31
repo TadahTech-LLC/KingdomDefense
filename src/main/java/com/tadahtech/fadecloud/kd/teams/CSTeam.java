@@ -73,6 +73,9 @@ public abstract class CSTeam extends Tickable {
     }
 
     public void add(Player player) {
+        if(this.players == null) {
+            this.players = Lists.newArrayList();
+        }
         this.players.add(player.getUniqueId());
     }
 

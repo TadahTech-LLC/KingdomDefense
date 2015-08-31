@@ -67,7 +67,9 @@ public class TeamListener implements Listener {
             return;
         }
         damagerInfo.getCurrentTeam().onDamage(event, damagerInfo);
-        info.getCurrentTeam().onHit(event, info);
+        if(info != null) {
+            info.getCurrentTeam().onHit(event, info);
+        }
     }
 
     @EventHandler

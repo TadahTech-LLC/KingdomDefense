@@ -31,9 +31,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Timothy Andis (TadahTech) on 7/27/2015.
@@ -71,30 +71,39 @@ public class GameListener implements Listener {
         }
         event.setJoinMessage(null);
         Player player = event.getPlayer();
-        Game game = KingdomDefense.getInstance().getGame();
-        if(game.getState() != GameState.WAITING && game.getState() != GameState.COUNTDOWN) {
-            game.spectate(player);
-            return;
-        }
-        player.getInventory().clear();
-        player.setGameMode(GameMode.SURVIVAL);
-        player.getInventory().setArmorContents(null);
-        player.setFoodLevel(20);
-        player.setMaxHealth(20);
-        player.setWalkSpeed(0.2F);
-        player.setHealth(20.0D);
+
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
 
-        game.addPlayer(info);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Game game = KingdomDefense.getInstance().getGame();
+                if(game.getState() != GameState.WAITING && game.getState() != GameState.COUNTDOWN) {
+                    game.spectate(player);
+                    return;
+                }
+                player.getInventory().clear();
+                player.setGameMode(GameMode.SURVIVAL);
+                player.getInventory().setArmorContents(null);
+                player.setFoodLevel(20);
+                player.setMaxHealth(20);
+                player.setWalkSpeed(0.2F);
+                player.setHealth(20.0D);
+
+                game.addPlayer(info);
+                HUB.give(player, 8);
+                TEAM.give(player, 0);
+                new ShopReItem().give(player, 2);
+            }
+        }.runTaskLater(KingdomDefense.getInstance(), 2l);
         new GameInfoResponsePacket().write();
-        HUB.give(player, 8);
-        TEAM.give(player, 0);
-        new ShopReItem().give(player, 2);
+
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
         Game game = KingdomDefense.getInstance().getGame();
         game.removePlayer(info);
@@ -108,41 +117,10 @@ public class GameListener implements Listener {
         if (game == null) {
             return;
         }
-        event.setCancelled(true);
         Player player = event.getPlayer();
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        StringBuilder builder = new StringBuilder();
         String teamName = info.getCurrentTeam() == null ? "" : info.getCurrentTeam().getType().fancy();
         event.setFormat(event.getFormat().replace("{TEAM_NAME}", teamName));
-        List<Player> players = game.getBukkitPlayers();
-        if (player.getGameMode() == GameMode.SPECTATOR) {
-            players = game.getBukkitPlayers().stream().filter(player1 -> player1.getGameMode() == GameMode.SPECTATOR)
-              .collect(Collectors.toList());
-            builder.append(ChatColor.DARK_GRAY)
-              .append("[").append(ChatColor.DARK_AQUA).append("Spectator").append(ChatColor.DARK_GRAY).append("] ");
-            builder.append(ChatColor.AQUA).append(player.getName());
-            builder.append(" ").append(ChatColor.GRAY).append("»").append(ChatColor.WHITE).append(" ").append(event.getMessage());
-            players.stream().forEach(player1 -> player1.sendMessage(builder.toString()));
-            return;
-        }
-        if (info.isTeamChat()) {
-            builder.append(ChatColor.AQUA).append("[Team] ");
-            players = game.getPlayers().stream()
-              .filter(info1 -> info.getCurrentTeam().equals(info1.getCurrentTeam()))
-              .map(PlayerInfo::getBukkitPlayer)
-              .collect(Collectors.toList());
-        }
-        if (info.isBeta()) {
-            builder.append(ChatColor.GOLD).append("[").append(ChatColor.DARK_RED).append("Beta").append(ChatColor.GOLD).append("] ").append(ChatColor.RESET);
-        }
-        if (info.getCurrentTeam() != null) {
-            builder.append(ChatColor.DARK_GRAY).append("[");
-            builder.append(info.getCurrentTeam().getType().fancy());
-            builder.append(ChatColor.DARK_GRAY).append("] ");
-        }
-        builder.append(ChatColor.AQUA).append(player.getName());
-        builder.append(" ").append(ChatColor.GRAY).append("»").append(ChatColor.WHITE).append(" ").append(event.getMessage());
-        players.stream().forEach(player1 -> player1.sendMessage(builder.toString()));
     }
 
     @EventHandler

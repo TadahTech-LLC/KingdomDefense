@@ -35,6 +35,7 @@ public enum Lang {
     KIT_NOT_UNLOCKED("You have not unlocked the %kit% kit"),
     KIT_UNLOCKED("Successfully purchased %kit%!"),
     KIT_OWNED("You already own %kit%"),
+    KIT_ALREADY_CHOSEN("You have already chose %kit%"),
 
     ITEM_BOUGHT("Purchased %item% for %price%"),
 

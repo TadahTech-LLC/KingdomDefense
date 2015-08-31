@@ -153,6 +153,10 @@ public class Game {
                 info.setCoins(info.getCoins() + starting);
             }
             CSTeam team = info.getCurrentTeam();
+            if(team == null) {
+                info.setCurrentTeam(Lists.newArrayList(teams()).get(new Random().nextInt(4)));
+            }
+            team.add(info.getBukkitPlayer());
             info.getBukkitPlayer().getInventory().clear();
             team.loadout(info.getBukkitPlayer());
             LocationType type;
@@ -176,6 +180,7 @@ public class Game {
             Player player = info.getBukkitPlayer();
             team.applyEffects(player);
             player.teleport(location);
+            player.setLevel(0);
             try {
                 CSKit.getDefault().give(player);
             } catch (Exception e) {

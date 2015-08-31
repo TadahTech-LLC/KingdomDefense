@@ -155,20 +155,10 @@ public class EntityListener implements Listener {
         }
         Game game = KingdomDefense.getInstance().getGame();
         TeamType teamType = (TeamType) entity.getMetadata("king").get(0).value();
-        Player killer = ((LivingEntity) entity).getKiller();
-        if(killer == null) {
-            killer = game.getKing(teamType).getLastDamager().getBukkitPlayer();
-            if(killer == null) {
-                return;
-            }
-        }
-        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(killer);
-        EconomyReward reward = new EconomyReward("Killing " + teamType.getName() + "'s King", 25);
-        game.getEconomyManager().add(reward, info);
         game.getKing(teamType).remove();
         CSTeam team = game.getTeam(teamType);
         game.getPlayers().stream().forEach(info1 -> {
-            if(info1.getCurrentTeam().getType() != teamType) {
+            if (info1.getCurrentTeam().getType() != teamType) {
                 return;
             }
             Player player = info1.getBukkitPlayer();
@@ -180,6 +170,22 @@ public class EntityListener implements Listener {
             player.sendMessage(ChatColor.AQUA.toString() + ChatColor.BOLD + "---------------------------");
             game.spectate(player);
         });
+
+        game.setTeamsLeft(game.getTeamsLeft() - 1);
+        team.setLost(true);
+        Player killer = ((LivingEntity) entity).getKiller();
+        if(killer == null) {
+            if(game.getKing(teamType).getLastDamager() == null) {
+                return;
+            }
+            killer = game.getKing(teamType).getLastDamager().getBukkitPlayer();
+            if(killer == null) {
+                return;
+            }
+        }
+        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(killer);
+        EconomyReward reward = new EconomyReward("Killing " + teamType.getName() + "'s King", 25);
+        game.getEconomyManager().add(reward, info);
         final Player finalKiller = killer;
         game.getBukkitPlayers().stream().forEach(player -> {
             String title = finalKiller.getName();
@@ -187,8 +193,6 @@ public class EntityListener implements Listener {
             PacketUtil.sendTitleToPlayer(player, title, sub);
             player.playSound(player.getLocation(), Sound.EXPLODE, 1.0F, 1.0F);
         });
-        game.setTeamsLeft(game.getTeamsLeft() - 1);
-        team.setLost(true);
     }
 
     @EventHandler

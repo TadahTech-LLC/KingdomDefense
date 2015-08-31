@@ -93,6 +93,7 @@ public class KingdomDefense extends JavaPlugin {
                 getServer().getPluginManager().registerEvents(new TeamListener(), this);
                 getServer().getPluginManager().registerEvents(new BlockListener(), this);
                 getServer().getPluginManager().registerEvents(new EntityListener(), this);
+                new SellListener();
             }
 
         } else {
