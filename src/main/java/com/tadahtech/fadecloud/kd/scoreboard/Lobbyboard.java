@@ -38,7 +38,7 @@ public class Lobbyboard {
             SimpleScoreboard objective = objectives.get(player.getUniqueId());
             String wins = ChatColor.AQUA.toString() + (info.getWins(TeamType.CREEPER)  + info.getWins(TeamType.ZOMBIE)
               + info.getWins(TeamType.SKELETON) + info.getWins(TeamType.ENDERMAN));
-            String kills = ChatColor.getByChar('b').toString() + info.getKills();
+            String kills = ChatColor.getByChar('a').toString() + info.getKills();
             String deaths = ChatColor.getByChar('4').toString() + info.getDeaths();
             String coins = ChatColor.getByChar('e').toString() + info.getCoins();
             if (objective == null) {

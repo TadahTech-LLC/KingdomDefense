@@ -9,7 +9,6 @@ import com.tadahtech.fadecloud.kd.items.ModSpecialItem;
 import com.tadahtech.fadecloud.kd.items.misc.ShopReItem;
 import com.tadahtech.fadecloud.kd.menu.menus.PlayerMenu;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,7 +31,7 @@ public class ItemListener implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.SPECTATOR) {
+        if (event.getPlayer().hasMetadata("spectator")) {
             event.setCancelled(true);
             return;
         }
@@ -60,7 +59,7 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+        if (event.getPlayer().hasMetadata("spectator")) {
             event.setCancelled(true);
             return;
         }

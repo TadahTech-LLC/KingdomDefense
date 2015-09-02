@@ -25,6 +25,7 @@ import com.tadahtech.fadecloud.kd.menu.MenuListener;
 import com.tadahtech.fadecloud.kd.scoreboard.Lobbyboard;
 import com.tadahtech.fadecloud.kd.sign.HeartbeatThread;
 import com.tadahtech.fadecloud.kd.threads.ai.TargetingThread;
+import com.tadahtech.fadecloud.kd.utils.Utils;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -112,6 +113,7 @@ public class KingdomDefense extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HungerListener(), this);
         getServer().getPluginManager().registerEvents(new ItemListener(), this);
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(), this);
         this.commandHandler = new CommandHandler();
         commandHandler.register(new KDHelpCommand());
         commandHandler.register(new CreateCommand());
@@ -130,7 +132,7 @@ public class KingdomDefense extends JavaPlugin {
     @Override
     public void onDisable() {
         getInfoManager().clear();
-        getServer().getOnlinePlayers().forEach(player -> redirect(getHubServerName(), player));
+        Utils.getOnlinePlayers().forEach(player -> redirect(getHubServerName(), player));
         if(this.signIO != null) {
             this.signIO.save();
         }

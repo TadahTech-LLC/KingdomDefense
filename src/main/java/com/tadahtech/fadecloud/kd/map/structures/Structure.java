@@ -61,6 +61,7 @@ public abstract class Structure extends Tickable {
     private String baseName;
     public StructureTickThread THREAD;
     private boolean active;
+    private Hologram hologram;
 
     public Structure(String name) {
         this.name = name;
@@ -107,6 +108,8 @@ public abstract class Structure extends Tickable {
 
     public void setLevel(int level) {
         this.level = level;
+        this.hologram.clearLines();
+        hologram.appendTextLine(ChatColor.DARK_AQUA + baseName + " " + ChatColor.GOLD + getLevel());
     }
 
     public int getLevel() {
@@ -141,7 +144,7 @@ public abstract class Structure extends Tickable {
         setLevel(1);
         setActive(true);
         setOwner(info);
-        Hologram hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), firing.clone().add(0, 0.3, 0));
+        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), firing.clone().add(0, 0.3, 0));
         hologram.appendTextLine(ChatColor.DARK_AQUA + baseName + " " + ChatColor.GOLD + getLevel());
         if (this instanceof Guardian) {
             Guardian guardian = (Guardian) this;

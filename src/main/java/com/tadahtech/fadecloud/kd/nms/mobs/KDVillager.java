@@ -1,7 +1,8 @@
 package com.tadahtech.fadecloud.kd.nms.mobs;
 
 import com.tadahtech.fadecloud.kd.nms.NMS;
-import net.minecraft.server.v1_8_R2.*;
+import net.minecraft.server.v1_7_R4.*;
+
 
 /**
  * Created by Timothy Andis
@@ -15,12 +16,17 @@ public class KDVillager extends EntityVillager {
     }
 
     @Override
+    public EntityAgeable createChild(EntityAgeable entityAgeable) {
+        return null;
+    }
+
+    @Override
     public void collide(Entity other) {
 
     }
 
     @Override
     public void g(double d, double dd, double ddd) {
-        return;
+
     }
 }

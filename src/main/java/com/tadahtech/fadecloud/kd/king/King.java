@@ -1,7 +1,5 @@
 package com.tadahtech.fadecloud.kd.king;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.google.common.collect.Lists;
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
@@ -13,8 +11,7 @@ import com.tadahtech.fadecloud.kd.map.GameMap;
 import com.tadahtech.fadecloud.kd.nms.CustomEntityType;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_8_R2.Entity;
-import net.minecraft.server.v1_8_R2.EntityLiving;
+import net.minecraft.server.v1_7_R4.*;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -37,7 +34,6 @@ public class King {
     private EntityLiving entity;
     private double health;
     private CSTeam team;
-    private Hologram hologram;
     private PlayerInfo lastDamager;
     private Location spawn;
 
@@ -70,14 +66,13 @@ public class King {
             //cant happen;
             return;
         }
-        this.health = 500;
+        this.health = 1000;
         LivingEntity entity = (LivingEntity) this.entity.getBukkitEntity();
         entity.setRemoveWhenFarAway(false);
         entity.setMetadata("king", new FixedMetadataValue(KingdomDefense.getInstance(), team.getType()));
         entity.setMaxHealth(health);
         entity.setHealth(health);
         entity.setCustomNameVisible(true);
-        this.hologram = HologramsAPI.createHologram(KingdomDefense.getInstance(), entity.getLocation().add(0, entity.getEyeHeight() + 0.8, 0));
         setHealth(health);
     }
 
@@ -105,9 +100,8 @@ public class King {
 
     public void setHealth(double health) {
         this.health = health;
-        this.hologram.clearLines();
-        this.hologram.appendTextLine(getPrettyHealth() + ChatColor.RED + " (" + health + ")");
-        entity.setCustomName(getPrettyHealth() + ChatColor.RED + " (" + health + ")");
+        LivingEntity livingEntity = (LivingEntity) entity.getBukkitEntity();
+        livingEntity.setCustomName(getPrettyHealth() + ChatColor.RED + " (" + Math.round(health) + ")");
     }
 
     public CSTeam getTeam() {
@@ -115,7 +109,6 @@ public class King {
     }
 
     public void remove() {
-        this.hologram.delete();
         this.entity.getBukkitEntity().remove();
     }
 

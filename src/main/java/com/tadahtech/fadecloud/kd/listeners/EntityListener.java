@@ -14,7 +14,6 @@ import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.utils.PacketUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -106,7 +105,7 @@ public class EntityListener implements Listener {
         PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(event.getPlayer());
         event.setCancelled(true);
         if(entity.hasMetadata("king")) {
-            if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+            if (info.getBukkitPlayer().hasMetadata("spectator")) {
                 event.setCancelled(true);
                 return;
             }

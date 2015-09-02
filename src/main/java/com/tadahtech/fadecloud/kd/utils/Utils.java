@@ -9,7 +9,10 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -336,5 +339,23 @@ public class Utils {
         int y = Integer.parseInt(str[1]);
         int z = Integer.parseInt(str[2]);
         return new Location(world, x, y, z);
+    }
+
+    public static Collection<Player> getOnlinePlayers() {
+        try {
+            Method method = Bukkit.class.getMethod("getOnlinePlayers");
+            if(method.getReturnType() == Collection.class) {
+                try {
+                    return (Collection<Player>) method.invoke(null);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            } else if(method.getReturnType() == Player[].class) {
+                return Lists.newArrayList((Player[]) method.invoke(null));
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return Lists.newArrayList();
     }
 }

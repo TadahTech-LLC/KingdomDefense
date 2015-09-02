@@ -96,6 +96,7 @@ public class KitShop {
                             Lang.NOT_ENOUGH_COINS.send(info, ImmutableMap.of("coins", price.toString(), "remainder", String.valueOf(remainder)));
                             return;
                         }
+                        info.remove(price);
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", player.getName()));
                         Lang.KIT_UNLOCKED.send(player, ImmutableMap.of("kit", name));
                     });

@@ -2,6 +2,7 @@ package com.tadahtech.fadecloud.kd.scoreboard;
 
 import com.google.common.collect.Maps;
 import com.tadahtech.fadecloud.kd.game.Game;
+import com.tadahtech.fadecloud.kd.game.GameState;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
@@ -42,7 +43,10 @@ public class Gameboard {
             objective.add(ChatColor.RED + game.getMap().getName(), 6);
             objective.add(color("&8&m&o-&r"), 5);
             objective.add(color("&7Stage"), 4);
-            String form = game.getState().format() + ChatColor.GRAY + " (" + ChatColor.GREEN + Utils.formatTime(game.getTimeLeft()) + ChatColor.GRAY + ")";
+            String form = game.getState().format();
+            if(game.getState() == GameState.PEACE) {
+                form = form + ChatColor.GRAY + " (" + Utils.formatTime(game.getPeaceTime()) + ChatColor.GRAY + ")";
+            }
             objective.add(form, 3);
             objective.add(color("&8&m-------&r"), 2);
             objective.update();

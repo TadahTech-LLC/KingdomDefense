@@ -4,7 +4,7 @@ import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.nms.CustomEntity;
 import com.tadahtech.fadecloud.kd.nms.CustomEntityType;
 import com.tadahtech.fadecloud.kd.threads.AIThread;
-import net.minecraft.server.v1_8_R2.EntityCreature;
+import net.minecraft.server.v1_7_R4.EntityCreature;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

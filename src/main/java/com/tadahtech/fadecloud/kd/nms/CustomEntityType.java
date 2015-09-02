@@ -2,11 +2,11 @@ package com.tadahtech.fadecloud.kd.nms;
 
 import com.tadahtech.fadecloud.kd.KingdomDefense;
 import com.tadahtech.fadecloud.kd.nms.mobs.*;
-import net.minecraft.server.v1_8_R2.EntityInsentient;
-import net.minecraft.server.v1_8_R2.EntityLiving;
-import net.minecraft.server.v1_8_R2.World;
+import net.minecraft.server.v1_7_R4.EntityInsentient;
+import net.minecraft.server.v1_7_R4.EntityLiving;
+import net.minecraft.server.v1_7_R4.World;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -64,8 +64,8 @@ public enum CustomEntityType {
 
     @SuppressWarnings("unchecked")
     private static void addToMaps(Class clazz, String name, int id) {
-        ((Map) getPrivateField("d", net.minecraft.server.v1_8_R2.EntityTypes.class, null)).put(clazz, name);
-        ((Map) getPrivateField("f", net.minecraft.server.v1_8_R2.EntityTypes.class, null)).put(clazz, id);
+        ((Map) getPrivateField("d", net.minecraft.server.v1_7_R4.EntityTypes.class, null)).put(clazz, name);
+        ((Map) getPrivateField("f", net.minecraft.server.v1_7_R4.EntityTypes.class, null)).put(clazz, id);
     }
 
     public static Object getPrivateField(String fieldName, Class clazz, Object object) {

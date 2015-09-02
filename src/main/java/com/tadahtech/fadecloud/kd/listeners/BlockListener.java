@@ -8,7 +8,6 @@ import com.tadahtech.fadecloud.kd.map.structures.StructureRegion;
 import com.tadahtech.fadecloud.kd.menu.menus.StructureMenu;
 import com.tadahtech.fadecloud.kd.menu.menus.UpgradeStructureMenu;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,7 +31,7 @@ public class BlockListener implements Listener {
         }
         Location location = event.getBlock().getLocation();
         Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.SPECTATOR) {
+        if (player.hasMetadata("spectator")) {
             event.setCancelled(true);
             return;
         }
@@ -62,7 +61,7 @@ public class BlockListener implements Listener {
 
         Location location = event.getBlock().getLocation();
         Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.SPECTATOR) {
+        if (player.hasMetadata("spectator")) {
             event.setCancelled(true);
             return;
         }
@@ -81,7 +80,7 @@ public class BlockListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.SPECTATOR) {
+        if (player.hasMetadata("spectator")) {
             event.setCancelled(true);
             return;
         }

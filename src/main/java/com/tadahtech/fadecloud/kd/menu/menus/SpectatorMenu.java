@@ -9,8 +9,8 @@ import com.tadahtech.fadecloud.kd.menu.Button;
 import com.tadahtech.fadecloud.kd.menu.Menu;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,7 +32,7 @@ public class SpectatorMenu extends Menu {
     protected Button[] setUp() {
         Game game = KingdomDefense.getInstance().getGame();
         List<Player> players = game.getBukkitPlayers();
-        players = players.stream().filter(player -> player.getGameMode() != GameMode.SPECTATOR).collect(Collectors.toList());
+        players = players.stream().filter(player -> !player.hasMetadata("spectator")).collect(Collectors.toList());
         Button[] buttons = new Button[45];
         for(int i = 0; i < players.size(); i++) {
             Player player = players.get(i);
@@ -40,7 +40,7 @@ public class SpectatorMenu extends Menu {
             ItemStack itemStack = HeadItems.getItem(player.getName());
             ItemMeta builder = itemStack.getItemMeta();
             builder.setDisplayName(ChatColor.AQUA + player.getName());
-            builder.setLore(Arrays.asList(ChatColor.GRAY + "Health: " + ChatColor.AQUA + player.getHealth(),
+            builder.setLore(Arrays.asList(ChatColor.GRAY + "Health: " + ChatColor.AQUA + Math.round(((CraftPlayer) player).getHealth()),
               ChatColor.GRAY + "Team: " + ChatColor.AQUA + (team == null ? "None" : team.getType().fancy())));
             itemStack.setItemMeta(builder);
             buttons[i] = new Button(itemStack, player1 -> {

@@ -8,7 +8,6 @@ import com.tadahtech.fadecloud.kd.econ.EconomyManager;
 import com.tadahtech.fadecloud.kd.econ.EconomyReward;
 import com.tadahtech.fadecloud.kd.info.PlayerInfo;
 import com.tadahtech.fadecloud.kd.king.King;
-import com.tadahtech.fadecloud.kd.king.KingSummonThread;
 import com.tadahtech.fadecloud.kd.kit.CSKit;
 import com.tadahtech.fadecloud.kd.lang.Lang;
 import com.tadahtech.fadecloud.kd.listeners.GameListener;
@@ -54,6 +53,7 @@ public class Game {
     private List<PlayerInfo> players;
     private List<KDVillager> villagers;
     private int timeLeft = (int) TimeUnit.MINUTES.toSeconds(30);
+    private int PEACE_TIMER = (int) TimeUnit.MINUTES.toSeconds(10);
     private GameState state;
     private GameMap map;
     private Map<TeamType, King> kings;
@@ -62,8 +62,7 @@ public class Game {
     private CSTeam winner;
     private Location lobby;
     private int teamsLeft;
-    public static boolean BRIDGE = false;
-    private KingSummonThread kingSummonThread;
+    private int peaceTime;
 
     public Game() {
         if (WORLD == null) {
@@ -225,9 +224,10 @@ public class Game {
                     return;
                 }
                 if (state == GameState.PEACE && seconds == 0 && minutes > 20) {
+                    PEACE_TIMER--;
                     int time = Math.abs(20 - minutes);
                     String title = ChatColor.RED.toString() + time;
-                    String subtitle = ChatColor.GRAY + Utils.plural("Minute", time) + " Till Battle";
+                    String subtitle = ChatColor.GRAY + Utils.plural("Minute", time) + " Until Battle";
 
                     getBukkitPlayers().stream().forEach(player -> {
                         player.sendMessage(Lang.PREFIX + title + " " + subtitle);
@@ -297,7 +297,7 @@ public class Game {
 
     public void end() {
 //        this.kingSummonThread.cancel();
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Utils.getOnlinePlayers()) {
             getBukkitPlayers().stream().forEach(player1 -> {
                 if (player.equals(player1)) {
                     return;
@@ -482,12 +482,11 @@ public class Game {
     }};
 
     public void spectate(Player player) {
-        player.setGameMode(GameMode.SPECTATOR);
         player.playSound(player.getLocation(), Sound.VILLAGER_DEATH, 1.0F, 1.0F);
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         GameListener.SPECTATOR.give(player, 1);
-        for(Player player1 : Bukkit.getOnlinePlayers()) {
+        for(Player player1 : Utils.getOnlinePlayers()) {
             if(player1.equals(player)) {
                 continue;
             }
@@ -498,5 +497,9 @@ public class Game {
         player.setFlying(true);
         player.addPotionEffects(spectatorEffects);
         player.teleport(this.map.getLocation(LocationType.CENTER).get().clone().add(0, 10, 0));
+    }
+
+    public int getPeaceTime() {
+        return PEACE_TIMER;
     }
 }

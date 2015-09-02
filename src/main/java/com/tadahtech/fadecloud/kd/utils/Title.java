@@ -12,6 +12,7 @@ import java.util.Map;
 /**
  * @author Timothy Andis
  */
+@SuppressWarnings("ALL")
 public class Title {
 
     /* Title packet */
@@ -263,7 +264,7 @@ public class Title {
      * Broadcast the title to all players
      */
     public void broadcast() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Utils.getOnlinePlayers()) {
             send(p);
         }
     }

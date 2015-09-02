@@ -12,7 +12,6 @@ import com.tadahtech.fadecloud.kd.scoreboard.Lobbyboard;
 import com.tadahtech.fadecloud.kd.teams.CSTeam;
 import com.tadahtech.fadecloud.kd.teams.CSTeam.TeamType;
 import com.tadahtech.fadecloud.kd.utils.Utils;
-import javafx.beans.binding.Bindings;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -168,18 +167,26 @@ public class PlayerInfo {
     public void setCurrentTeam(CSTeam currentTeam) {
         this.currentTeam = currentTeam;
         Player player = getBukkitPlayer();
+        String name = player.getName();
+        if(name.length() > 14) {
+            name = name.substring(0, 14);
+        }
         switch (currentTeam.getType()) {
             case CREEPER:
                 NametagAPI.setNametagHard(player.getName(), ChatColor.GREEN + "[Creeper] ", "");
+                player.setPlayerListName(ChatColor.GREEN + name);
                 break;
             case ZOMBIE:
                 NametagAPI.setNametagHard(player.getName(), ChatColor.DARK_GREEN + "[Zombie] ", "");
+                player.setPlayerListName(ChatColor.DARK_GREEN + name);
                 break;
             case SKELETON:
                 NametagAPI.setNametagHard(player.getName(), ChatColor.GRAY + "[Skeleton] ", "");
+                player.setPlayerListName(ChatColor.GRAY + name);
                 break;
             case ENDERMAN:
                 NametagAPI.setNametagHard(player.getName(), ChatColor.LIGHT_PURPLE + "[Enderman] ", "");
+                player.setPlayerListName(ChatColor.LIGHT_PURPLE + name);
                 break;
         }
     }

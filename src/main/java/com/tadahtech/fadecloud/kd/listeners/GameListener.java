@@ -112,18 +112,6 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent event) {
-        Game game = KingdomDefense.getInstance().getGame();
-        if (game == null) {
-            return;
-        }
-        Player player = event.getPlayer();
-        PlayerInfo info = KingdomDefense.getInstance().getInfoManager().get(player);
-        String teamName = info.getCurrentTeam() == null ? "" : info.getCurrentTeam().getType().fancy();
-        event.setFormat(event.getFormat().replace("{TEAM_NAME}", teamName));
-    }
-
-    @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         if(KingdomDefense.getInstance().getGame() == null) {
             return;
@@ -133,7 +121,7 @@ public class GameListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        if (player.getGameMode() == GameMode.SPECTATOR) {
+        if (player.hasMetadata("spectator")) {
             HUB.give(player, 8);
             event.setRespawnLocation(game.getLobby());
             return;
@@ -175,7 +163,7 @@ public class GameListener implements Listener {
         Entity lastDamager = last.getDamager();
         String name;
         if (lastDamager instanceof Player) {
-            name = lastDamager.getName();
+            name = ((Player)lastDamager).getName();
             Player killer = (Player) lastDamager;
             PlayerInfo killerInfo = KingdomDefense.getInstance().getInfoManager().get((Player) lastDamager);
             killerInfo.setKills(killerInfo.getKills() + 1);

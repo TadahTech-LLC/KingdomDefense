@@ -1,20 +1,29 @@
 package com.tadahtech.fadecloud.kd.utils;
 
-import net.minecraft.server.v1_8_R2.*;
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
+import net.minecraft.server.v1_7_R4.ChatSerializer;
+import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.minecraft.server.v1_7_R4.IChatBaseComponent;
+import net.minecraft.server.v1_7_R4.PacketPlayOutChat;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Field;
-
 /**
- * Created by Timothy Andis
+ * @author Timothy Andis
  */
 public class PacketUtil {
 
     private PacketUtil() {
+
     }
 
     public static void sendTitleToPlayer(Player player, String text, String subtitle) {
+        EntityPlayer p = ((CraftPlayer) player).getHandle();
+
+        if(p.playerConnection.networkManager.getVersion() < 5) {
+            player.sendMessage(text + " " + subtitle);
+            return;
+        }
+
         Title title = new Title(text, subtitle);
         title.setStayTime(1);
         title.setFadeInTime(1);
@@ -23,30 +32,13 @@ public class PacketUtil {
         title.send(player);
     }
 
-    private static Field bField;
-
-    private static PacketPlayOutPlayerListHeaderFooter getHeaderFooterPacket(IChatBaseComponent header, IChatBaseComponent footer) {
-        PacketPlayOutPlayerListHeaderFooter headerFooter = new PacketPlayOutPlayerListHeaderFooter(header);
-        try {
-            if (bField == null) {
-                bField = headerFooter.getClass().getDeclaredField("b");
-                bField.setAccessible(true);
-            }
-            bField.set(headerFooter, footer);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return headerFooter;
-    }
-
-    public static void sendTabToPlayer(Player player, String header, String footer) {
-        EntityPlayer p = ((CraftPlayer) player).getHandle();
-        PacketPlayOutPlayerListHeaderFooter packet = getHeaderFooterPacket(makeComponent(header), makeComponent(footer));
-        p.playerConnection.sendPacket(packet);
-    }
-
     public static void sendActionBarMessage(Player player, String message) {
         EntityPlayer p = ((CraftPlayer) player).getHandle();
+
+        if(p.playerConnection.networkManager.getVersion() < 5) {
+            player.sendMessage(message);
+            return;
+        }
 
         PacketPlayOutChat packet = new PacketPlayOutChat(makeComponent(message), (byte) 2);
 
@@ -54,7 +46,7 @@ public class PacketUtil {
     }
 
     public static IChatBaseComponent makeComponent(String text) {
-        return IChatBaseComponent.ChatSerializer.a(convert(text));
+        return ChatSerializer.a(convert(text));
     }
 
     public static String convert(String text) {
@@ -110,4 +102,3 @@ public class PacketUtil {
     }
 
 }
-

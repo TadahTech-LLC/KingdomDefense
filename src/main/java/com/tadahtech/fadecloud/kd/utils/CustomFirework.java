@@ -1,12 +1,12 @@
 package com.tadahtech.fadecloud.kd.utils;
 
-import net.minecraft.server.v1_8_R2.EntityFireworks;
-import net.minecraft.server.v1_8_R2.PacketPlayOutEntityStatus;
-import net.minecraft.server.v1_8_R2.World;
+import net.minecraft.server.v1_7_R4.EntityFireworks;
+import net.minecraft.server.v1_7_R4.PacketPlayOutEntityStatus;
+import net.minecraft.server.v1_7_R4.World;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -27,12 +27,12 @@ public class CustomFirework extends EntityFireworks {
 
 
     @Override
-    public void t_() {
+    public void c() {
         if (gone) {
             return;
         }
 
-        if (!this.world.isClientSide) {
+        if (!this.world.isStatic) {
             this.gone = true;
 
             if (players != null) {

@@ -35,6 +35,11 @@ public class IslandOreGeneration {
                     next = random.nextInt(200);
                     if (next <= 10) {
                         location.getBlock().setType(Material.IRON_ORE);
+                        continue;
+                    }
+                    next = random.nextInt(200);
+                    if(next <= 25) {
+                        location.getBlock().setType(Material.COAL_ORE);
                     }
                 }
             }
